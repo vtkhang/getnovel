@@ -1,0 +1,4 @@
+# Contains requirements common to all environments
+scrapy
+beautifulsoup4
+Pillow
