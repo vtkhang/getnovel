@@ -1,4 +1,4 @@
 # Contains requirements common to all environments
 scrapy==2.5.1
 beautifulsoup4==4.10.0
-Pillow==9.0.1
+Pillow==8.4.0
