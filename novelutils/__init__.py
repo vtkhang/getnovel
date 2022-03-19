@@ -223,11 +223,17 @@ def _build_parser():
     return parser
 
 
+class NovelutilsException(BaseException):
+    """General exception for novelutils"""
+
+    pass
+
+
 def run_main():
     """Run main program."""
     try:
         sys.exit(main(sys.argv))
-    except BaseException as e:
+    except NovelutilsException as e:
         sys.stderr.write(f"novelutils:{str(e)}\n")
         sys.exit(1)
 
