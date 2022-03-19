@@ -1,6 +1,6 @@
 # NOVELUTILS
 
-![python version](https://img.shields.io/badge/python-3-blue) ![scrapy version](https://img.shields.io/badge/scrapy-2.6.1-blue)
+![python version](https://img.shields.io/badge/python-3.10.0-blue) ![scrapy version](https://img.shields.io/badge/scrapy-2.5.1-blue)
 
 ## Developer
 
@@ -137,4 +137,4 @@ pip install -e .
 
 2. IDEs:
 
-- [Pycharm Community](https://www.jetbrains.com/pycharm/download/#section=windows)
+- [Pycharm Community](https://www.jetbrains.com/pycharm/download)
