@@ -7,7 +7,6 @@ with open("README.md", "r", encoding="utf-8") as fh:
         name="novelutils",
         version="1.1.0",
         author_email="kdekiwis1@gmail.com",
-        license="MIT License",
         description="Tool based on Scrapy framework to get novel from web site.",
         long_description=fh.read(),
         long_description_content_type="text/markdown",
