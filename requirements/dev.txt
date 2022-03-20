@@ -1,6 +1,8 @@
 # Specifies only dev-specific requirements
 # But imports the common ones too
 -r common.txt
-pylint==2.12.2
-yapf==0.32.0
-setuptools==58.0.4
+pylint
+black
+ipython
+setuptools
+build

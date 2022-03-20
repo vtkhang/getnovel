@@ -5,7 +5,7 @@ from setuptools import setup
 with open("README.md", "r", encoding="utf-8") as fh:
     setup(
         name="novelutils",
-        version="1.0.0",
+        version="1.1.0",
         author_email="kdekiwis1@gmail.com",
         license="MIT License",
         description="Tool based on Scrapy framework to get novel from web site.",
@@ -26,13 +26,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
         python_requires=">=3.6",
         install_requires=[
             "scrapy == 2.5.1",
-            "beautifulsoup4 == 4.10.0",
-            "Pillow == 8.4.0",
+            "beautifulsoup4 >= 4.10.0",
+            "Pillow >= 8.4.0",
         ],
         extras_require={
             "dev": [
-                "pylint == 2.12.2",
-                "yapf == 0.32.0",
+                "pylint >= 2.12.2",
+                "black >= 22.1.0",
+                "ipython >= 7.16.3"
             ]
         },
         entry_points={
