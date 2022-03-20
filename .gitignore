@@ -172,3 +172,4 @@ dmypy.json
 
 # Customize:
 tests/temp
+experiments

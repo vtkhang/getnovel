@@ -1,6 +1,6 @@
 # NOVELUTILS
 
-![python version](https://img.shields.io/badge/python-3-blue) ![scrapy version](https://img.shields.io/badge/scrapy-2.6.1-blue)
+![python version](https://img.shields.io/badge/python-3.6-blue) ![scrapy version](https://img.shields.io/badge/scrapy-2.5.1-blue)
 
 ## Developer
 
@@ -37,11 +37,11 @@ pip install -e .
 - Commands
 
   ```bash
-  novelutils crawl https://bachngocsach.com/reader/livestream-sieu-kinh-di
+  novelutils crawl https://truyen.tangthuvien.vn/doc-truyen/dichthe-gioi-hoan-my
 
   novelutils convert /path/to/raw/directory
 
-  novelutils epub from_url https://bachngocsach.com/reader/livestream-sieu-kinh-di
+  novelutils epub from_url https://truyen.tangthuvien.vn/doc-truyen/dichthe-gioi-hoan-my
 
   novelutils epub from_raw /path/to/raw/directory
   ```
@@ -57,19 +57,19 @@ pip install -e .
     - Download from chapter 1 to chapter 5:
 
     ```shell
-    novelutils crawl --start 1 --stop 5 https://bachngocsach.com/reader/lan-kha-ky-duyen
+    novelutils crawl --start 1 --stop 5 https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
     ```
 
     - Download all chapters:
 
     ```shell
-    novelutils crawl https://bachngocsach.com/reader/lan-kha-ky-duyen
+    novelutils crawl https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
     ```
 
     - Download from chapter 10 to the end of the novel:
 
     ```shell
-    novelutils --start 10 https://bachngocsach.com/reader/lan-kha-ky-duyen
+    novelutils --start 10 https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
     ```
 
 - Use novelutils package as script
@@ -78,7 +78,7 @@ pip install -e .
 
     ```python
     from novelutils.utils.crawler import NovelCrawler
-    p = NovelCrawler(url="https://bachngocsach.com/reader/lan-kha-ky-duyen")
+    p = NovelCrawler(url="https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa")
     p.crawl(rm_raw=True, start_chap=3, stop_chap=8) 
     ```
 
@@ -95,7 +95,7 @@ pip install -e .
     ```python
     from novelutils.utils.epub import EpubMaker
     e = EpubMaker()
-    e.from_url("https://metruyenchu.com/truyen/sieu-than-che-tap-su", duplicate_chapter=False, start=1, stop=-1)
+    e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", duplicate_chapter=False, start=1, stop=-1)
     ```
 
 ## Supported websites
@@ -137,4 +137,4 @@ pip install -e .
 
 2. IDEs:
 
-- [Pycharm Community](https://www.jetbrains.com/pycharm/download/#section=windows)
+- [Pycharm Community](https://www.jetbrains.com/pycharm/download)

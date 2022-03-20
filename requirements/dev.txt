@@ -2,4 +2,7 @@
 # But imports the common ones too
 -r common.txt
 pylint
-yapf
+black
+ipython
+setuptools
+build

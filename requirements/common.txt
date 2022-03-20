@@ -1,4 +1,4 @@
 # Contains requirements common to all environments
-scrapy
+scrapy==2.5.1
 beautifulsoup4
 Pillow

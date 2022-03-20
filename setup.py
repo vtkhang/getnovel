@@ -1,35 +1,41 @@
 #!/usr/bin/env python
-"""The setup and build script for novelutils."""
+"""The setup and build script for getnovel."""
+from setuptools import setup
 
-import setuptools
-
-import novelutils
-
-with open('README.md', 'r', encoding='utf-8') as fh:
-    long_description = fh.read()
-
-setuptools.setup(
-    name='novelutils',
-    version=novelutils.__version__,
-    author='Eaus',
-    author_email='kdekiwis1@gmail.com',
-    license='MIT License',
-    description='Tool based on Scrapy framework to get novel from web site.',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    packages=setuptools.find_packages(),
-    classifiers=[
-        'Programming Language :: Python :: 3',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-    ],
-    install_requires=[
-        'setuptools>=58.0.4',
-        'scrapy>=2.6.1',
-        'beautifulsoup4>=4.10.0',
-        'pillow>=9.0.1'
+with open("README.md", "r", encoding="utf-8") as fh:
+    setup(
+        name="novelutils",
+        version="1.1.0",
+        author_email="kdekiwis1@gmail.com",
+        description="Tool based on Scrapy framework to get novel from web site.",
+        long_description=fh.read(),
+        long_description_content_type="text/markdown",
+        url="https://github.com/estraug/novelutils",
+        packages=["novelutils"],
+        classifiers=[
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "License :: OSI Approved :: MIT License",
+            "Operating System :: OS Independent",
         ],
-    entry_points={
-        'console_scripts': ['novelutils = novelutils:run_main'],
-    },
-)
+        python_requires=">=3.6",
+        install_requires=[
+            "scrapy == 2.5.1",
+            "beautifulsoup4 >= 4.10.0",
+            "Pillow >= 8.4.0",
+        ],
+        extras_require={
+            "dev": [
+                "pylint >= 2.12.2",
+                "black >= 22.1.0",
+                "ipython >= 7.16.3"
+            ]
+        },
+        entry_points={
+            "console_scripts": ["novelutils = novelutils:run_main"],
+        },
+    )
