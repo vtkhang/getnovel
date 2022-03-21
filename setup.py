@@ -15,25 +15,28 @@ with open("README.md", "r", encoding="utf-8") as fh:
         packages=["novelutils"],
         classifiers=[
             "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
-            "License :: OSI Approved :: MIT License",
+            "License :: OSI Approved :: BSD License",
             "Operating System :: OS Independent",
         ],
         include_package_data=True,
-        python_requires=">=3.7",
+        python_requires=">=3.6",
         install_requires=[
             "scrapy == 2.5.1",
             "beautifulsoup4 >= 4.10.0",
-            "Pillow >= 9.0.1",
+            "Pillow >= 8.4.0",
+            "importlib_resources >= 5.4.0",
+            "importlib_metadata >= 4.8.3"
         ],
         extras_require={
             "dev": [
                 "pylint >= 2.12.2",
                 "black >= 22.1.0",
-                "ipython >= 7.32.0",
+                "ipython >= 7.16.3",
             ]
         },
         entry_points={
