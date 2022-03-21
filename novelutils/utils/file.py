@@ -25,14 +25,16 @@ class FileConverter:
         """
         self.x = Path(raw_dir_path)
         if not self.x.exists():
-            raise FileConverterError(f'Raw directory not found: {self.x}')
+            raise FileConverterError(f"Raw directory not found: {self.x}")
         if result_dir_path is None:
-            self.y = self.x.parent / 'result_dir'
+            self.y = self.x.parent / "result_dir"
         else:
             self.y = Path(result_dir_path)
         if not self.y.exists():
             self.y.mkdir(parents=True)
-            _logger.info('Result directory not found, auto created at: %s', self.y.resolve())
+            _logger.info(
+                "Result directory not found, auto created at: %s", self.y.resolve()
+            )
         self.txt: DictPath = dict()  # use to track txt files in result directory
         self.xhtml: DictPath = dict()  # use to track txt files in result directory
 
@@ -49,43 +51,44 @@ class FileConverter:
         if not any(self.x.iterdir()):
             return -1
         if rm_result is True:
-            _logger.info('Remove existing files in: %s', self.y.resolve())
+            _logger.info("Remove existing files in: %s", self.y.resolve())
             self._rm_result()
         # copy cover image to result directory
-        cover_path = self.x / 'cover.jpg'
+        cover_path = self.x / "cover.jpg"
         tmp = self.y / cover_path.name
         if tmp != cover_path:
             copy_file(str(cover_path), str(tmp))
         self.txt[-1] = tmp
         # clean foreword.txt
-        fw_path = self.x / 'foreword.txt'
-        fw_lines = [line.strip() for line in fw_path.read_text(encoding='utf-8').splitlines()]
+        fw_path = self.x / "foreword.txt"
+        fw_lines = [
+            line.strip() for line in fw_path.read_text(encoding="utf-8").splitlines()
+        ]
         r = fw_lines[:4]
         r.extend(fix_bad_indent(tuple(fw_lines[4:])))
         tmp = self.y / fw_path.name
-        tmp.write_text(
-            '\n'.join(r),
-            encoding='utf-8'
-        )
+        tmp.write_text("\n".join(r), encoding="utf-8")
         self.txt[0] = tmp
         # clean chapter.txt
-        r = fw_path.with_suffix('.temp')
+        r = fw_path.with_suffix(".temp")
         fw_path.rename(r)
-        f_list = [item for item in self.x.glob('*.txt') if item.is_file()]
+        f_list = [item for item in self.x.glob("*.txt") if item.is_file()]
         r.rename(fw_path)
         for chapter in f_list:
-            c_lines = [line.strip() for line in chapter.read_text(encoding='utf-8').splitlines()]
+            c_lines = [
+                line.strip()
+                for line in chapter.read_text(encoding="utf-8").splitlines()
+            ]
             if duplicate_chapter is True:
                 c_lines.pop(1)
             tmp = self.y / chapter.name
-            tmp.write_text(
-                '\n'.join(fix_bad_indent(tuple(c_lines))),
-                encoding='utf-8'
-            )
+            tmp.write_text("\n".join(fix_bad_indent(tuple(c_lines))), encoding="utf-8")
             self.txt[int(chapter.stem)] = tmp
-        _logger.info('Done cleaning. View result at: %s', self.y.resolve())
+        _logger.info("Done cleaning. View result at: %s", self.y.resolve())
 
-    def convert_to_xhtml(self, duplicate_chapter: bool, rm_result: bool, lang_code: str) -> int:
+    def convert_to_xhtml(
+        self, duplicate_chapter: bool, rm_result: bool, lang_code: str
+    ) -> int:
         """Clean files and convert to XHTML.
 
         Args:
@@ -99,65 +102,89 @@ class FileConverter:
         if not any(self.x.iterdir()):
             return -1
         # Check if default template is exist, if not throw exception
-        ctp = Path(__file__).parent / 'storage' / 'template' / 'OEBPS' / 'Text' / 'c1.xhtml'
+        ctp = (
+            Path(__file__).parent
+            / "storage"
+            / "template"
+            / "OEBPS"
+            / "Text"
+            / "c1.xhtml"
+        )
         if ctp.exists() is False or ctp.is_dir():
-            raise FileConverterError(f'Chapter template not found: {ctp}')
-        fwtp = Path(__file__).parent / 'storage' / 'template' / 'OEBPS' / 'Text' / 'foreword.xhtml'
+            raise FileConverterError(f"Chapter template not found: {ctp}")
+        fwtp = (
+            Path(__file__).parent
+            / "storage"
+            / "template"
+            / "OEBPS"
+            / "Text"
+            / "foreword.xhtml"
+        )
         if fwtp.exists() is False or fwtp.is_dir():
-            raise FileConverterError(f'Foreword template not found: {ctp}')
+            raise FileConverterError(f"Foreword template not found: {ctp}")
         # remove old files in result directory
         if rm_result is True:
-            _logger.info('Remove existing files in: %s', self.y.resolve())
+            _logger.info("Remove existing files in: %s", self.y.resolve())
             self._rm_result()
         # copy cover image to result dir
-        cover_path = self.x / 'cover.jpg'
+        cover_path = self.x / "cover.jpg"
         tmp = self.y / cover_path.name
         if tmp != cover_path:
             copy_file(str(cover_path), str(tmp))
         self.xhtml[-1] = tmp
         # clean foreword.txt
-        fwp = self.x / 'foreword.txt'
-        fw_lines = [escape_char(line.strip()) for line in fwp.read_text(encoding='utf-8').splitlines()]
-        foreword_p_tag_list = [('<p>' + line + '</p>') for line in fix_bad_indent(tuple(fw_lines[4:]))]
-        foreword_title = 'Lời tựa'
-        if lang_code == 'zh':
-            foreword_title = '内容简介'
-        tmp = self.y / f'{fwp.stem}.xhtml'
+        fwp = self.x / "foreword.txt"
+        fw_lines = [
+            escape_char(line.strip())
+            for line in fwp.read_text(encoding="utf-8").splitlines()
+        ]
+        foreword_p_tag_list = [
+            ("<p>" + line + "</p>") for line in fix_bad_indent(tuple(fw_lines[4:]))
+        ]
+        foreword_title = "Lời tựa"
+        if lang_code == "zh":
+            foreword_title = "内容简介"
+        tmp = self.y / f"{fwp.stem}.xhtml"
         tmp.write_text(
-            fwtp.read_text(encoding='utf-8').format(
+            fwtp.read_text(encoding="utf-8").format(
                 foreword_title=foreword_title,
                 novel_title=fw_lines[0],
                 author_name=fw_lines[1],
                 url=fw_lines[2],
                 types=fw_lines[3],
-                foreword_p_tag_list='\n\n  '.join(foreword_p_tag_list)
+                foreword_p_tag_list="\n\n  ".join(foreword_p_tag_list),
             ),
-            encoding='utf-8'
+            encoding="utf-8",
         )
         self.xhtml[0] = tmp
         # clean chapter.txt
-        r = fwp.with_suffix('.temp')
+        r = fwp.with_suffix(".temp")
         fwp.rename(r)
-        f_list = [item for item in self.x.glob('*.txt') if item.is_file()]
+        f_list = [item for item in self.x.glob("*.txt") if item.is_file()]
         r.rename(fwp)
         for chapter in f_list:
-            c_lines = [escape_char(line.strip()) for line in chapter.read_text(encoding='utf-8').splitlines()]
+            c_lines = [
+                escape_char(line.strip())
+                for line in chapter.read_text(encoding="utf-8").splitlines()
+            ]
             if duplicate_chapter is True:
                 c_lines.pop(1)
-            tmp = self.y / f'c{chapter.stem}.xhtml'
+            tmp = self.y / f"c{chapter.stem}.xhtml"
             try:
-                chapter_p_tag_list = ['<p>' + line + '</p>' for line in fix_bad_indent(tuple(c_lines[1:]))]
+                chapter_p_tag_list = [
+                    "<p>" + line + "</p>" for line in fix_bad_indent(tuple(c_lines[1:]))
+                ]
                 tmp.write_text(
-                    ctp.read_text(encoding='utf-8').format(
+                    ctp.read_text(encoding="utf-8").format(
                         chapter_title=c_lines[0],
-                        chapter_p_tag_list='\n\n  '.join(chapter_p_tag_list)
+                        chapter_p_tag_list="\n\n  ".join(chapter_p_tag_list),
                     ),
-                    encoding='utf-8'
+                    encoding="utf-8",
                 )
             except IndexError:
-                _logger.warning('Empty chapter: %s', tmp)
+                _logger.warning("Empty chapter: %s", tmp)
             self.xhtml[int(chapter.stem)] = tmp
-        _logger.info('Done converting. View result at: %s', self.y.resolve())
+        _logger.info("Done converting. View result at: %s", self.y.resolve())
 
     def _rm_result(self) -> int:
         """Remove all files in result directory.
@@ -180,9 +207,9 @@ class FileConverter:
         """
         # https://www.geeksforgeeks.org/python-delete-items-from-dictionary-while-iterating/
         t = dict()
-        if ext == 'txt':
+        if ext == "txt":
             t = self.txt
-        elif ext == 'xhtml':
+        elif ext == "xhtml":
             t = self.xhtml
         for key in list(t):
             if not t[key].exists():
@@ -206,17 +233,18 @@ class FileConverter:
             tuple: file paths list
         """
         t = dict()
-        if ext == 'txt':
-            self._update_file_list(ext='txt')
+        if ext == "txt":
+            self._update_file_list(ext="txt")
             t = self.txt
-        elif ext == 'xhtml':
-            self._update_file_list(ext='xhtml')
+        elif ext == "xhtml":
+            self._update_file_list(ext="xhtml")
             t = self.xhtml
         return tuple([value for key, value in sorted(t.items())])
 
 
 class FileConverterError(Exception):
     """File converter exception."""
+
     pass
 
 
@@ -232,15 +260,15 @@ def fix_bad_indent(data_in: tuple) -> tuple:
     temp = list()
     # filter the '' out of data_in and store to temp
     for x in data_in:
-        if x != '':
-            temp.append(x.replace('\n', ' '))
+        if x != "":
+            temp.append(x.replace("\n", " "))
     # Fix the content when it was composed by Notepad
     temp2 = [temp[0]]
-    pa = ',:'
+    pa = ",:"
     for x in range(1, len(temp)):
         t2 = ud.category(temp[x][0])[1]
-        if (temp2[-1][-1] in pa) or (t2 == 'l'):
-            temp2[-1] += ' ' + temp[x]
+        if (temp2[-1][-1] in pa) or (t2 == "l"):
+            temp2[-1] += " " + temp[x]
         else:
             temp2.append(temp[x])
     return tuple(temp2)
@@ -255,4 +283,4 @@ def escape_char(text: str):
     Returns:
 
     """
-    return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
