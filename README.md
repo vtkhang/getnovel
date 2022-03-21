@@ -1,6 +1,6 @@
 # NOVELUTILS
 
-![python version](https://img.shields.io/badge/python-3.7-blue) ![scrapy version](https://img.shields.io/badge/scrapy-2.5.1-blue)
+![python version](https://img.shields.io/badge/python-3.7-blue) ![scrapy version](https://img.shields.io/badge/scrapy-2.5.1-blue) ![code style](https://img.shields.io/badge/code%20style-black-000000.svg)
 
 ## Developer
 
