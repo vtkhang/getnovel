@@ -1,8 +1,7 @@
 """Define FileConverter class."""
 import logging
 import unicodedata as ud
-from distutils.dir_util import remove_tree
-from distutils.file_util import copy_file
+from shutil import rmtree, copyfile
 from pathlib import Path
 
 from novelutils.utils.typehint import PathStr, DictPath
@@ -35,8 +34,8 @@ class FileConverter:
             _logger.info(
                 "Result directory not found, auto created at: %s", self.y.resolve()
             )
-        self.txt: DictPath = dict()  # use to track txt files in result directory
-        self.xhtml: DictPath = dict()  # use to track txt files in result directory
+        self.txt: DictPath = {}  # use to track txt files in result directory
+        self.xhtml: DictPath = {}  # use to track txt files in result directory
 
     def clean(self, duplicate_chapter: bool, rm_result: bool) -> int:
         """Clean all raw files in raw directory.
@@ -57,7 +56,7 @@ class FileConverter:
         cover_path = self.x / "cover.jpg"
         tmp = self.y / cover_path.name
         if tmp != cover_path:
-            copy_file(str(cover_path), str(tmp))
+            copyfile(cover_path, tmp)
         self.txt[-1] = tmp
         # clean foreword.txt
         fw_path = self.x / "foreword.txt"
@@ -130,7 +129,8 @@ class FileConverter:
         cover_path = self.x / "cover.jpg"
         tmp = self.y / cover_path.name
         if tmp != cover_path:
-            copy_file(str(cover_path), str(tmp))
+            copyfile(cover_path, tmp)
+
         self.xhtml[-1] = tmp
         # clean foreword.txt
         fwp = self.x / "foreword.txt"
@@ -194,10 +194,10 @@ class FileConverter:
         """
         if self.x == self.y:
             return -1
-        remove_tree(str(self.y))
+        rmtree(self.y)
         self.y.mkdir()
-        self.txt = dict()
-        self.xhtml = dict()
+        self.txt = {}
+        self.xhtml = {}
 
     def _update_file_list(self, ext: str) -> None:
         """Remove all files not existing.
@@ -206,7 +206,7 @@ class FileConverter:
             None
         """
         # https://www.geeksforgeeks.org/python-delete-items-from-dictionary-while-iterating/
-        t = dict()
+        t = {}
         if ext == "txt":
             t = self.txt
         elif ext == "xhtml":
@@ -232,7 +232,7 @@ class FileConverter:
         Returns:
             tuple: file paths list
         """
-        t = dict()
+        t = {}
         if ext == "txt":
             self._update_file_list(ext="txt")
             t = self.txt
