@@ -5,13 +5,16 @@ and convert all chapters to XHTML, TXT, or to make EPUB.
 """
 import argparse
 import sys
-from pkg_resources import get_distribution
 
 from novelutils.utils.epub import EpubMaker
 from novelutils.utils.file import FileConverter
 from novelutils.utils.crawler import NovelCrawler
 
-__version__ = get_distribution("novelutils")
+if sys.version_info >= (3, 8):
+    from importlib import metadata
+else:
+    import importlib_metadata as metadata
+__version__ = metadata.version(__name__)
 
 
 def main(argv) -> int:
