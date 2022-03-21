@@ -11,7 +11,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
         long_description=fh.read(),
         long_description_content_type="text/markdown",
         url="https://github.com/estraug/novelutils",
-        license='BSD',
+        license="BSD",
         packages=["novelutils"],
         classifiers=[
             "Programming Language :: Python :: 3",
