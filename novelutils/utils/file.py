@@ -3,8 +3,9 @@ import logging
 import unicodedata as ud
 
 from pathlib import Path
-from shutil import rmtree, copyfile
 from importlib_resources import files
+from distutils.dir_util import remove_tree
+from distutils.file_util import copy_file
 
 from novelutils import data
 from novelutils.utils.typehint import PathStr, DictPath
@@ -59,7 +60,7 @@ class FileConverter:
         cover_path = self.x / "cover.jpg"
         tmp = self.y / cover_path.name
         if tmp != cover_path:
-            copyfile(cover_path, tmp)
+            copy_file(str(cover_path), str(tmp))
         self.txt[-1] = tmp
         # clean foreword.txt
         fw_path = self.x / "foreword.txt"
@@ -104,18 +105,15 @@ class FileConverter:
         if not any(self.x.iterdir()):
             return -1
         # Check if default template is exist, if not throw exception
-        txtp = files(data).joinpath(r"template/OEBPS/Text")
-
         # template of chapter
+        txtp = files(data).joinpath(r"template/OEBPS/Text")
         ctp = txtp / "c1.xhtml"
         if ctp.exists() is False or ctp.is_dir():
             raise FileConverterError(f"Chapter template not found: {ctp}")
-
         # template of foreword
         fwtp = txtp / "foreword.xhtml"
         if fwtp.exists() is False or fwtp.is_dir():
             raise FileConverterError(f"Foreword template not found: {ctp}")
-
         # remove old files in result directory
         if rm_result is True:
             _logger.info("Remove existing files in: %s", self.y.resolve())
@@ -124,8 +122,7 @@ class FileConverter:
         cover_path = self.x / "cover.jpg"
         tmp = self.y / cover_path.name
         if tmp != cover_path:
-            copyfile(cover_path, tmp)
-
+            copy_file(str(cover_path), str(tmp))
         self.xhtml[-1] = tmp
         # clean foreword.txt
         fwp = self.x / "foreword.txt"
@@ -189,7 +186,7 @@ class FileConverter:
         """
         if self.x == self.y:
             return -1
-        rmtree(self.y)
+        remove_tree(str(self.y))
         self.y.mkdir()
         self.txt = {}
         self.xhtml = {}

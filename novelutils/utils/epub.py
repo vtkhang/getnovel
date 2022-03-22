@@ -1,14 +1,17 @@
 """Make EPUB module."""
 import logging
-from datetime import datetime
-from distutils.dir_util import copy_tree, remove_tree
-from distutils.file_util import move_file
-from pathlib import Path
+
 from uuid import uuid1
+from pathlib import Path
 from zipfile import ZipFile
+from datetime import datetime
+from importlib_resources import files
+from distutils.file_util import move_file
+from distutils.dir_util import copy_tree, remove_tree
 
 from PIL import Image
 
+from novelutils import data
 from novelutils.utils.crawler import NovelCrawler
 from novelutils.utils.file import FileConverter
 from novelutils.utils.typehint import PathStr, ListPath
@@ -99,9 +102,7 @@ class EpubMaker:
             remove_tree(str(self.tmp_edp))
             self.tmp_edp.mkdir()
         # copy template epub to temp epub directory
-        copy_tree(
-            str(Path(__file__).parent / "storage" / "template"), str(self.tmp_edp)
-        )
+        copy_tree(str(files(data).joinpath("template")), str(self.tmp_edp))
         # remove template file c1.xhtml in temp epub directory
         (self.tmp_edp / "OEBPS" / "Text" / "c1.xhtml").unlink()
         # copy files from xhtml directory to temp epub directory
