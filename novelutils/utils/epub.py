@@ -1,14 +1,15 @@
 """Make EPUB module."""
 import logging
-from datetime import datetime
-from distutils.dir_util import copy_tree, remove_tree
-from distutils.file_util import move_file
-from pathlib import Path
 from uuid import uuid1
+from pathlib import Path
 from zipfile import ZipFile
+from datetime import datetime
+from shutil import rmtree, copytree, move
 
 from PIL import Image
+from importlib_resources import files
 
+from novelutils import data
 from novelutils.utils.crawler import NovelCrawler
 from novelutils.utils.file import FileConverter
 from novelutils.utils.typehint import PathStr, ListPath
@@ -96,21 +97,19 @@ class EpubMaker:
     def _copy_to_epub(self, xhtml_dir: Path) -> None:
         # remove old files in temp epub directory
         if self.tmp_edp.exists():
-            remove_tree(str(self.tmp_edp))
+            rmtree(self.tmp_edp)
             self.tmp_edp.mkdir()
         # copy template epub to temp epub directory
-        copy_tree(
-            str(Path(__file__).parent / "storage" / "template"), str(self.tmp_edp)
-        )
+        copytree(files(data).joinpath("template"), self.tmp_edp)
         # remove template file c1.xhtml in temp epub directory
         (self.tmp_edp / "OEBPS" / "Text" / "c1.xhtml").unlink()
         # copy files from xhtml directory to temp epub directory
-        copy_tree(str(xhtml_dir), str(self.tmp_edp / "OEBPS" / "Text"))
+        copytree(xhtml_dir, self.tmp_edp / "OEBPS" / "Text")
         # move cover image from ./OEBPS/Text to ./OEBPS/Images
         (self.tmp_edp / "OEBPS" / "Images" / "cover.jpg").unlink()
-        move_file(
-            str(self.tmp_edp / "OEBPS" / "Text" / "cover.jpg"),
-            str(self.tmp_edp / "OEBPS" / "Images"),
+        move(
+            self.tmp_edp / "OEBPS" / "Text" / "cover.jpg",
+            self.tmp_edp / "OEBPS" / "Images",
         )
 
     def _make_epub(self, xhtml_files: ListPath, lang_code: str):
