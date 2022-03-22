@@ -1,9 +1,12 @@
 """Define FileConverter class."""
 import logging
 import unicodedata as ud
-from shutil import rmtree, copyfile
-from pathlib import Path
 
+from pathlib import Path
+from shutil import rmtree, copyfile
+from importlib_resources import files
+
+from novelutils import data
 from novelutils.utils.typehint import PathStr, DictPath
 
 _logger = logging.getLogger(__name__)
@@ -101,26 +104,18 @@ class FileConverter:
         if not any(self.x.iterdir()):
             return -1
         # Check if default template is exist, if not throw exception
-        ctp = (
-            Path(__file__).parent
-            / "storage"
-            / "template"
-            / "OEBPS"
-            / "Text"
-            / "c1.xhtml"
-        )
+        txtp = files(data).joinpath(r"template/OEBPS/Text")
+
+        # template of chapter
+        ctp = txtp / "c1.xhtml"
         if ctp.exists() is False or ctp.is_dir():
             raise FileConverterError(f"Chapter template not found: {ctp}")
-        fwtp = (
-            Path(__file__).parent
-            / "storage"
-            / "template"
-            / "OEBPS"
-            / "Text"
-            / "foreword.xhtml"
-        )
+
+        # template of foreword
+        fwtp = txtp / "foreword.xhtml"
         if fwtp.exists() is False or fwtp.is_dir():
             raise FileConverterError(f"Foreword template not found: {ctp}")
+
         # remove old files in result directory
         if rm_result is True:
             _logger.info("Remove existing files in: %s", self.y.resolve())
@@ -257,7 +252,7 @@ def fix_bad_indent(data_in: tuple) -> tuple:
     Returns:
         tuple: cleaned text lines
     """
-    temp = list()
+    temp = []
     # filter the '' out of data_in and store to temp
     for x in data_in:
         if x != "":
