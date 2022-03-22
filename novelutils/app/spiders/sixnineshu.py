@@ -31,7 +31,7 @@ class SixNineshuSpider(Spider):
         Parameters
         ----------
         url : str
-            Link to the novel's information page.
+            The link of the novel information page.
         save_path : Path
             Path of raw directory.
         start_chap : int
