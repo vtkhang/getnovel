@@ -1,15 +1,15 @@
 """Define NovelCrawler class."""
+
 import re
 import urllib
 import logging
-import unicodedata
-
 from pathlib import Path
 from shutil import rmtree
 
 import tldextract
-from scrapy.settings import Settings
+import unicodedata
 from scrapy.crawler import CrawlerProcess
+from scrapy.settings import Settings
 from scrapy.spiderloader import SpiderLoader
 
 from novelutils.data import scrapy_settings
@@ -23,15 +23,19 @@ class NovelCrawler:
     """Download novel from website."""
 
     def __init__(self, url: str, raw_dir_path: PathStr = None) -> None:
-        """Initialize NovelCrawler with url.
+        """Initialize NovelCrawler with url, and assign path of raw
+        directory.
 
-        Args:
-            url: full web site to novel info page
-            raw_dir_path: path to raw directory (default: None)
+        Parameters
+        ----------
+        url : str
+            The link of the novel information page.
+        raw_dir_path : PathStr, optional
+            Path of raw directory, by default None.
         """
         validate_url(url)
         self.u: str = url
-        self.x: Path = Path()
+        self.rdp = None
         if raw_dir_path is None:
             tmp: list = self.u.split("/")
             tmp_1: str = tmp[-1]
@@ -40,105 +44,84 @@ class NovelCrawler:
                     if item != "":
                         tmp_1 = item
                         break
-            self.x = Path.cwd() / tmp_1 / "raw_dir"
+            self.rdp = Path.cwd() / tmp_1 / "raw"
         else:
-            self.x = Path(raw_dir_path)
-        self.x.mkdir(parents=True, exist_ok=True)
-        self.f: ListPath = list()  # list of crawled files
+            self.rdp = Path(raw_dir_path)
+        self.spn = tldextract.extract(self.u).domain  # spider name
+        self.f: ListPath = []  # list of crawled files
 
     def crawl(
         self, rm_raw: bool, start_chap: int, stop_chap: int, clean: bool = True
     ) -> None:
-        """Start crawling and clean result.
+        """Download novel and store it in the raw directory.
 
-        Args:
-            rm_raw: if specified, remove all old files in raw directory
-            start_chap: start chapter index
-            stop_chap: stop chapter index, input -1 to get all chapters
-            clean: if specified, not auto clean text after crawling
-        Returns:
-            None
+        Parameters
+        ----------
+        rm_raw : bool
+            If specified, remove all existing files in raw directory.
+        start_chap : int
+            Start crawling from this chapter.
+        stop_chap : int
+            Stop crawling at this chapter.
+        clean : bool, optional
+            If specified, clean result files, by default True.
+
+        Raises
+        ------
+        CrawlNovelError
+            Index of start chapter need to be greater than zero.
+        CrawlNovelError
+            Index of stop chapter need to be greater than start chapter or equal -1
         """
-        if start_chap is None:
-            raise CrawlNovelError("Missing start chapter index")
-        if stop_chap is None:
-            raise CrawlNovelError("Missing stop chapter index")
         if start_chap < 1:
-            raise CrawlNovelError("Index of start chapter need to be greater than zero")
+            raise CrawlNovelError(
+                "Index of start chapter need to be greater than zero."
+            )
         if stop_chap < start_chap and stop_chap != -1:
             raise CrawlNovelError(
-                "Index of stop chapter need to be greater than start chapter or equal -1"
+                "Index of stop chapter need to be "
+                "greater than start chapter or equal -1."
             )
         if rm_raw is True:
-            _logger.info("Remove existing files in: %s", self.x.resolve())
+            _logger.info("Remove existing files in: %s", self.rdp.resolve())
             self._rm_raw()
+        self.rdp.mkdir(exist_ok=True, parents=True)
         spider_class = self._get_spider()
         process = CrawlerProcess(settings=scrapy_settings.get_settings())
         process.crawl(
             spider_class,
             url=self.u,
-            save_path=self.x,
+            save_path=self.rdp,
             start_chap=start_chap,
             stop_chap=stop_chap,
         )
         process.start()
-        _logger.info("Done crawling. View result at: %s", str(self.x.resolve()))
-        _logger.info("Start cleaning.")
+        _logger.info("Done crawling. View result at: %s", str(self.rdp.resolve()))
         if clean is True:
-            c = FileConverter(self.x, self.x)
+            _logger.info("Start cleaning.")
+            c = FileConverter(self.rdp, self.rdp)
             c.clean(duplicate_chapter=False, rm_result=False)
             self.f: ListPath = list(c.get_file_list(ext="txt"))
 
-    def _get_spider_name(self) -> str:
-        """Return the spider name base on url input.
-
-        bachngocsach, sstruyen, tangthuvien, truyencv, truyendkm, truyenfull, webtruyen is VI
-        ptwxz, uukanshu is ZH
-        metruyenchu, vtruyen, nuhiep use spider truyencv_sub (Blocked by cloudflare)
-
-        Returns:
-            str: spider name
-        """
-        spider_name = ""
-        spider_name_list = (
-            "bachngocsach",
-            "sstruyen",
-            "tangthuvien",
-            "truyencv",
-            "truyendkm",
-            "truyenfull",
-            "webtruyen",
-            "metruyenchu",
-            "vtruyen",
-            "nuhiep",
-            "truyenchu",
-            "ptwxz",
-            "uukanshu",
-            "69shu",
-            "twpiaotian",
-        )
-        for item in spider_name_list:
-            if item in self.u:
-                spider_name = item
-        if spider_name == "":
-            raise CrawlNovelError("Can't find spider name!")
-        if spider_name in ("metruyenchu", "vtruyen", "nuhiep"):
-            return "truyencv_sub"
-        return spider_name
-
     def _get_spider(self):
-        """Get spider class from the url.
+        """Get spider class based on the url domain.
 
-        Returns:
-            an instance of spider class
+        Returns
+        -------
+        object
+            The spider class object.
+
+        Raises
+        ------
+        CrawlNovelError
+            Spider not found.
         """
-        spider_name = self._get_spider_name()
         loader = SpiderLoader.from_settings(
             Settings({"SPIDER_MODULES": ["novelutils.app.spiders"]})
         )
-        if spider_name not in loader.list():
-            raise CrawlNovelError(f"Spider {spider_name} not found!")
-        return loader.load(spider_name)
+        if self.spn not in loader.list():
+            raise CrawlNovelError(f"Spider {self.spn} not found!")
+        return loader.load(self.spn)
 
     def _update_chapter_list(self) -> None:
         """Update the chapter list if any file is removed.
@@ -146,7 +129,7 @@ class NovelCrawler:
         Returns:
             None
         """
-        temp: ListPath = list()
+        temp: ListPath = []
         for item in self.f:
             if item.exists():
                 temp.append(item)
@@ -164,7 +147,7 @@ class NovelCrawler:
 
     def get_raw(self) -> Path:
         """Return the path to raw directory."""
-        return self.x
+        return self.rdp
 
     def get_chapters(self) -> tuple:
         """Return the list of chapters."""
@@ -173,7 +156,7 @@ class NovelCrawler:
 
     def get_langcode(self) -> str:
         """Return language code of novel."""
-        if self._get_spider_name() in ("ptwxz", "uukanshu", "69shu", "twpiaotian"):
+        if self.spn in ("ptwxz", "uukanshu", "69shu", "twpiaotian"):
             return "zh"
         else:
             return "vi"
@@ -269,11 +252,3 @@ def slugify(value, allow_unicode=False):
         )
     value = re.sub(r"[^\w\s-]", "", value.lower())
     return re.sub(r"[-\s]+", "-", value).strip("-_")[0:255]
-
-
-if __name__ == "__main__":
-    test_str = "Giang Hồ Kỳ Lục Công - 江湖奇功录"
-
-    print(test_str)
-    r_str = slugify(test_str, allow_unicode=True)
-    print(r_str)

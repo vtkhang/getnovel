@@ -30,7 +30,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
             "beautifulsoup4 >= 4.10.0",
             "Pillow >= 8.4.0",
             "importlib_resources >= 5.4.0",
-            "importlib_metadata >= 4.8.3"
+            "importlib_metadata >= 4.8.3",
+            "tldextract >= 3.1.2" 
         ],
         extras_require={
             "dev": [

@@ -4,3 +4,4 @@ beautifulsoup4
 Pillow
 importlib_resources
 importlib_metadata
+tldextract
