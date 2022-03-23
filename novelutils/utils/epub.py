@@ -48,15 +48,15 @@ class EpubMaker:
         """
         # get novel from web site.
         p = NovelCrawler(url=url)
-        p.crawl(rm_raw=True, start_chap=start, stop_chap=stop)
+        rdp = p.crawl(rm_raw=True, start_chap=start, stop_chap=stop)
         # convert to xhtml
-        c = FileConverter(p.get_raw())
+        c = FileConverter(rdp)
         c.convert_to_xhtml(
             duplicate_chapter=duplicate_chapter,
             rm_result=True,
             lang_code=p.get_langcode(),
         )
-        self.tmp_edp = p.get_raw().parent / "epub"
+        self.tmp_edp = rdp.parent / "epub"
         self.tmp_edp.mkdir(exist_ok=True)
         # copy epub template and then copy all files converted to epub directory
         self._copy_to_epub(c.get_result_dir())

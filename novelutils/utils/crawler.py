@@ -52,7 +52,7 @@ class NovelCrawler:
 
     def crawl(
         self, rm_raw: bool, start_chap: int, stop_chap: int, clean: bool = True
-    ) -> None:
+    ) -> PathStr:
         """Download novel and store it in the raw directory.
 
         Parameters
@@ -72,6 +72,11 @@ class NovelCrawler:
             Index of start chapter need to be greater than zero.
         CrawlNovelError
             Index of stop chapter need to be greater than start chapter or equal -1
+
+        Returns
+        -------
+        PathStr
+            Path the raw directory.
         """
         if start_chap < 1:
             raise CrawlNovelError(
@@ -102,6 +107,7 @@ class NovelCrawler:
             c = FileConverter(self.rdp, self.rdp)
             c.clean(duplicate_chapter=False, rm_result=False)
             self.f: ListPath = list(c.get_file_list(ext="txt"))
+        return self.rdp
 
     def _get_spider(self):
         """Get spider class based on the url domain.
@@ -123,19 +129,6 @@ class NovelCrawler:
             raise CrawlNovelError(f"Spider {self.spn} not found!")
         return loader.load(self.spn)
 
-    def _update_chapter_list(self) -> None:
-        """Update the chapter list if any file is removed.
-
-        Returns:
-            None
-        """
-        temp: ListPath = []
-        for item in self.f:
-            if item.exists():
-                temp.append(item)
-        del self.f
-        self.f: ListPath = temp
-
     def _rm_raw(self) -> None:
         """Remove old files in raw directory.
 
@@ -144,15 +137,6 @@ class NovelCrawler:
         """
         if self.rdp.exists() and self.rdp.is_dir():
             rmtree(self.rdp)
-
-    def get_raw(self) -> Path:
-        """Return the path to raw directory."""
-        return self.rdp
-
-    def get_chapters(self) -> tuple:
-        """Return the list of chapters."""
-        self._update_chapter_list()
-        return tuple(self.f)
 
     def get_langcode(self) -> str:
         """Return language code of novel."""
