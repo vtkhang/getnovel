@@ -7,10 +7,12 @@ import unicodedata
 from pathlib import Path
 from shutil import rmtree
 
+import tldextract
 from scrapy.settings import Settings
 from scrapy.crawler import CrawlerProcess
 from scrapy.spiderloader import SpiderLoader
 
+from novelutils.data import scrapy_settings
 from novelutils.utils.file import FileConverter
 from novelutils.utils.typehint import PathStr, ListPath
 
@@ -71,18 +73,7 @@ class NovelCrawler:
             _logger.info("Remove existing files in: %s", self.x.resolve())
             self._rm_raw()
         spider_class = self._get_spider()
-        process = CrawlerProcess(
-            settings={
-                "AUTOTHROTTLE_ENABLED": True,
-                "DEFAULT_REQUEST_HEADERS": {
-                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/84.0.4147.105 Safari/537.36",
-                },
-                "LOG_FORMAT": "%(asctime)s [%(name)s] %(levelname)s: %(message)s",
-                "LOG_SHORT_NAMES": True,
-            }
-        )
+        process = CrawlerProcess(settings=scrapy_settings.get_settings())
         process.crawl(
             spider_class,
             url=self.u,
