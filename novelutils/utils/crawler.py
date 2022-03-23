@@ -5,7 +5,7 @@ import logging
 import unicodedata
 
 from pathlib import Path
-from distutils.dir_util import remove_tree
+from shutil import rmtree
 
 from scrapy.settings import Settings
 from scrapy.crawler import CrawlerProcess
@@ -168,9 +168,8 @@ class NovelCrawler:
         Returns:
             None
         """
-        if any(self.x.iterdir()):
-            remove_tree(str(self.x))
-            self.x.mkdir()
+        if self.rdp.exists() and self.rdp.is_dir():
+            rmtree(self.rdp)
 
     def get_raw(self) -> Path:
         """Return the path to raw directory."""
