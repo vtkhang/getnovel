@@ -114,18 +114,17 @@ pip install -e .
 
 7. [https://truyencv.com/](https://truyencv.com/) , TruyenCV will take users to their others domains:
 
-  - <del> [https://metruyenchu.com/](https://metruyenchu.com/) </del> (blocked by CloudFlare)
+- <del> [https://metruyenchu.com/](https://metruyenchu.com/) </del> (blocked by CloudFlare)
 
-  - [https://vtruyen.com/](https://vtruyen.com/)
+- [https://vtruyen.com/](https://vtruyen.com/)
 
-  - [https://nuhiep.com/](https://nuhiep.com/)
+- [https://nuhiep.com/](https://nuhiep.com/)
 
 8. [https://www.69shu.com/](https://www.69shu.com/)
 
 9. [https://www.uukanshu.com/](https://www.uukanshu.com/)
 
 10. [https://www.ptwxz.com/](https://www.ptwxz.com/)
-
 
 ## Frameworks and packages, and IDEs are used in this project:
 
