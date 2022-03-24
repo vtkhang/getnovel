@@ -6,7 +6,7 @@ from pathlib import Path
 from zipfile import ZipFile
 from datetime import datetime
 from importlib_resources import files
-from distutils.file_util import move_file
+from shutil import move
 from distutils.dir_util import copy_tree, remove_tree
 
 from PIL import Image
@@ -113,9 +113,9 @@ class EpubMaker:
         copy_tree(str(xhtml_dir), str(self.tmp_edp / "OEBPS" / "Text"))
         # move cover image from ./OEBPS/Text to ./OEBPS/Images
         (self.tmp_edp / "OEBPS" / "Images" / "cover.jpg").unlink()
-        move_file(
+        move(
             str(self.tmp_edp / "OEBPS" / "Text" / "cover.jpg"),
-            str(self.tmp_edp / "OEBPS" / "Images"),
+            self.tmp_edp / "OEBPS" / "Images",
         )
 
     def _make_epub(self, xhtml_files: ListPath, lang_code: str):
