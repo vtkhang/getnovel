@@ -1,11 +1,10 @@
 """Define FileConverter class."""
 import logging
-import unicodedata as ud
-
 from pathlib import Path
+from shutil import rmtree, copy
+
+import unicodedata as ud
 from importlib_resources import files
-from distutils.dir_util import remove_tree
-from distutils.file_util import copy_file
 
 from novelutils import data
 from novelutils.utils.typehint import PathStr, DictPath
@@ -60,7 +59,7 @@ class FileConverter:
         cover_path = self.x / "cover.jpg"
         tmp = self.y / cover_path.name
         if tmp != cover_path:
-            copy_file(str(cover_path), str(tmp))
+            copy(cover_path, tmp)
         self.txt[-1] = tmp
         # clean foreword.txt
         fw_path = self.x / "foreword.txt"
@@ -90,7 +89,7 @@ class FileConverter:
         _logger.info("Done cleaning. View result at: %s", self.y.resolve())
 
     def convert_to_xhtml(
-        self, duplicate_chapter: bool, rm_result: bool, lang_code: str
+            self, duplicate_chapter: bool, rm_result: bool, lang_code: str
     ) -> int:
         """Clean files and convert to XHTML.
 
@@ -122,7 +121,7 @@ class FileConverter:
         cover_path = self.x / "cover.jpg"
         tmp = self.y / cover_path.name
         if tmp != cover_path:
-            copy_file(str(cover_path), str(tmp))
+            copy(cover_path, tmp)
         self.xhtml[-1] = tmp
         # clean foreword.txt
         fwp = self.x / "foreword.txt"
@@ -186,7 +185,7 @@ class FileConverter:
         """
         if self.x == self.y:
             return -1
-        remove_tree(str(self.y))
+        rmtree(self.y)
         self.y.mkdir()
         self.txt = {}
         self.xhtml = {}
