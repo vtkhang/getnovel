@@ -3,3 +3,4 @@
 -r common.txt
 black
 ipython
+pylint

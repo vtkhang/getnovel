@@ -37,6 +37,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
             "dev": [
                 "black >= 22.1.0",
                 "ipython >= 7.32.0",
+                "pylint >= 2.12.2"
             ],
             "build": ["build >= 0.7.0"],
         },
