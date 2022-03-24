@@ -171,7 +171,8 @@ def get_content(response: Response, save_path: Path) -> None:
         Path of raw directory.
     """
     content: list = response.xpath(
-        '//*[@class="txtnav"]//text()[not(parent::h1) and not(parent::span) and not(parent::script)]'
+        '//*[@class="txtnav"]//text()[not(parent::h1) '
+        "and not(parent::span) and not(parent::script)]"
     ).getall()
     # content.insert(0, chapter)
     (save_path / f'{str(response.meta["id"])}.txt').write_text(
