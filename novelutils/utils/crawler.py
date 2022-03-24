@@ -43,7 +43,7 @@ class NovelCrawler:
         start_chap: int,
         stop_chap: int,
         clean: bool = True,
-        result_path: PathStr = None,
+        output: PathStr = None,
     ) -> PathStr:
         """Download novel and store it in the raw directory.
 
@@ -57,8 +57,8 @@ class NovelCrawler:
             Stop crawling at this chapter.
         clean : bool, optional
             If specified, clean result files, by default True.
-        result_path : PathStr, optional
-            Path of result directory, by default None.
+        output : PathStr, optional
+            Path of the result directory, by default None.
         Raises
         ------
         CrawlNovelError
@@ -80,7 +80,7 @@ class NovelCrawler:
                 "Index of stop chapter need to be "
                 "greater than start chapter or equal -1."
             )
-        if result_path is None:
+        if output is None:
             tmp: list = self.u.split("/")
             tmp_1: str = tmp[-1]
             if tmp_1 == "":
@@ -90,7 +90,7 @@ class NovelCrawler:
                         break
             rp = Path.cwd() / tmp_1 / "raw"
         else:
-            rp = Path(result_path)
+            rp = Path(output)
         if rm_raw is True:
             _logger.info("Remove existing files in: %s", rp.resolve())
             if rp.exists():

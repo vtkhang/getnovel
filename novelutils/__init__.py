@@ -51,7 +51,7 @@ def crawl_func(args):
         start_chap=args.start,
         stop_chap=args.stop,
         clean=args.clean,
-        result_path=args.raw,
+        output=args.raw,
     )
 
 
