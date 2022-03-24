@@ -31,7 +31,8 @@ with open("README.md", "r", encoding="utf-8") as fh:
             "Pillow >= 8.4.0",
             "importlib_resources >= 5.4.0",
             "importlib_metadata >= 4.8.3",
-            "tldextract >= 3.1.2" 
+            "tldextract >= 3.1.2",
+            "validators >= 0.18.2"
         ],
         extras_require={
             "dev": [

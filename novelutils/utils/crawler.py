@@ -1,12 +1,12 @@
 """Define NovelCrawler class."""
 
 import re
-import urllib
 import logging
 from pathlib import Path
 from shutil import rmtree
 
 import tldextract
+import validators
 import unicodedata
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
@@ -33,7 +33,9 @@ class NovelCrawler:
         raw_dir_path : PathStr, optional
             Path of raw directory, by default None.
         """
-        validate_url(url)
+        if validators.url(url) is False:
+            _logger.error("The input url not valid!")
+            return
         self.u: str = url
         self.rdp = None
         if raw_dir_path is None:
@@ -152,74 +154,10 @@ class CrawlNovelError(Exception):
     pass
 
 
-# Using this answer from stackoverflow:https://stackoverflow.com/a/55827638
-# Check https://regex101.com/r/A326u1/5 for reference
-DOMAIN_FORMAT = re.compile(
-    r"(?:^(\w{1,255}):(.{1,255})@|^)"  # http basic authentication [optional]
-    # check full domain length to be less than or equal to 253 (starting after http basic auth, stopping before port)
-    r"(?:(?:(?=\S{0,253}(?:$|:))"
-    # check for at least one subdomain (maximum length per subdomain: 63 characters), dashes in between allowed
-    r"((?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+"
-    r"(?:[a-z0-9]{1,63})))"  # check for top level domain, no dashes allowed
-    r"|localhost)"  # accept also "localhost" only
-    r"(:\d{1,5})?",  # port [optional]
-    re.IGNORECASE,
-)
-SCHEME_FORMAT = re.compile(
-    r"^(http|hxxp|ftp|fxp)s?$", re.IGNORECASE  # scheme: http(s) or ftp(s)
-)
-
-
-def validate_url(url: str):
-    """Validator for the url value.
-
-    Args:
-        url (str): string url
-
-    Raises:
-        CrawlNovelError: No URL specified
-        CrawlNovelError: URL exceeds its maximum length of 2048 characters
-        CrawlNovelError: No URL scheme specified
-        CrawlNovelError: URL scheme must either be http(s) or ftp(s)
-        CrawlNovelError: No URL domain specified
-        CrawlNovelError: URL domain malformed
-
-    Returns:
-        str: string url if it pass the validator
-    """
-    url = url.strip()
-
-    if url is None:
-        raise CrawlNovelError("No URL specified")
-
-    if len(url) > 2048:
-        raise CrawlNovelError(
-            f"URL exceeds its maximum length of 2048 characters (given length={len(url)})"
-        )
-
-    result = urllib.parse.urlparse(url)
-    scheme = result.scheme
-    domain = result.netloc
-
-    if not scheme:
-        raise CrawlNovelError("No URL scheme specified")
-
-    if not re.fullmatch(SCHEME_FORMAT, scheme):
-        raise CrawlNovelError(
-            f"URL scheme must either be http(s) or ftp(s) (given scheme={scheme})"
-        )
-
-    if not domain:
-        raise CrawlNovelError("No URL domain specified")
-
-    if not re.fullmatch(DOMAIN_FORMAT, domain):
-        raise CrawlNovelError(f"URL domain malformed (domain={domain})")
-
-
-# using the answer from https://stackoverflow.com/a/295466
 def slugify(value, allow_unicode=False):
-    """
-    Taken from https://github.com/django/django/blob/master/django/utils/text.py
+    """Convert string to valid filename.
+
+    This code was taken from https://github.com/django/django/blob/main/django/utils/text.py
     Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
     dashes to single dashes. Remove characters that aren't alphanumerics,
     underscores, or hyphens. Convert to lowercase. Also strip leading and
@@ -235,4 +173,4 @@ def slugify(value, allow_unicode=False):
             .decode("ascii")
         )
     value = re.sub(r"[^\w\s-]", "", value.lower())
-    return re.sub(r"[-\s]+", "-", value).strip("-_")[0:255]
+    return re.sub(r"[-\s]+", "-", value).strip("-_")
