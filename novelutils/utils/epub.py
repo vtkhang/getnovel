@@ -3,11 +3,10 @@ import logging
 
 from uuid import uuid1
 from pathlib import Path
-from zipfile import ZipFile
 from datetime import datetime
 from importlib_resources import files
-from shutil import move, rmtree
-from distutils.dir_util import copy_tree
+from shutil import move, rmtree, copy
+from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 from PIL import Image
 
@@ -106,11 +105,12 @@ class EpubMaker:
             rmtree(self.tmp_edp)
             self.tmp_edp.mkdir()
         # copy template epub to temp epub directory
-        copy_tree(str(files(data).joinpath("template")), str(self.tmp_edp))
+        copytree_hm(files(data).joinpath("template"), self.tmp_edp)
+        self.tmp_edp.chmod(0o0400 | 0o0200)
         # remove template file c1.xhtml in temp epub directory
         (self.tmp_edp / "OEBPS" / "Text" / "c1.xhtml").unlink()
         # copy files from xhtml directory to temp epub directory
-        copy_tree(str(xhtml_dir), str(self.tmp_edp / "OEBPS" / "Text"))
+        copytree_hm(xhtml_dir, self.tmp_edp / "OEBPS" / "Text")
         # move cover image from ./OEBPS/Text to ./OEBPS/Images
         (self.tmp_edp / "OEBPS" / "Images" / "cover.jpg").unlink()
         move(
@@ -225,9 +225,13 @@ class EpubMaker:
             encoding="utf-8",
         )
         # zip files to epub
-        with ZipFile(self.rdp / f"{novel_title}.epub", "w") as f_zip:
+        with ZipFile(self.rdp / f"{novel_title}.epub", "w", compression=ZIP_DEFLATED, compresslevel=9) as f_zip:
+            mime_path = self.tmp_edp/"mimetype"
+            f_zip.write(mime_path, mime_path.relative_to(self.tmp_edp), compress_type=ZIP_STORED)
+            mime_path.unlink()
             for path in self.tmp_edp.rglob("*"):
-                f_zip.write(str(path), str(path.relative_to(self.tmp_edp)))
+                f_zip.write(path, path.relative_to(self.tmp_edp))
+        copy(files(data).joinpath("template/mimetype"), self.tmp_edp)
         _logger.info("Done making epub. View result at: %s", str(self.rdp.resolve()))
 
 
@@ -235,3 +239,23 @@ class EpubMakerError(Exception):
     """Handle EpubMaker exception."""
 
     pass
+
+
+def copytree_hm(src: Path, dst: Path):
+    """Copy files in src directory to dst directory recursively.
+
+    Parameters
+    ----------
+    src : Path
+        Path of src directory.
+    dst : Path
+        Path of dst directory.
+    """
+    dst.mkdir(exist_ok=True, parents=True)
+    for item in src.iterdir():
+        if item.is_file():
+            copy(item, dst)
+        if item.is_dir():
+            ndst = dst / item.name
+            ndst.mkdir(exist_ok=True, parents=True)
+            copytree_hm(item, ndst)

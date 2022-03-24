@@ -24,22 +24,23 @@ with open("README.md", "r", encoding="utf-8") as fh:
             "Operating System :: OS Independent",
         ],
         include_package_data=True,
-        python_requires=">=3.6",
+        python_requires=">=3.7",
         install_requires=[
             "scrapy == 2.5.1",
             "beautifulsoup4 >= 4.10.0",
-            "Pillow >= 8.4.0",
-            "importlib_resources >= 5.4.0",
-            "importlib_metadata >= 4.8.3",
-            "tldextract >= 3.1.2",
+            "pillow >= 9.0.1",
+            "importlib-resources >= 5.4.0",
+            "importlib-metadata >= 4.11.3",
+            "tldextract >= 3.2.0",
             "validators >= 0.18.2"
         ],
         extras_require={
             "dev": [
                 "pylint >= 2.12.2",
                 "black >= 22.1.0",
-                "ipython >= 7.16.3",
-            ]
+                "ipython >= 7.32.0",
+            ],
+            "build": ["build >= 0.7.0"],
         },
         entry_points={
             "console_scripts": ["novelutils = novelutils:run_main"],
