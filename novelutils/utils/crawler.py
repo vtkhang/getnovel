@@ -14,7 +14,7 @@ from scrapy.spiderloader import SpiderLoader
 
 from novelutils.data import scrapy_settings
 from novelutils.utils.file import FileConverter
-from novelutils.utils.typehint import PathStr, ListPath
+from novelutils.utils.typehint import PathStr
 
 _logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ _logger = logging.getLogger(__name__)
 class NovelCrawler:
     """Download novel from website."""
 
-    def __init__(self, url: str, raw_dir_path: PathStr = None) -> None:
+    def __init__(self, url: str) -> None:
         """Initialize NovelCrawler with url, and assign path of raw
         directory.
 
@@ -30,30 +30,20 @@ class NovelCrawler:
         ----------
         url : str
             The link of the novel information page.
-        raw_dir_path : PathStr, optional
-            Path of raw directory, by default None.
         """
         if validators.url(url) is False:
             _logger.error("The input url not valid!")
             return
         self.u: str = url
-        self.rdp = None
-        if raw_dir_path is None:
-            tmp: list = self.u.split("/")
-            tmp_1: str = tmp[-1]
-            if tmp_1 == "":
-                for item in reversed(tmp):
-                    if item != "":
-                        tmp_1 = item
-                        break
-            self.rdp = Path.cwd() / tmp_1 / "raw"
-        else:
-            self.rdp = Path(raw_dir_path)
         self.spn = tldextract.extract(self.u).domain  # spider name
-        self.f: ListPath = []  # list of crawled files
 
     def crawl(
-        self, rm_raw: bool, start_chap: int, stop_chap: int, clean: bool = True
+        self,
+        rm_raw: bool,
+        start_chap: int,
+        stop_chap: int,
+        clean: bool = True,
+        result_path: PathStr = None,
     ) -> PathStr:
         """Download novel and store it in the raw directory.
 
@@ -67,7 +57,8 @@ class NovelCrawler:
             Stop crawling at this chapter.
         clean : bool, optional
             If specified, clean result files, by default True.
-
+        result_path : PathStr, optional
+            Path of result directory, by default None.
         Raises
         ------
         CrawlNovelError
@@ -89,27 +80,38 @@ class NovelCrawler:
                 "Index of stop chapter need to be "
                 "greater than start chapter or equal -1."
             )
+        if result_path is None:
+            tmp: list = self.u.split("/")
+            tmp_1: str = tmp[-1]
+            if tmp_1 == "":
+                for item in reversed(tmp):
+                    if item != "":
+                        tmp_1 = item
+                        break
+            rp = Path.cwd() / tmp_1 / "raw"
+        else:
+            rp = Path(result_path)
         if rm_raw is True:
-            _logger.info("Remove existing files in: %s", self.rdp.resolve())
-            self._rm_raw()
-        self.rdp.mkdir(exist_ok=True, parents=True)
+            _logger.info("Remove existing files in: %s", rp.resolve())
+            if rp.exists():
+                rmtree(rp)
+        rp.mkdir(exist_ok=True, parents=True)
         spider_class = self._get_spider()
         process = CrawlerProcess(settings=scrapy_settings.get_settings())
         process.crawl(
             spider_class,
             url=self.u,
-            save_path=self.rdp,
+            save_path=rp,
             start_chap=start_chap,
             stop_chap=stop_chap,
         )
         process.start()
-        _logger.info("Done crawling. View result at: %s", str(self.rdp.resolve()))
+        _logger.info("Done crawling. View result at: %s", str(rp.resolve()))
         if clean is True:
             _logger.info("Start cleaning.")
-            c = FileConverter(self.rdp, self.rdp)
+            c = FileConverter(rp, rp)
             c.clean(duplicate_chapter=False, rm_result=False)
-            self.f: ListPath = list(c.get_file_list(ext="txt"))
-        return self.rdp
+        return rp
 
     def _get_spider(self):
         """Get spider class based on the url domain.
@@ -130,11 +132,6 @@ class NovelCrawler:
         if self.spn not in loader.list():
             raise CrawlNovelError(f"Spider {self.spn} not found!")
         return loader.load(self.spn)
-
-    def _rm_raw(self) -> None:
-        """Remove old files in raw directory."""
-        if self.rdp.exists() and self.rdp.is_dir():
-            rmtree(self.rdp)
 
     def get_langcode(self) -> str:
         """Return language code of novel."""

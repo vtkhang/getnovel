@@ -45,12 +45,13 @@ def main(argv) -> int:
 
 def crawl_func(args):
     """Run crawling process."""
-    p = NovelCrawler(url=args.url, raw_dir_path=args.raw_dir)
+    p = NovelCrawler(url=args.url)
     p.crawl(
         rm_raw=not args.keep_raw,
         start_chap=args.start,
         stop_chap=args.stop,
         clean=args.clean,
+        result_path=args.raw,
     )
 
 
