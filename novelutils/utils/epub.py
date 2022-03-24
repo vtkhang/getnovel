@@ -22,14 +22,18 @@ _logger = logging.getLogger(__name__)
 class EpubMaker:
     """Support making epub from input url or from a raw directory path."""
 
-    tmp_edp: Path  # temp epub directory path
-    rdp: Path  # result directory path
+    def __init__(self, output: PathStr = None):
+        """Assign path for the output directory.
 
-    def __init__(self, result_dir_path: PathStr = None) -> None:
-        if result_dir_path is None:
+        Parameters
+        ----------
+        output : PathStr, optional
+            Path of the output directory, by default None.
+        """
+        if output is None:
             self.rdp = Path.cwd()
         else:
-            self.rdp = Path(result_dir_path)
+            self.rdp = Path(output)
         self.tmp_edp = Path()
 
     def from_url(
