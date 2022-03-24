@@ -6,8 +6,8 @@ from pathlib import Path
 from zipfile import ZipFile
 from datetime import datetime
 from importlib_resources import files
-from shutil import move
-from distutils.dir_util import copy_tree, remove_tree
+from shutil import move, rmtree
+from distutils.dir_util import copy_tree
 
 from PIL import Image
 
@@ -103,7 +103,7 @@ class EpubMaker:
     def _copy_to_epub(self, xhtml_dir: Path) -> None:
         # remove old files in temp epub directory
         if self.tmp_edp.exists():
-            remove_tree(str(self.tmp_edp))
+            rmtree(self.tmp_edp)
             self.tmp_edp.mkdir()
         # copy template epub to temp epub directory
         copy_tree(str(files(data).joinpath("template")), str(self.tmp_edp))
