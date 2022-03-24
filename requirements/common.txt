@@ -5,4 +5,4 @@ Pillow
 importlib_resources
 importlib_metadata
 tldextract
-0.18.2
+validators
