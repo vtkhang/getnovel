@@ -5,7 +5,7 @@ from setuptools import setup
 with open("README.md", "r", encoding="utf-8") as fh:
     setup(
         name="novelutils",
-        version="1.2.0",
+        version="1.2.1",
         author_email="kdekiwis1@gmail.com",
         description="Tool based on Scrapy framework to get novel from web site.",
         long_description=fh.read(),
