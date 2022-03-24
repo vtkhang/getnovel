@@ -35,7 +35,6 @@ with open("README.md", "r", encoding="utf-8") as fh:
         ],
         extras_require={
             "dev": [
-                "pylint >= 2.12.2",
                 "black >= 22.1.0",
                 "ipython >= 7.32.0",
             ],
