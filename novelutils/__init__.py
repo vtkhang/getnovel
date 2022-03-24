@@ -6,9 +6,9 @@ and convert all chapters to XHTML, TXT, or to make EPUB.
 import argparse
 import sys
 
+from novelutils.utils.crawler import NovelCrawler
 from novelutils.utils.epub import EpubMaker
 from novelutils.utils.file import FileConverter
-from novelutils.utils.crawler import NovelCrawler
 
 if sys.version_info >= (3, 8):
     from importlib import metadata
