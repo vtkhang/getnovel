@@ -132,11 +132,7 @@ class NovelCrawler:
         return loader.load(self.spn)
 
     def _rm_raw(self) -> None:
-        """Remove old files in raw directory.
-
-        Returns:
-            None
-        """
+        """Remove old files in raw directory."""
         if self.rdp.exists() and self.rdp.is_dir():
             rmtree(self.rdp)
 
