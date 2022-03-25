@@ -68,7 +68,7 @@ class TruyenCvSubSpider(scrapy.Spider):
         get_info(response, self.save_path)  # get info and write it to save path
         total_chapter_str = response.xpath(
             '//*[@id="nav-tab-chap"]/span[2]/text()'
-        ).getall()[2]
+        ).get()
         if total_chapter_str is None:
             raise scrapy.exceptions.CloseSpider(
                 reason="Can't get total chapter number."
