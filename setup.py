@@ -6,11 +6,15 @@ with open("README.md", "r", encoding="utf-8") as fh:
     setup(
         name="novelutils",
         version="1.2.1",
-        author_email="kdekiwis1@gmail.com",
+        author="Vũ Thừa Khang",
+        author_email="vuthuakhangit@gmail.com",
         description="Tool based on Scrapy framework to get novel from web site.",
         long_description=fh.read(),
         long_description_content_type="text/markdown",
-        url="https://github.com/estraug/novelutils",
+        url="https://github.com/vtkhang/novelutils",
+        project_urls={
+            "Bug Tracker": "https://github.com/vtkhang/novelutils/issues",
+        },
         license="BSD",
         packages=["novelutils"],
         classifiers=[

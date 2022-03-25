@@ -4,7 +4,7 @@
 
 ## Developer
 
-- Email: kdekiwis1@gmail.com
+- Email: vuthuakhangit@gmail.com
 
 ## Description
 
