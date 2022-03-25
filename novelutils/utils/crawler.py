@@ -144,13 +144,12 @@ class NovelCrawler:
 class CrawlNovelError(Exception):
     """Handle NovelCrawler Exception."""
 
-    pass
-
 
 def slugify(value, allow_unicode=False):
     """Convert string to valid filename.
 
-    This code was taken from https://github.com/django/django/blob/main/django/utils/text.py
+    This code was taken from
+    https://github.com/django/django/blob/main/django/utils/text.py
     Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
     dashes to single dashes. Remove characters that aren't alphanumerics,
     underscores, or hyphens. Convert to lowercase. Also strip leading and
