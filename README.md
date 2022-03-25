@@ -110,19 +110,15 @@ pip install -e .
 
 5. [https://truyenfull.vn/](https://truyenfull.vn/)
 
-6. [https://truyendkm.com/](https://truyendkm.com/)
+6. [https://metruyenchu.com/](https://metruyenchu.com/)
 
-7. <del> [https://truyencv.com/](https://truyencv.com/) </del> (closed by owner or change to m.truyencv.com for mobile)
+7. [https://vtruyen.com/](https://vtruyen.com/)
 
-8. [https://metruyenchu.com/](https://metruyenchu.com/) (not blocked anymore)
+8. [https://www.69shu.com/](https://www.69shu.com/)
 
-9. [https://vtruyen.com/](https://vtruyen.com/)
+9. [https://www.uukanshu.com/](https://www.uukanshu.com/)
 
-10. [https://www.69shu.com/](https://www.69shu.com/)
-
-11. [https://www.uukanshu.com/](https://www.uukanshu.com/)
-
-12. [https://www.ptwxz.com/](https://www.ptwxz.com/)
+10. [https://www.ptwxz.com/](https://www.ptwxz.com/)
 
 ## Frameworks and packages, and IDEs are used in this project:
 
