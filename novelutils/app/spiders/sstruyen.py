@@ -58,9 +58,9 @@ class SSTruyenSpider(scrapy.Spider):
             Request to the cover image page and toc page.
         """
         # get cover
-        cover_link = self.base_url + response.xpath(
-            "//*[@class='sstbcover']/@src"
-        ).get().replace("//", "/")
+        cover_link = response.xpath(
+            "//*[@class='sstbcover']/@data-pagespeed-high-res-src"
+        ).get()
         yield scrapy.Request(url=cover_link, callback=self.parse_cover)
         get_info(response, self.save_path)
         yield scrapy.Request(
