@@ -112,19 +112,17 @@ pip install -e .
 
 6. [https://truyendkm.com/](https://truyendkm.com/)
 
-7. [https://truyencv.com/](https://truyencv.com/) , TruyenCV will take users to their others domains:
+7. <del> [https://truyencv.com/](https://truyencv.com/) </del> (closed by owner or change to m.truyencv.com for mobile)
 
-- <del> [https://metruyenchu.com/](https://metruyenchu.com/) </del> (blocked by CloudFlare)
+8. [https://metruyenchu.com/](https://metruyenchu.com/) (not blocked anymore)
 
-- [https://vtruyen.com/](https://vtruyen.com/)
+9. [https://vtruyen.com/](https://vtruyen.com/)
 
-- [https://nuhiep.com/](https://nuhiep.com/)
+10. [https://www.69shu.com/](https://www.69shu.com/)
 
-8. [https://www.69shu.com/](https://www.69shu.com/)
+11. [https://www.uukanshu.com/](https://www.uukanshu.com/)
 
-9. [https://www.uukanshu.com/](https://www.uukanshu.com/)
-
-10. [https://www.ptwxz.com/](https://www.ptwxz.com/)
+12. [https://www.ptwxz.com/](https://www.ptwxz.com/)
 
 ## Frameworks and packages, and IDEs are used in this project:
 
