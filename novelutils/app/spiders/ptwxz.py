@@ -169,7 +169,7 @@ def get_info(response: scrapy.http.Response, save_path: Path):
 
 
 def get_content(response: scrapy.http.Response, save_path: Path):
-    """Get info of this novel.
+    """Get content of this novel.
 
     Parameters
     ----------

@@ -161,7 +161,7 @@ def get_info(response: Response, save_path: Path) -> None:
 
 
 def get_content(response: Response, save_path: Path) -> None:
-    """Get info of this novel.
+    """Get content of this novel.
 
     Parameters
     ----------
