@@ -13,23 +13,33 @@
 
 ## Installation
 
-Using pip to install:
+1. Download or clone this project.
+2. Make sure Python 3.7 or above is installed.
+3. Go to root folder of this project, using pip to install:
 
   ```bash
-  pip install novelutils
+  pip install -e .
   ```
 
 ## Development
 
-1. Clone this repos.
-
-2. Change directory to the project directory.
-
-3. Using these commands to install this package locally:
+1. Download or clone this project.
+2. Go to to root folder of this project.
+3. Using pip to install this project in development mode (better with virtual env like conda):
 
 ```bash
-pip install -r requirements/dev.txt
-pip install -e .
+pip install -e .[dev]
+```
+
+## Build
+
+1. Download or clone this project.
+2. Go to to root folder of this project.
+3. Install and build this project with package "build":
+
+```bash
+pip install build
+python -m build
 ```
 
 ## Ussage
