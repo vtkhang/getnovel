@@ -1,8 +1,0 @@
-# Contains requirements common to all environments
-scrapy==2.5.1
-beautifulsoup4
-Pillow
-importlib_resources
-importlib_metadata
-tldextract
-validators

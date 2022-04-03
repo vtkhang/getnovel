@@ -1,3 +1,0 @@
-# Specifies only build-specific requirements
-setuptools
-build
