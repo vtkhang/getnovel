@@ -30,21 +30,14 @@ with open("README.md", "r", encoding="utf-8") as fh:
         python_requires=">=3.7",
         install_requires=[
             "scrapy == 2.5.1",
-            "beautifulsoup4 >= 4.10.0",
-            "pillow >= 9.0.1",
-            "importlib-resources >= 5.4.0",
-            "importlib-metadata >= 4.11.3",
-            "tldextract >= 3.2.0",
-            "validators >= 0.18.2"
+            "beautifulsoup4",
+            "pillow",
+            "importlib-resources",
+            "importlib-metadata",
+            "tldextract",
+            "validators",
         ],
-        extras_require={
-            "dev": [
-                "black >= 22.1.0",
-                "ipython >= 7.32.0",
-                "pylint >= 2.12.2"
-            ],
-            "build": ["build >= 0.7.0"],
-        },
+        extras_require={"dev": ["black", "ipython", "pylint"], "build": ["build"]},
         entry_points={
             "console_scripts": ["novelutils = novelutils:run_main"],
         },
