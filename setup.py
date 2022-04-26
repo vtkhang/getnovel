@@ -23,7 +23,6 @@ with open("README.md", "r", encoding="utf-8") as fh:
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
-            "License :: OSI Approved :: BSD License",
             "Operating System :: OS Independent",
         ],
         include_package_data=True,
@@ -37,7 +36,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
             "tldextract",
             "validators",
         ],
-        extras_require={"dev": ["black", "ipython", "pylint"], "build": ["build"]},
+        extras_require={
+            "dev": ["black", "ipython", "flake8"],
+            "build": ["build"],
+        },
         entry_points={
             "console_scripts": ["novelutils = novelutils:run_main"],
         },
