@@ -1,14 +1,14 @@
-"""NOVELUTILS.
+"""GETNOVEL.
 
-NOVELUTILS uses the Scrapy framework to download novel from a website
+GETNOVEL uses the Scrapy framework to download novel from a website
 and convert all chapters to XHTML, TXT, or to make EPUB.
 """
 import argparse
 import sys
 
-from novelutils.utils.crawler import NovelCrawler
-from novelutils.utils.epub import EpubMaker
-from novelutils.utils.file import FileConverter
+from getnovel.utils.crawler import NovelCrawler
+from getnovel.utils.epub import EpubMaker
+from getnovel.utils.file import FileConverter
 
 if sys.version_info >= (3, 8):
     from importlib import metadata
@@ -32,7 +32,7 @@ def main(argv) -> int:
         return 0
     args = parser.parse_args(argv[1:])
     if args.version is True:
-        print(f"Novelutils {__version__}")
+        print(f"Getnovel {__version__}")
         return 0
     try:
         args.func(args)
@@ -69,8 +69,8 @@ def rm_dup_func(args):
     """Remove duplicates of chapters name.
 
     Examples:
-     novelutils rm_dup .\raw
-     novelutils rm_dup --result_dir=.\result .\raw
+     getnovel rm_dup .\raw
+     getnovel rm_dup --result_dir=.\result .\raw
 
     """
     if args.result_dir is None:
@@ -96,22 +96,22 @@ def _build_parser():
     """Constructs the parser for the command line arguments.
 
     Examples:
-      $ novelutils crawl [start=1] [stop=-1] [rm_raw=True] [dup_chap=False] {url} [raw_dir=None]
-      $ novelutils crawl https://bachngocsach.com/reader/livestream-sieu-kinh-di
+      $ getnovel crawl [start=1] [stop=-1] [rm_raw=True] [dup_chap=False] {url} [raw_dir=None]
+      $ getnovel crawl https://bachngocsach.com/reader/livestream-sieu-kinh-di
 
-      $ novelutils convert [lang_code=vi] [dup_chap=False] [rm_result=True] {raw_dir} [result_dir=None]
-      $ novelutils convert /home/user/raw
+      $ getnovel convert [lang_code=vi] [dup_chap=False] [rm_result=True] {raw_dir} [result_dir=None]
+      $ getnovel convert /home/user/raw
 
-      $ novelutils epub from_url [dup_chap=False] [start=1] [stop=-1] {url}
-      $ novelutils epub from_url https://bachngocsach.com/reader/livestream-sieu-kinh-di
+      $ getnovel epub from_url [dup_chap=False] [start=1] [stop=-1] {url}
+      $ getnovel epub from_url https://bachngocsach.com/reader/livestream-sieu-kinh-di
 
-      $ novelutils epub from_raw [dup_chap=False] [lang_code=vi] {raw_dir}
-      $ novelutils epub from_raw /home/user/raw
+      $ getnovel epub from_raw [dup_chap=False] [lang_code=vi] {raw_dir}
+      $ getnovel epub from_raw /home/user/raw
     Returns:
       An ArgumentParser instance for the CLI.
     """
     # parser
-    parser = argparse.ArgumentParser(prog="novelutils", allow_abbrev=False)
+    parser = argparse.ArgumentParser(prog="getnovel", allow_abbrev=False)
     parser.add_argument(
         "-v", "--version", action="store_true", help="show version number and exit"
     )
@@ -227,8 +227,8 @@ def _build_parser():
     return parser
 
 
-class NovelutilsException(BaseException):
-    """General exception for novelutils"""
+class GetnovelException(BaseException):
+    """General exception for getnovel"""
 
     pass
 
@@ -237,8 +237,8 @@ def run_main():
     """Run main program."""
     try:
         sys.exit(main(sys.argv))
-    except NovelutilsException as e:
-        sys.stderr.write(f"novelutils:{str(e)}\n")
+    except GetnovelException as e:
+        sys.stderr.write(f"getnovel:{str(e)}\n")
         sys.exit(1)
 
 

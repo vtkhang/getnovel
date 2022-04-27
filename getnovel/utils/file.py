@@ -6,8 +6,8 @@ from shutil import rmtree, copy
 import unicodedata as ud
 from importlib_resources import files
 
-from novelutils import data
-from novelutils.utils.typehint import PathStr, DictPath
+from getnovel import data
+from getnovel.utils.typehint import PathStr, DictPath
 
 _logger = logging.getLogger(__name__)
 

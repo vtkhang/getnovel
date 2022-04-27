@@ -12,9 +12,9 @@ from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 from scrapy.spiderloader import SpiderLoader
 
-from novelutils.data import scrapy_settings
-from novelutils.utils.file import FileConverter
-from novelutils.utils.typehint import PathStr
+from getnovel.data import scrapy_settings
+from getnovel.utils.file import FileConverter
+from getnovel.utils.typehint import PathStr
 
 _logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ class NovelCrawler:
             Spider not found.
         """
         loader = SpiderLoader.from_settings(
-            Settings({"SPIDER_MODULES": ["novelutils.app.spiders"]})
+            Settings({"SPIDER_MODULES": ["getnovel.app.spiders"]})
         )
         if self.spn not in loader.list():
             raise CrawlNovelError(f"Spider {self.spn} not found!")

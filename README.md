@@ -1,4 +1,4 @@
-# NOVELUTILS
+# GETNOVEL
 
 ![python version](https://img.shields.io/badge/python-3.7+-blue) ![scrapy version](https://img.shields.io/badge/scrapy-2.5.1-blue) ![code style](https://img.shields.io/badge/code%20style-black-000000.svg)
 
@@ -47,13 +47,13 @@ python -m build
 - Commands
 
   ```bash
-  novelutils crawl https://truyen.tangthuvien.vn/doc-truyen/dichthe-gioi-hoan-my
+  getnovel crawl https://truyen.tangthuvien.vn/doc-truyen/dichthe-gioi-hoan-my
 
-  novelutils convert /path/to/raw/directory
+  getnovel convert /path/to/raw/directory
 
-  novelutils epub from_url https://truyen.tangthuvien.vn/doc-truyen/dichthe-gioi-hoan-my
+  getnovel epub from_url https://truyen.tangthuvien.vn/doc-truyen/dichthe-gioi-hoan-my
 
-  novelutils epub from_raw /path/to/raw/directory
+  getnovel epub from_raw /path/to/raw/directory
   ```
 
 - Examples:
@@ -61,33 +61,33 @@ python -m build
     - Create epub fron the input link:
 
     ```shell
-    novelutils epub from_url https://www.ptwxz.com/bookinfo/12/12450.html
+    getnovel epub from_url https://www.ptwxz.com/bookinfo/12/12450.html
     ```
 
     - Download from chapter 1 to chapter 5:
 
     ```shell
-    novelutils crawl --start 1 --stop 5 https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
+    getnovel crawl --start 1 --stop 5 https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
     ```
 
     - Download all chapters:
 
     ```shell
-    novelutils crawl https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
+    getnovel crawl https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
     ```
 
     - Download from chapter 10 to the end of the novel:
 
     ```shell
-    novelutils --start 10 https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
+    getnovel --start 10 https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
     ```
 
-- Use novelutils package as script
+- Use getnovel package as script
 
     - Download novel via NovelCrawler
 
     ```python
-    from novelutils.utils.crawler import NovelCrawler
+    from getnovel.utils.crawler import NovelCrawler
     p = NovelCrawler(url="https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa")
     p.crawl(rm_raw=True, start_chap=3, stop_chap=8) 
     ```
@@ -95,7 +95,7 @@ python -m build
     - Convert txt to xhtml by FileConverter:
 
     ```python
-    from novelutils.utils.file import FileConverter
+    from getnovel.utils.file import FileConverter
     c = FileConverter(raw_dir_path="/path/to/raw/dir")
     c.convert_to_xhtml(duplicate_chapter=False, rm_result=True, lang_code="vi")
     ```
@@ -103,7 +103,7 @@ python -m build
     - Create epub from the input link:
 
     ```python
-    from novelutils.utils.epub import EpubMaker
+    from getnovel.utils.epub import EpubMaker
     e = EpubMaker()
     e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", duplicate_chapter=False, start=1, stop=-1)
     ```

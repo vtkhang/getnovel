@@ -1,4 +1,4 @@
-"""Type hint for novelutils."""
+"""Type hint for getnovel."""
 from pathlib import Path
 from typing import Union, Dict, List
 

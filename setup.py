@@ -4,19 +4,18 @@ from setuptools import setup
 
 with open("README.md", "r", encoding="utf-8") as fh:
     setup(
-        name="novelutils",
+        name="getnovel",
         version="1.2.1",
         author="Vũ Thừa Khang",
         author_email="vuthuakhangit@gmail.com",
         description="Tool based on Scrapy framework to get novel from web site.",
         long_description=fh.read(),
         long_description_content_type="text/markdown",
-        url="https://github.com/vtkhang/novelutils",
+        url="https://github.com/vtkhang/getnovel",
         project_urls={
-            "Bug Tracker": "https://github.com/vtkhang/novelutils/issues",
+            "Bug Tracker": "https://github.com/vtkhang/getnovel/issues",
         },
-        license="BSD",
-        packages=["novelutils"],
+        packages=["getnovel"],
         classifiers=[
             "Programming Language :: Python :: 3",
             "Programming Language :: Python :: 3.7",
@@ -41,6 +40,6 @@ with open("README.md", "r", encoding="utf-8") as fh:
             "build": ["build"],
         },
         entry_points={
-            "console_scripts": ["novelutils = novelutils:run_main"],
+            "console_scripts": ["getnovel = getnovel:run_main"],
         },
     )

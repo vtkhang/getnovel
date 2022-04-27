@@ -1,5 +1,5 @@
 """Main entry point."""
 # pylint: disable=invalid-name
-import novelutils
+import getnovel
 
-novelutils.run_main()
+getnovel.run_main()

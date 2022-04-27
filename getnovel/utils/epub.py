@@ -10,10 +10,10 @@ from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 from PIL import Image
 
-from novelutils import data
-from novelutils.utils.crawler import NovelCrawler
-from novelutils.utils.file import FileConverter
-from novelutils.utils.typehint import PathStr, ListPath
+from getnovel import data
+from getnovel.utils.crawler import NovelCrawler
+from getnovel.utils.file import FileConverter
+from getnovel.utils.typehint import PathStr, ListPath
 
 _logger = logging.getLogger(__name__)
 
