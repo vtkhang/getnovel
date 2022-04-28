@@ -1,7 +1,0 @@
-include README.md
-include LICENSE
-include MANIFEST.in
-
-recursive-include getnovel/data/template *
-
-global-exclude __pycache__ *.py[cod]
