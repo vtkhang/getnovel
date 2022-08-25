@@ -65,8 +65,8 @@ class TruyenFullSpider(scrapy.Spider):
         )
         get_info(response, self.save_path)
         yield scrapy.Request(
-            url=response.url + "chuong-" + str(self.start_chap),  # goto start chapter
-            meta={"id": 1},
+            url=f"{response.url}chuong-{self.start_chap}/",  # goto start chapter
+            meta={"id": self.start_chap},
             callback=self.parse_content,
         )
 
@@ -99,7 +99,6 @@ class TruyenFullSpider(scrapy.Spider):
             "id"
         ] == self.stop_chap:
             raise scrapy.exceptions.CloseSpider(reason="Done")
-        response.request.headers[b"Referer"] = [str.encode(response.url)]
         yield scrapy.Request(
             url=link_next_chap,
             headers=response.request.headers,
