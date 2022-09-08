@@ -4,8 +4,11 @@ from pathlib import Path
 from shutil import rmtree, copy
 
 import unicodedata as ud
-from importlib_resources import files
 
+try:
+    from importlib_resources import files
+except ImportError:
+    from importlib.resources import files
 from getnovel import data
 from getnovel.utils.typehint import PathStr, DictPath
 
@@ -89,7 +92,7 @@ class FileConverter:
         _logger.info("Done cleaning. View result at: %s", self.y.resolve())
 
     def convert_to_xhtml(
-            self, duplicate_chapter: bool, rm_result: bool, lang_code: str
+        self, duplicate_chapter: bool, rm_result: bool, lang_code: str
     ) -> int:
         """Clean files and convert to XHTML.
 

@@ -5,7 +5,7 @@ and convert all chapters to XHTML, TXT, or to make EPUB.
 """
 import argparse
 import sys
-
+import traceback
 from getnovel.utils.crawler import NovelCrawler
 from getnovel.utils.epub import EpubMaker
 from getnovel.utils.file import FileConverter
@@ -40,6 +40,8 @@ def main(argv) -> int:
         if argv[1] == "epub":
             print("Missing sub command: from_url, from_raw")
             return 1
+        else:
+            print(traceback.format_exc())
     return 0
 
 
@@ -51,7 +53,7 @@ def crawl_func(args):
         start_chap=args.start,
         stop_chap=args.stop,
         clean=args.clean,
-        output=args.raw,
+        output=args.raw_dir,
     )
 
 
