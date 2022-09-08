@@ -4,7 +4,11 @@ import logging
 from uuid import uuid1
 from pathlib import Path
 from datetime import datetime
-from importlib_resources import files
+
+try:
+    from importlib_resources import files
+except ImportError:
+    from importlib.resources import files
 from shutil import move, rmtree, copy
 from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
@@ -225,9 +229,16 @@ class EpubMaker:
             encoding="utf-8",
         )
         # zip files to epub
-        with ZipFile(self.rdp / f"{novel_title}.epub", "w", compression=ZIP_DEFLATED, compresslevel=9) as f_zip:
-            mime_path = self.tmp_edp/"mimetype"
-            f_zip.write(mime_path, mime_path.relative_to(self.tmp_edp), compress_type=ZIP_STORED)
+        with ZipFile(
+            self.rdp / f"{novel_title}.epub",
+            "w",
+            compression=ZIP_DEFLATED,
+            compresslevel=9,
+        ) as f_zip:
+            mime_path = self.tmp_edp / "mimetype"
+            f_zip.write(
+                mime_path, mime_path.relative_to(self.tmp_edp), compress_type=ZIP_STORED
+            )
             mime_path.unlink()
             for path in self.tmp_edp.rglob("*"):
                 f_zip.write(path, path.relative_to(self.tmp_edp))
