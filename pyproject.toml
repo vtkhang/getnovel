@@ -1,3 +1,41 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "getnovel"
+description = "Tool based on Scrapy framework to get novel from websites"
+readme = "README.rst"
+requires-python = ">=3.7"
+keywords = ["crawler", "scrapy"]
+license = { text = "MIT" }
+version = "1.2.3"
+classifiers = [
+    "Framework :: Scrapy",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent"
+]
+dependencies = [
+    "scrapy >= 2.5.1",
+    "beautifulsoup4 >= 4.11.1",
+    "Pillow >= 9.1.0",
+    "tldextract >= 3.2.1",
+    "validators >= 0.18.2",
+    'importlib-metadata >= 4.2.0; python_version<"3.8"',
+    'importlib-resources >= 4.2.0; python_version<"3.8"'
+]
+
+[project.optional-dependencies]
+dev = [
+    "black >= 22.3.0",
+    "ipython >= 7.32.0",
+    "flake8 >= 4.0.1"
+]
+
+[project.scripts]
+getnovel = "getnovel:run_main"
