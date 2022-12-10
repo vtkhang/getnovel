@@ -153,7 +153,9 @@ def get_content(response: scrapy.http.Response, save_path: Path):
         "Chương " + response.xpath('/html//a[@class="chapter-title"]/text()').get()
     )
     # get content
-    content = response.xpath('/html//div[@id="chapter-c"]//text()').getall()
+    content = response.xpath(
+        '/html//div[@id="chapter-c"]//text()[parent::div or parent::i]'
+    ).getall()
     content.insert(0, chapter)
     (save_path / f'{str(response.meta["id"])}.txt').write_text(
         "\n".join([x.strip() for x in content if x.strip() != ""]), encoding="utf-8"
