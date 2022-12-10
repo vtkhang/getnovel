@@ -2,8 +2,10 @@ GETNOVEL
 ========
 
 .. image:: https://img.shields.io/badge/python-3.7+-blue
+  :target: https://www.python.org/
 
 .. image:: https://img.shields.io/badge/scrapy-2.5.1+-blue
+  :target: https://scrapy.org/
 
 Developer
 =========
