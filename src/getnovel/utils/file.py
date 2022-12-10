@@ -252,7 +252,7 @@ def fix_bad_indent(data_in: tuple) -> tuple:
         tuple: cleaned text lines
     """
     temp = []
-    # filter the '' out of data_in and store to temp
+    # filter the blank line out of data_in and store to temp
     for x in data_in:
         if x != "":
             temp.append(x.replace("\n", " "))
