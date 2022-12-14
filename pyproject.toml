@@ -22,6 +22,7 @@ classifiers = [
 ]
 dependencies = [
     "scrapy >= 2.5.1",
+    "pydantic",
     "beautifulsoup4 >= 4.11.1",
     "Pillow >= 9.1.0",
     "tldextract >= 3.2.1",
