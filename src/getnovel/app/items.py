@@ -15,10 +15,10 @@ class Info(Item):
 
     title = Field()
     author = Field()
-    url = Field()
     types = Field()
     foreword = Field()
     cover_url = Field()
+    url = Field()
 
 
 class InfoLoader(ItemLoader):
