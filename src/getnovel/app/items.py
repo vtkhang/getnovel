@@ -6,7 +6,7 @@
 """
 
 from scrapy import Field, Item
-from itemloaders.processors import MapCompose, Identity, Join
+from itemloaders.processors import MapCompose, Join
 from scrapy.loader import ItemLoader
 
 
@@ -19,7 +19,6 @@ class Info(Item):
     types = Field()
     foreword = Field()
     cover_url = Field()
-    save_path = Field()
 
 
 class InfoLoader(ItemLoader):
@@ -34,15 +33,13 @@ class InfoLoader(ItemLoader):
     def foreword_out(self, values):
         return "\n".join(values)
 
-    save_path_in = Identity()
-    save_path_out = Identity()
-
 
 class Chapter(Item):
     """Store novel chapters."""
 
     title = Field()
     content = Field()
+    id = Field()
 
 
 class ChapterLoader(ItemLoader):
