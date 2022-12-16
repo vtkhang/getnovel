@@ -18,4 +18,9 @@ def get_settings():
         },
         "LOG_FORMAT": "%(asctime)s [%(name)s] %(levelname)s: %(message)s",
         "LOG_SHORT_NAMES": True,
+        "ITEM_PIPELINES": {
+            "getnovel.app.pipelines.AppPipeline": 300,
+        },
+        "ROBOTSTXT_OBEY": False,
+        "SPIDER_MODULES": ["getnovel.app.spiders"]
     }
