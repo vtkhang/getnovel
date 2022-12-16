@@ -5,6 +5,13 @@
 
    useful for handling different item types with a single interface
 """
+import logging
+from pathlib import Path
+
+import scrapy
+from getnovel.app.items import Info, Chapter
+
+_logger = logging.getLogger(__name__)
 
 
 class AppPipeline:
@@ -12,5 +19,23 @@ class AppPipeline:
 
     def process_item(self, item, spider):
         """Process logic."""
-        _ = self, spider
+        sp: Path = spider.save_path
+        el = ""
+        if type(item) == Info:
+            sp = sp / "foreword.txt"
+            el = "of novel info is empty"
+        elif type(item) == Chapter:
+            id = item.pop("id")
+            sp = sp / f"{id}.txt"
+            el = f"of chapter {item.get(id)} is empty"
+        else:
+            _logger.error("Invalid item detected!")
+        r = []
+        for k in item.keys():
+            if item[k] == "":
+                _logger.error(f"Field {k} {el}")
+                raise scrapy.exceptions.DropItem(reason="Empty field Detected!")
+            else:
+                r.append(item[k])
+        sp.write_text(data="\n".join(r), encoding="utf-8")
         return item
