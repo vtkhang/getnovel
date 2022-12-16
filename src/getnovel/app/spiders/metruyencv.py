@@ -1,4 +1,4 @@
-"""Get novel from domain metruyencv.
+"""Get novel from domain metruyencv
 
 .. _Web sites:
    https://metruyencv.com
@@ -6,10 +6,11 @@
 """
 from pathlib import Path
 
+from getnovel.app import items
 import scrapy
 
 
-class TruyenCvSubSpider(scrapy.Spider):
+class MeTruyenCVSpider(scrapy.Spider):
     """Define spider for domain: metruyencv."""
 
     name = "metruyencv"
@@ -23,18 +24,18 @@ class TruyenCvSubSpider(scrapy.Spider):
         *args,
         **kwargs,
     ):
-        """Initialize the attributes for this spider.
+        """Initialize the attributes for this spider
 
         Parameters
         ----------
         url : str
-            The link of the novel information page.
+            The link of the novel information page
         save_path : Path
-            Path of raw directory.
+            Path of raw directory
         start_chap : int
-            Start crawling from this chapter.
+            Start crawling from this chapter
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters.
+            Stop crawling from this chapter, input -1 to get all chapters
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
@@ -46,38 +47,31 @@ class TruyenCvSubSpider(scrapy.Spider):
 
     def parse(self, response: scrapy.http.Response, **kwargs):
         """Extract info of the novel and get the link of the
-        table of content (toc).
+        table of content (toc)
 
         Parameters
         ----------
         response : Response
-            The response to parse.
+            The response to parse
 
         Yields
         ------
         Request
-            Request to the cover image page and toc page.
+            Request to the cover image page and toc page
         """
-        # download cover
-        yield scrapy.Request(
-            response.xpath(
-                '//div[@class="nh-thumb nh-thumb--210 shadow"]/img/@src'
-            ).get(),
-            callback=self.parse_cover,
-        )
-        get_info(response, self.save_path)  # get info and write it to save path
+        yield get_info(response)
         total_chapter_str = response.xpath(
             '//*[@id="nav-tab-chap"]/span[2]/text()'
         ).get()
         if total_chapter_str is None:
             raise scrapy.exceptions.CloseSpider(
-                reason="Can't get total chapter number."
+                reason="Couldn't get total chapter number."
             )
         try:
             total_chapter = int(total_chapter_str)
         except ValueError as e:
             raise scrapy.exceptions.CloseSpider(
-                reason="Can't convert to integer."
+                reason="Couldn't convert total chapter number to integer."
             ) from e
         self.base_url = response.request.url
         self.total_chapter = total_chapter
@@ -87,30 +81,20 @@ class TruyenCvSubSpider(scrapy.Spider):
             callback=self.parse_content,
         )
 
-    def parse_cover(self, response: scrapy.http.Response):
-        """Download the cover of novel.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-        """
-        (self.save_path / "cover.jpg").write_bytes(response.body)
-
     def parse_content(self, response: scrapy.http.Response):
-        """Extract the content of chapter.
+        """Extract the content of chapter
 
         Parameters
         ----------
         response : Response
-            The response to parse.
+            The response to parse
 
         Yields
         ------
         Request
-            Request to the next chapter.
+            Request to the next chapter
         """
-        get_content(response, self.save_path)
+        yield get_content(response)
         if (
             response.meta["id"] >= self.total_chapter
             or response.meta["id"] == self.stop_chap
@@ -125,54 +109,34 @@ class TruyenCvSubSpider(scrapy.Spider):
         )
 
 
-def get_info(response: scrapy.http.Response, save_path: Path):
-    """Get info of this novel.
+def get_info(response: scrapy.http.Response):
+    """Get info of this novel
 
     Parameters
     ----------
     response : Response
-        The response to parse.
-    save_path : Path
-        Path of raw directory.
+        The response to parse
     """
-    # extract info
-    title = response.xpath('//h1[@class="h3 mr-2"]/a/text()').get()  # extract title
-    author = response.xpath(
-        '//ul[@class="list-unstyled mb-4"]/li[1]/a/text()'
-    ).get()  # extract author
-    types = response.xpath(
-        '//ul[@class="list-unstyled mb-4"]/li/a/text()'
-    ).getall()[1:]  # extract types
-    foreword = response.xpath(
-        '//div[@class="content"]/p/text()'
-    ).getall()  # extract description
-    info = []
-    info.append(title)
-    info.append(author)
-    info.append(response.request.url)
-    info.append(", ".join(types))
-    info.extend(foreword)
-
-    # write info to file
-    (save_path / "foreword.txt").write_text("\n".join(info), encoding="utf-8")
+    r = items.InfoLoader(item=items.Info(), response=response)
+    r.add_xpath("title", '//h1[@class="h3 mr-2"]/a/text()')
+    r.add_xpath("author", '//ul[@class="list-unstyled mb-4"]/li[1]/a/text()')
+    r.add_xpath("types", '//ul[@class="list-unstyled mb-4"]/li[position()>1]/a/text()')
+    r.add_xpath("foreword", '//div[@class="content"]/p/text()')
+    r.add_xpath("cover_url", '//div[@class="media"]//img[1]/@src')
+    r.add_value("url", response.request.url)
+    return r.load_item()
 
 
-def get_content(response: scrapy.http.Response, save_path: Path):
-    """Get content of this novel.
+def get_content(response: scrapy.http.Response):
+    """Get content of this novel
 
     Parameters
     ----------
     response : Response
-        The response to parse.
-    save_path : Path
-        Path of raw directory.
+        The response to parse
     """
-    # extract chapter title
-    chapter = response.xpath('//div[contains(@class,"nh-read__title")]/text()').get()
-    # extract content
-    content = response.xpath('//div[@id="js-read__content"]/text()').getall()
-    content.insert(0, chapter)
-    # write content to file
-    (save_path / f'{str(response.meta["id"])}.txt').write_text(
-        "\n".join([x.strip() for x in content if x.strip() != ""]), encoding="utf-8"
-    )
+    r = items.ChapterLoader(item=items.Chapter(), response=response)
+    r.add_xpath("title", '//div[contains(@class,"nh-read__title")]/text()')
+    r.add_xpath("content", '//div[@id="article"]/text()')
+    r.add_value("id", str(response.meta["id"]))
+    return r.load_item()
