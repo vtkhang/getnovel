@@ -1,7 +1,7 @@
-"""Get novel from domain metruyenchu.
+"""Get novel from domain metruyencv.
 
 .. _Web sites:
-   https://metruyenchu.com
+   https://metruyencv.com
 
 """
 from pathlib import Path
@@ -10,9 +10,9 @@ import scrapy
 
 
 class TruyenCvSubSpider(scrapy.Spider):
-    """Define spider for domain: metruyenchu."""
+    """Define spider for domain: metruyencv."""
 
-    name = "metruyenchu"
+    name = "metruyencv"
 
     def __init__(
         self,

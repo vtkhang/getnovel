@@ -101,7 +101,7 @@ Ussage
 
       from getnovel.utils.crawler import NovelCrawler
       p = NovelCrawler(url="https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa")
-      p.crawl(rm_raw=True, start_chap=3, stop_chap=8) 
+      p.crawl(rm_raw=True, start_chap=3, stop_chap=8)
 
   - Convert txt to xhtml by FileConverter:
 
@@ -132,7 +132,7 @@ Supported websites
 
 5. `https://truyenfull.vn/ <https://truyenfull.vn>`_
 
-6. `https://metruyencv.com/ <https://metruyenchu.com>`_
+6. `https://metruyencv.com/ <https://metruyencv.com>`_
 
 7. `https://vtruyen.com/ <https://vtruyen.com>`_
 
