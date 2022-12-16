@@ -17,7 +17,6 @@ class Info(Item):
     author = Field()
     types = Field()
     foreword = Field()
-    cover_url = Field()
     url = Field()
 
 
@@ -54,3 +53,9 @@ class ChapterLoader(ItemLoader):
         return "\n".join([x for x in values if x != ""])
 
     id_out = Join()
+
+
+class Image(Item):
+    """Process Image"""
+
+    content = Field()

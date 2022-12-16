@@ -55,12 +55,27 @@ class TruyenFullReworkSpider(scrapy.Spider):
         Request
             Request to the start chapter
         """
+        yield scrapy.Request(
+            url=response.xpath('//div[@class="book"]/img/@src').get(),
+            callback=self.parse_cover,
+            priority=-1
+        )
         yield get_info(response=response)
         yield scrapy.Request(
             url=f"{response.url}chuong-{self.start_chap}/",
             meta={"id": self.start_chap},
             callback=self.parse_content,
         )
+
+    def parse_cover(self, response: scrapy.http.Response, **kwargs):
+        """Download the cover of novel.
+
+        Parameters
+        ----------
+        response : Response
+            The response to parse.
+        """
+        yield items.Image(content=response.body)
 
     def parse_content(self, response: scrapy.http.Response):
         """Extract the content of chapter and send request to next chapter
@@ -103,7 +118,6 @@ def get_info(response: scrapy.http.Response):
     r.add_xpath("author", '//div[@class="info"]/div[1]/a/text()')
     r.add_xpath("types", '//div[@class="info"]/div[2]/a/text()')
     r.add_xpath("foreword", '//div[@class="desc-text"]/text()')
-    r.add_xpath("cover_url", '//div[@class="book"]/img/@src')
     r.add_value("url", response.request.url)
     return r.load_item()
 

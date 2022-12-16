@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 
 import scrapy
-from getnovel.app.items import Info, Chapter
+from getnovel.app.items import Info, Chapter, Image
 
 _logger = logging.getLogger(__name__)
 
@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 class AppPipeline:
     """Define App pipeline."""
 
-    def process_item(self, item, spider):
+    def process_item(self, item: scrapy.Item, spider):
         """Process logic."""
         sp: Path = spider.save_path
         el = ""
@@ -28,6 +28,9 @@ class AppPipeline:
             id = item.pop("id")
             sp = sp / f"{id}.txt"
             el = f"of chapter {item.get(id)} is empty"
+        elif type(item) == Image:
+            (sp / "cover.jpg").write_bytes(item.get("content"))
+            return item
         else:
             _logger.error("Invalid item detected!")
         r = []
