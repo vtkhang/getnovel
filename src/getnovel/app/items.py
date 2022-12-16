@@ -25,7 +25,7 @@ class InfoLoader(ItemLoader):
     """Process info data"""
 
     default_input_processor = MapCompose(str.strip)
-    default_output_processor = Join(" ")
+    default_output_processor = Join()
 
     def types_out(self, values):
         return ", ".join(values)
@@ -52,3 +52,5 @@ class ChapterLoader(ItemLoader):
 
     def content_out(self, values):
         return "\n".join([x for x in values if x != ""])
+
+    id_out = Join()
