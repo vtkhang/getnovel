@@ -55,10 +55,8 @@ class TruyenFullReworkSpider(scrapy.Spider):
         Request
             Request to the start chapter
         """
-        yield scrapy.Request(
-            url=response.xpath('//div[@class="book"]/img/@src').get(),
-            callback=self.parse_cover,
-            priority=-1
+        yield items.CoverImage(
+            image_urls=response.xpath('//div[@class="book"]/img/@src').getall()
         )
         yield get_info(response=response)
         yield scrapy.Request(
@@ -66,16 +64,6 @@ class TruyenFullReworkSpider(scrapy.Spider):
             meta={"id": self.start_chap},
             callback=self.parse_content,
         )
-
-    def parse_cover(self, response: scrapy.http.Response, **kwargs):
-        """Download the cover of novel.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-        """
-        yield items.Image(content=response.body)
 
     def parse_content(self, response: scrapy.http.Response):
         """Extract the content of chapter and send request to next chapter

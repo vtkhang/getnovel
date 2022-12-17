@@ -55,7 +55,8 @@ class ChapterLoader(ItemLoader):
     id_out = Join()
 
 
-class Image(Item):
+class CoverImage(Item):
     """Process Image"""
 
-    content = Field()
+    image_urls = Field()
+    images = Field()

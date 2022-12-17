@@ -59,10 +59,8 @@ class MeTruyenCVSpider(scrapy.Spider):
         Request
             Request to the cover image page and toc page
         """
-        yield scrapy.Request(
-            url=response.xpath('//div[@class="media"]//img[1]/@src').get(),
-            callback=self.parse_cover,
-            priority=-1
+        yield items.CoverImage(
+            image_urls=response.xpath('//div[@class="media"]//img[1]/@src').getall(),
         )
         yield get_info(response)
         total_chapter_str = response.xpath(
@@ -85,16 +83,6 @@ class MeTruyenCVSpider(scrapy.Spider):
             meta={"id": self.start_chap},
             callback=self.parse_content,
         )
-
-    def parse_cover(self, response: scrapy.http.Response, **kwargs):
-        """Download the cover of novel.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-        """
-        yield items.Image(content=response.body)
 
     def parse_content(self, response: scrapy.http.Response):
         """Extract the content of chapter
@@ -137,7 +125,6 @@ def get_info(response: scrapy.http.Response):
     r.add_xpath("author", '//ul[@class="list-unstyled mb-4"]/li[1]/a/text()')
     r.add_xpath("types", '//ul[@class="list-unstyled mb-4"]/li[position()>1]/a/text()')
     r.add_xpath("foreword", '//div[@class="content"]/p/text()')
-    r.add_xpath("cover_url", '')
     r.add_value("url", response.request.url)
     return r.load_item()
 

@@ -5,13 +5,11 @@
 
    useful for handling different item types with a single interface
 """
-import logging
 from pathlib import Path
 
 import scrapy
-from getnovel.app.items import Info, Chapter, Image
-
-_logger = logging.getLogger(__name__)
+from scrapy.pipelines.images import ImagesPipeline
+from getnovel.app import items
 
 
 class AppPipeline:
@@ -21,24 +19,29 @@ class AppPipeline:
         """Process logic."""
         sp: Path = spider.save_path
         el = ""
-        if type(item) == Info:
+        if type(item) == items.Info:
             sp = sp / "foreword.txt"
             el = "of novel info is empty"
-        elif type(item) == Chapter:
+        elif type(item) == items.Chapter:
             id = item.pop("id")
             sp = sp / f"{id}.txt"
             el = f"of chapter {item.get(id)} is empty"
-        elif type(item) == Image:
-            (sp / "cover.jpg").write_bytes(item.get("content"))
+        elif type(item) == items.CoverImage:
             return item
         else:
-            _logger.error("Invalid item detected!")
+            raise scrapy.exceptions.DropItem("Invalid item detected!")
         r = []
         for k in item.keys():
             if item[k] == "":
-                _logger.error(f"Field {k} {el}")
-                raise scrapy.exceptions.DropItem(reason="Empty field Detected!")
+                raise scrapy.exceptions.DropItem(f"Field {k} {el}")
             else:
                 r.append(item[k])
         sp.write_text(data="\n".join(r), encoding="utf-8")
         return item
+
+
+class CoverImagesPipeline(ImagesPipeline):
+    """Define Image Pipeline"""
+
+    def file_path(self, request, response=None, info=None, *, item=None):
+        return str(info.spider.save_path / f'cover{Path(request.url).suffix}')
