@@ -105,7 +105,7 @@ def get_info(response: scrapy.http.Response):
     r.add_xpath("title", '//h3[@class="title"]/text()')
     r.add_xpath("author", '//div[@class="info"]/div[1]/a/text()')
     r.add_xpath("types", '//div[@class="info"]/div[2]/a/text()')
-    r.add_xpath("foreword", '//div[@class="desc-text"]/text()')
+    r.add_xpath("foreword", '//div[@itemprop="description"]//text()')
     r.add_value("url", response.request.url)
     return r.load_item()
 
