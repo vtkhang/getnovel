@@ -5,8 +5,9 @@
 
 """
 from pathlib import Path
-from getnovel.app import items
 import scrapy
+from getnovel.app.items import Info, Chapter
+from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
 class TruyenFullReworkSpider(scrapy.Spider):
@@ -55,9 +56,6 @@ class TruyenFullReworkSpider(scrapy.Spider):
         Request
             Request to the start chapter
         """
-        yield items.CoverImage(
-            image_urls=response.xpath('//div[@class="book"]/img/@src').getall()
-        )
         yield get_info(response=response)
         yield scrapy.Request(
             url=f"{response.url}chuong-{self.start_chap}/",
@@ -101,11 +99,12 @@ def get_info(response: scrapy.http.Response):
         The response to parse
     """
     # extract info
-    r = items.InfoLoader(item=items.Info(), response=response)
+    r = InfoLoader(item=Info(), response=response)
     r.add_xpath("title", '//h3[@class="title"]/text()')
     r.add_xpath("author", '//div[@class="info"]/div[1]/a/text()')
     r.add_xpath("types", '//div[@class="info"]/div[2]/a/text()')
     r.add_xpath("foreword", '//div[@itemprop="description"]//text()')
+    r.add_xpath("image_urls", '//div[@class="book"]/img/@src')
     r.add_value("url", response.request.url)
     return r.load_item()
 
@@ -120,7 +119,7 @@ def get_content(response: scrapy.http.Response):
     save_path : Path
         Path of raw directory
     """
-    r = items.ChapterLoader(item=items.Chapter(), response=response)
+    r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", '//a[@class="chapter-title"]//text()')
     r.add_xpath(
         "content",

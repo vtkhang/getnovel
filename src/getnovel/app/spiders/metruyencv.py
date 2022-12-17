@@ -6,8 +6,9 @@
 """
 from pathlib import Path
 
-from getnovel.app import items
 import scrapy
+from getnovel.app.items import Info, Chapter
+from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
 class MeTruyenCVSpider(scrapy.Spider):
@@ -59,9 +60,6 @@ class MeTruyenCVSpider(scrapy.Spider):
         Request
             Request to the cover image page and toc page
         """
-        yield items.CoverImage(
-            image_urls=response.xpath('//div[@class="media"]//img[1]/@src').getall(),
-        )
         yield get_info(response)
         total_chapter_str = response.xpath(
             '//*[@id="nav-tab-chap"]/span[2]/text()'
@@ -120,11 +118,12 @@ def get_info(response: scrapy.http.Response):
     response : Response
         The response to parse
     """
-    r = items.InfoLoader(item=items.Info(), response=response)
+    r = InfoLoader(item=Info(), response=response)
     r.add_xpath("title", '//h1[@class="h3 mr-2"]/a/text()')
     r.add_xpath("author", '//ul[@class="list-unstyled mb-4"]/li[1]/a/text()')
     r.add_xpath("types", '//ul[@class="list-unstyled mb-4"]/li[position()>1]/a/text()')
     r.add_xpath("foreword", '//div[@class="content"]/p/text()')
+    r.add_xpath("image_urls", '//div[@class="media"]//img[1]/@src')
     r.add_value("url", response.request.url)
     return r.load_item()
 
@@ -137,7 +136,7 @@ def get_content(response: scrapy.http.Response):
     response : Response
         The response to parse
     """
-    r = items.ChapterLoader(item=items.Chapter(), response=response)
+    r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", '//div[contains(@class,"nh-read__title")]/text()')
     r.add_xpath("content", '//div[@id="article"]/text()')
     r.add_value("id", str(response.meta["id"]))
