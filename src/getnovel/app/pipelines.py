@@ -32,7 +32,7 @@ class AppPipeline:
             raise scrapy.exceptions.DropItem("Invalid item detected!")
         r = []
         for k in item.keys():
-            if item[k] == "":
+            if item.get("k", "") == "":
                 raise scrapy.exceptions.DropItem(f"Field {k} {el}")
             else:
                 r.append(item[k])
