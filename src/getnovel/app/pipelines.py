@@ -25,11 +25,10 @@ class AppPipeline:
             el = "of novel info is empty"
             fk = ["images", "image_urls"]
         elif type(item) == items.Chapter:
+            cid = item.get("id", "Unknown")
+            sp = sp / f'{cid}.txt'
+            el = f"of chapter {cid} is empty"
             fk = ["id"]
-            sp = sp / f"{id}.txt"
-            el = f"of chapter {item.get(id)} is empty"
-        elif type(item) == items.CoverImage:
-            return item
         else:
             raise scrapy.exceptions.DropItem("Invalid item detected!")
         r = []
