@@ -12,6 +12,7 @@ LOG_FORMAT = r"%(asctime)s [%(name)s] %(levelname)s: %(message)s"
 LOG_SHORT_NAMES = True
 LOG_FILE = r"C:\Users\varus\GetNovel\logs\log.txt"
 LOG_FILE_APPEND = False
+LOG_LEVEL = r"INFO"
 AUTOTHROTTLE_ENABLED = True
 AUTOTHROTTLE_START_DELAY = 5
 DOWNLOAD_DELAY = 2

@@ -29,6 +29,7 @@ def get_settings():
         "LOG_SHORT_NAMES": True,
         "LOG_FILE": f'{Path.home() / "GetNovel" / "logs" / "log.txt"}',
         "LOG_FILE_APPEND": False,
+        "LOG_LEVEL": "INFO",
         # AUTOTHROTTLE SETTINGS
         "AUTOTHROTTLE_ENABLED": True,
         "AUTOTHROTTLE_START_DELAY": 5,
@@ -55,8 +56,3 @@ def mk_settings(sp: Path, sc: dict):
         r.append(f"{str(k)} = {t}")
     r.append("")
     sp.write_text(encoding="utf-8", data="\n".join(r))
-
-
-mk_settings(
-    sp=Path(r"H:\repos\getnovel\src\getnovel\app\settings.py"), sc=get_settings()
-)
