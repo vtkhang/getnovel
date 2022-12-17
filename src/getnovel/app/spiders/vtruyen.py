@@ -10,7 +10,7 @@ import scrapy
 
 
 class TruyenCvSubSpider(scrapy.Spider):
-    """Define spider for domain: vtruyen."""
+    """Define spider for domain: vtruyen"""
 
     name = "vtruyen"
 
@@ -71,13 +71,13 @@ class TruyenCvSubSpider(scrapy.Spider):
         ).get()
         if total_chapter_str is None:
             raise scrapy.exceptions.CloseSpider(
-                reason="Can't get total chapter number."
+                reason="Can't get total chapter number"
             )
         try:
             total_chapter = int(total_chapter_str)
         except ValueError as e:
             raise scrapy.exceptions.CloseSpider(
-                reason="Can't convert to integer."
+                reason="Can't convert to integer"
             ) from e
         self.base_url = response.request.url
         self.total_chapter = total_chapter

@@ -10,7 +10,7 @@ import scrapy
 
 
 class TWpiaotianSpider(scrapy.Spider):
-    """Define spider for domain: twpiaotian."""
+    """Define spider for domain: twpiaotian"""
 
     name = "twpiaotians"
 
@@ -65,7 +65,7 @@ class TWpiaotianSpider(scrapy.Spider):
         get_info(response, self.save_path)
         t: str = response.request.url
         menu_link = "https://www.twpiaotians.com/piaotianlist/{0}/dir.html".format(
-            t.rsplit("/", 1)[1].split(".")[0]
+            t.rsplit("/", 1)[1].split("")[0]
         )
         yield scrapy.Request(
             url=menu_link,  # goto start chapter

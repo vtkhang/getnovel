@@ -13,7 +13,7 @@ from scrapy.exceptions import CloseSpider
 
 
 class SixNineshuSpider(Spider):
-    """Define spider for domain: 69shu."""
+    """Define spider for domain: 69shu"""
 
     name = "69shu"
 
@@ -88,7 +88,7 @@ class SixNineshuSpider(Spider):
         self.toc: list = response.xpath('//*[@id="catalog"]/ul/li/a/@href').getall()
         if self.sa > len(self.toc):
             raise CloseSpider(
-                reason="Start chapter index is greater than total chapters."
+                reason="Start chapter index is greater than total chapters"
             )
         yield Request(
             url=self.toc[self.sa - 1],  # goto start chapter

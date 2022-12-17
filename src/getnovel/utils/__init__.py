@@ -1,1 +1,1 @@
-"""Main packages of getnovel."""
+"""Main packages of getnovel"""

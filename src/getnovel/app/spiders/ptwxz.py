@@ -12,7 +12,7 @@ from scrapy.selector import Selector
 
 
 class PtwxzSpider(scrapy.Spider):
-    """Define spider for domain: ptwxz."""
+    """Define spider for domain: ptwxz"""
 
     name = "ptwxz"
 

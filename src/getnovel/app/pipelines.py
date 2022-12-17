@@ -13,10 +13,10 @@ from getnovel.app import items
 
 
 class AppPipeline:
-    """Define App pipeline."""
+    """Define App pipeline"""
 
     def process_item(self, item: scrapy.Item, spider):
-        """Process logic."""
+        """Process logic"""
         sp: Path = spider.save_path
         el = ""
         fk = ""

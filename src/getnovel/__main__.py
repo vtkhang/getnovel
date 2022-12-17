@@ -1,4 +1,4 @@
-"""Main entry point."""
+"""Main entry point"""
 # pylint: disable=invalid-name
 import getnovel
 

@@ -10,7 +10,7 @@ import scrapy
 
 
 class UukanshuSpider(scrapy.Spider):
-    """Define spider for domain: uukanshu."""
+    """Define spider for domain: uukanshu"""
 
     name = "uukanshu"
 
@@ -70,7 +70,7 @@ class UukanshuSpider(scrapy.Spider):
         self.menu.reverse()
         if self.start_chap > len(self.menu):
             raise scrapy.exceptions.CloseSpider(
-                reason="Start chapter index is greater than menu list."
+                reason="Start chapter index is greater than menu list"
             )
         yield scrapy.Request(
             url=self.domain + self.menu[self.start_chap - 1],  # goto start chapter

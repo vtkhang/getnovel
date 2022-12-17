@@ -1,8 +1,9 @@
-"""Type hint for getnovel."""
+"""Type hint for getnovel"""
 from pathlib import Path
 from typing import Union, Dict, List
 
-# Don't need to check types in python. If the code fail, it will raise exception -> handle exception is enough.
+# Don't need to check types in python. If the code fail,
+# it will raise exception -> handle exception is enough.
 # https://stackoverflow.com/a/602078
 # Path object which can be string or pathlib.Path
 PathStr = Union[Path, str]  # pylint: disable=E1136

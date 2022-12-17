@@ -1,4 +1,4 @@
-"""Make EPUB module."""
+"""Make EPUB module"""
 import logging
 
 from uuid import uuid1
@@ -23,7 +23,7 @@ _logger = logging.getLogger(__name__)
 
 
 class EpubMaker:
-    """Support making epub from input url or from a raw directory path."""
+    """Support making epub from input url or from a raw directory path"""
 
     def __init__(self, output: PathStr = None):
         """Assign path for the output directory.
@@ -85,11 +85,11 @@ class EpubMaker:
         """
         # validate raw directory path input
         if raw_dir_path is None:
-            raise EpubMakerError("Raw directory path is None.")
+            raise EpubMakerError("Raw directory path is None")
         elif isinstance(raw_dir_path, str):
             raw_dir_path = Path(raw_dir_path)
         elif not isinstance(raw_dir_path, Path):
-            raise EpubMakerError("raw_dir_path type must be str or Path.")
+            raise EpubMakerError("raw_dir_path type must be str or Path")
         # convert raw files to xhtml
         c = FileConverter(raw_dir_path)
         c.convert_to_xhtml(
@@ -247,7 +247,7 @@ class EpubMaker:
 
 
 class EpubMakerError(Exception):
-    """Handle EpubMaker exception."""
+    """Handle EpubMaker exception"""
 
     pass
 

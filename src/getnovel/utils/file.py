@@ -1,4 +1,4 @@
-"""Define FileConverter class."""
+"""Define FileConverter class"""
 import logging
 from pathlib import Path
 from shutil import rmtree, copy
@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 
 
 class FileConverter:
-    """This class define clean method and convert to xhtml method."""
+    """This class define clean method and convert to xhtml method"""
 
     def __init__(self, raw_dir_path: PathStr, result_dir_path: PathStr = None) -> None:
         """Init path of raw directory and result directory.
@@ -237,7 +237,7 @@ class FileConverter:
 
 
 class FileConverterError(Exception):
-    """File converter exception."""
+    """File converter exception"""
 
     pass
 

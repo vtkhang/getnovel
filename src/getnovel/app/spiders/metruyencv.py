@@ -12,7 +12,7 @@ from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
 class MeTruyenCVSpider(scrapy.Spider):
-    """Define spider for domain: metruyencv."""
+    """Define spider for domain: metruyencv"""
 
     name = "metruyencv"
 
@@ -66,13 +66,13 @@ class MeTruyenCVSpider(scrapy.Spider):
         ).get()
         if total_chapter_str is None:
             raise scrapy.exceptions.CloseSpider(
-                reason="Couldn't get total chapter number."
+                reason="Couldn't get total chapter number"
             )
         try:
             total_chapter = int(total_chapter_str)
         except ValueError as e:
             raise scrapy.exceptions.CloseSpider(
-                reason="Couldn't convert total chapter number to integer."
+                reason="Couldn't convert total chapter number to integer"
             ) from e
         self.base_url = response.request.url
         self.total_chapter = total_chapter

@@ -16,7 +16,7 @@ class AppSpiderMiddleware:
 
     @classmethod
     def from_crawler(cls, crawler):
-        """This method is used by Scrapy to create your spiders."""
+        """This method is used by Scrapy to create your spiders"""
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
@@ -59,7 +59,7 @@ class AppSpiderMiddleware:
             yield r
 
     def spider_opened(self, spider):
-        """Log spider information."""
+        """Log spider information"""
         _ = self
         spider.logger.info('Spider opened: %s' % spider.name)
 
@@ -72,7 +72,7 @@ class AppDownloaderMiddleware:
 
     @classmethod
     def from_crawler(cls, crawler):
-        """This method is used by Scrapy to create your spiders."""
+        """This method is used by Scrapy to create your spiders"""
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
@@ -114,6 +114,6 @@ class AppDownloaderMiddleware:
         pass
 
     def spider_opened(self, spider):
-        """Log spider information."""
+        """Log spider information"""
         _ = self
         spider.logger.info('Spider opened: %s' % spider.name)

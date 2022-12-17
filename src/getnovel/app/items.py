@@ -9,7 +9,7 @@ from scrapy import Field, Item
 
 
 class Info(Item):
-    """Store novel info."""
+    """Store novel info"""
 
     title = Field()
     author = Field()
@@ -21,7 +21,7 @@ class Info(Item):
 
 
 class Chapter(Item):
-    """Store novel chapters."""
+    """Store novel chapters"""
 
     title = Field()
     content = Field()

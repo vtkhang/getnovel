@@ -10,7 +10,7 @@ import scrapy
 
 
 class TangThuVienSpider(scrapy.Spider):
-    """Define spider for domain: tangthuvien."""
+    """Define spider for domain: tangthuvien"""
 
     name = "tangthuvien"
 

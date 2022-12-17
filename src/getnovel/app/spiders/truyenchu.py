@@ -11,7 +11,7 @@ import scrapy
 
 
 class TruyenchuSpider(scrapy.Spider):
-    """Define spider for domain: truyenchu."""
+    """Define spider for domain: truyenchu"""
 
     name = "truyenchu"
 
@@ -106,10 +106,10 @@ class TruyenchuSpider(scrapy.Spider):
         t = json.loads(response.body.decode("utf8").replace("'", '"'))
         if "chap_list" not in t:
             raise scrapy.exceptions.CloseSpider(
-                reason="response of xhr doesn't have chap_list."
+                reason="response of xhr doesn't have chap_list"
             )
         if t["chap_list"] == "":
-            raise scrapy.exceptions.CloseSpider(reason="start chapter is not exists.")
+            raise scrapy.exceptions.CloseSpider(reason="start chapter is not exists")
         s: scrapy.Selector = scrapy.Selector(text=t["chap_list"])
         chapter_links = s.xpath("//li//a/@href").getall()
         self.menu.extend(chapter_links)
@@ -140,7 +140,7 @@ class TruyenchuSpider(scrapy.Spider):
             i1 = str(response.meta["id"] + 1)
             i2 = str((response.meta["id"] + 1) // 50 + 1)
             raise scrapy.exceptions.CloseSpider(
-                reason="The chapter " + i1 + " at " + i2 + " have errors."
+                reason="The chapter " + i1 + " at " + i2 + " have errors"
             )
         if (npu == "#") or response.meta["id"] == self.stop_chap:
             raise scrapy.exceptions.CloseSpider(reason="Done")
@@ -208,7 +208,7 @@ def get_content(response: scrapy.http.Response, save_path: Path):
         '//div[@id="chapter-c"]//text()[not(parent::script)]'
     ).getall()
     if chapter is None or content is None:
-        chapter = "Chương này bị lỗi. Mời lên website của truyện để tìm hiểu thêm."
+        chapter = "Chương này bị lỗi. Mời lên website của truyện để tìm hiểu thêm"
         content = []
     content.insert(0, chapter)
     (save_path / f'{str(response.meta["id"])}.txt').write_text(

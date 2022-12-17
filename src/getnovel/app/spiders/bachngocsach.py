@@ -10,7 +10,7 @@ import scrapy
 
 
 class BachNgocSachSpider(scrapy.Spider):
-    """Define spider for domain: bachngocsach."""
+    """Define spider for domain: bachngocsach"""
 
     name = "bachngocsach"
 

@@ -10,7 +10,7 @@ import scrapy
 
 
 class SSTruyenSpider(scrapy.Spider):
-    """Define spider for domain: sstruyen."""
+    """Define spider for domain: sstruyen"""
 
     name = "sstruyen"
 

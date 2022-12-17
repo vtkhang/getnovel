@@ -10,7 +10,7 @@ import scrapy
 
 
 class WebTruyenSpider(scrapy.Spider):
-    """Define spider for domain: webtruyen."""
+    """Define spider for domain: webtruyen"""
     name = 'webtruyen'
 
     def __init__(self, url: str, save_path: Path, start_chap: int, stop_chap: int, *args, **kwargs):

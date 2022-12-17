@@ -46,7 +46,7 @@ def main(argv) -> int:
 
 
 def crawl_func(args):
-    """Run crawling process."""
+    """Run crawling process"""
     p = NovelCrawler(url=args.url)
     p.crawl(
         rm_raw=not args.keep_raw,
@@ -58,7 +58,7 @@ def crawl_func(args):
 
 
 def convert_func(args):
-    """Convert process."""
+    """Convert process"""
     c = FileConverter(args.raw_dir, args.result_dir)
     c.convert_to_xhtml(
         lang_code=args.lang_code,
@@ -83,13 +83,13 @@ def rm_dup_func(args):
 
 
 def epub_from_url_func(args):
-    """Make epub from url process."""
+    """Make epub from url process"""
     e = EpubMaker()
     e.from_url(args.url, args.dup_chap, args.start, args.stop)
 
 
 def epub_from_raw_func(args):
-    """Make epub from raw process."""
+    """Make epub from raw process"""
     e = EpubMaker()
     e.from_raw(args.raw_dir, args.dup_chap, args.lang_code)
 
@@ -145,7 +145,7 @@ def _build_parser():
         help="path to raw directory (default: working directory)",
     )
     crawl.add_argument(
-        "--clean", action="store_false", help="clean all the text files after crawling."
+        "--clean", action="store_false", help="clean all the text files after crawling"
     )
     crawl.add_argument("url", type=str, help="full web site to novel info page")
     crawl.set_defaults(func=crawl_func)
@@ -176,7 +176,7 @@ def _build_parser():
     convert.add_argument("raw_dir", type=str, help="path to raw directory")
     convert.set_defaults(func=convert_func)
     # remove duplicate
-    rm_dup = subparsers.add_parser("rm_dup", help="remove duplicates of chapter name.")
+    rm_dup = subparsers.add_parser("rm_dup", help="remove duplicates of chapter name")
     rm_dup.add_argument(
         "--result_dir",
         type=str,
@@ -236,7 +236,7 @@ class GetnovelException(BaseException):
 
 
 def run_main():
-    """Run main program."""
+    """Run main program"""
     try:
         sys.exit(main(sys.argv))
     except GetnovelException as e:

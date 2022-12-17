@@ -1,4 +1,4 @@
-"""Define NovelCrawler class."""
+"""Define NovelCrawler class"""
 
 import re
 import logging
@@ -20,7 +20,7 @@ _logger = logging.getLogger(__name__)
 
 
 class NovelCrawler:
-    """Download novel from website."""
+    """Download novel from website"""
 
     def __init__(self, url: str) -> None:
         """Initialize NovelCrawler with url, and assign path of raw
@@ -73,12 +73,12 @@ class NovelCrawler:
         """
         if start_chap < 1:
             raise CrawlNovelError(
-                "Index of start chapter need to be greater than zero."
+                "Index of start chapter need to be greater than zero"
             )
         if stop_chap < start_chap and stop_chap != -1:
             raise CrawlNovelError(
                 "Index of stop chapter need to be "
-                "greater than start chapter or equal -1."
+                "greater than start chapter or equal -1"
             )
         if output is None:
             tmp: list = self.u.split("/")
@@ -108,7 +108,7 @@ class NovelCrawler:
         process.start()
         _logger.info("Done crawling. View result at: %s", str(rp.resolve()))
         if clean is True:
-            _logger.info("Start cleaning.")
+            _logger.info("Start cleaning")
             c = FileConverter(rp, rp)
             c.clean(duplicate_chapter=False, rm_result=False)
         return rp
@@ -134,7 +134,7 @@ class NovelCrawler:
         return loader.load(self.spn)
 
     def get_langcode(self) -> str:
-        """Return language code of novel."""
+        """Return language code of novel"""
         if self.spn in ("ptwxz", "uukanshu", "69shu", "twpiaotian"):
             return "zh"
         else:
@@ -142,7 +142,7 @@ class NovelCrawler:
 
 
 class CrawlNovelError(Exception):
-    """Handle NovelCrawler Exception."""
+    """Handle NovelCrawler Exception"""
 
 
 def slugify(value, allow_unicode=False):
