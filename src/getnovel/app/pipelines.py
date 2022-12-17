@@ -44,4 +44,4 @@ class CoverImagesPipeline(ImagesPipeline):
     """Define Image Pipeline"""
 
     def file_path(self, request, response=None, info=None, *, item=None):
-        return str(info.spider.save_path / f'cover{Path(request.url).suffix}')
+        return str(info.spider.save_path / 'cover.jpg')
