@@ -1,17 +1,22 @@
-"""Get novel from domain truyenfull
+"""Get novel from domain truyenfull.
 
 .. _Web site:
    https://truyenfull.vn
 
 """
+
 from pathlib import Path
-import scrapy
+
+from scrapy import Spider, Request
+from scrapy.http import Response
+from scrapy.exceptions import CloseSpider
+
 from getnovel.app.items import Info, Chapter
 from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
-class TruyenFullReworkSpider(scrapy.Spider):
-    """Define spider for domain: truyenfull"""
+class TruyenFullSpider(Spider):
+    """Declare spider for domain: truyenfull"""
 
     name = "truyenfull"
 
@@ -24,18 +29,18 @@ class TruyenFullReworkSpider(scrapy.Spider):
         *args,
         **kwargs,
     ):
-        """Initialize the attributes for spider
+        """Initialize attributes.
 
         Parameters
         ----------
         url : str
-            The link of the novel information page
+            Url of the novel information page.
         save_path : Path
-            Path of raw directory
+            Path of raw directory.
         start_chap : int
-            Start crawling from this chapter
+            Start crawling from this chapter.
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters
+            Stop crawling from this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
@@ -43,62 +48,62 @@ class TruyenFullReworkSpider(scrapy.Spider):
         self.stop_chap = stop_chap
         self.save_path = save_path
 
-    def parse(self, response: scrapy.http.Response, **kwargs):
-        """Extract info of the novel and send request to start chapter
+    def parse(self, response: Response):
+        """Extract info and send request to the start chapter.
 
         Parameters
         ----------
         response : Response
-            The response to parse
+            The response to parse.
 
         Yields
         ------
         Request
-            Request to the start chapter
+            Info item.
+        Request
+            Request to the start chapter.
         """
-        yield get_info(response=response)
-        yield scrapy.Request(
+        yield get_info(response)
+        yield Request(
             url=f"{response.url}chuong-{self.start_chap}/",
             meta={"id": self.start_chap},
             callback=self.parse_content,
         )
 
-    def parse_content(self, response: scrapy.http.Response):
-        """Extract the content of chapter and send request to next chapter
+    def parse_content(self, response: Response):
+        """Extract content.
 
         Parameters
         ----------
         response : Response
-            The response to parse
+            The response to parse.
 
         Yields
         ------
         Request
-            Request to the next chapter
+            Chapter item.
+        Request
+            Request to the next chapter.
         """
-        yield get_content(response=response)
-        link_next_chap = response.xpath('//a[@id="next_chap"]/@href').getall()[0]
-        if (link_next_chap == "javascript:void(0)") or response.meta[
-            "id"
-        ] == self.stop_chap:
-            raise scrapy.exceptions.CloseSpider(reason="Done")
-        yield scrapy.Request(
-            url=link_next_chap,
-            headers=response.request.headers,
+        yield get_content(response)
+        next_url = response.xpath('//a[@id="next_chap"]/@href').get()
+        if (next_url == "javascript:void(0)") or response.meta["id"] == self.stop_chap:
+            raise CloseSpider(reason="Done")
+        yield Request(
+            url=next_url,
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
 
 
-def get_info(response: scrapy.http.Response):
-    """Get info of this novel
+def get_info(response: Response):
+    """Get novel information.
 
     Parameters
     ----------
     response : Response
-        The response to parse
+        The response to parse.
     """
-    # extract info
     r = InfoLoader(item=Info(), response=response)
     r.add_xpath("title", '//h3[@class="title"]/text()')
     r.add_xpath("author", '//div[@class="info"]/div[1]/a/text()')
@@ -109,15 +114,13 @@ def get_info(response: scrapy.http.Response):
     return r.load_item()
 
 
-def get_content(response: scrapy.http.Response):
-    """Get content of this novel
+def get_content(response: Response):
+    """Get chapter content.
 
     Parameters
     ----------
     response : Response
-        The response to parse
-    save_path : Path
-        Path of raw directory
+        The response to parse.
     """
     r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", '//a[@class="chapter-title"]//text()')
