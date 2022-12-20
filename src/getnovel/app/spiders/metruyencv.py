@@ -4,6 +4,7 @@
    https://metruyencv.com
 
 """
+
 from pathlib import Path
 
 from scrapy import Spider, Request
@@ -22,13 +23,13 @@ class MeTruyenCVSpider(Spider):
     def __init__(
         self,
         url: str,
-        save_path: Path,
         start_chap: int,
         stop_chap: int,
+        save_path: Path,
         *args,
         **kwargs,
     ):
-        """Initialize the attributes.
+        """Initialize attributes.
 
         Parameters
         ----------
@@ -63,13 +64,13 @@ class MeTruyenCVSpider(Spider):
         Request
             Request to the start chapter.
         """
+        self.total = int(response.xpath('//a[@id="nav-tab-chap"]/span[2]/text()').get())
         yield get_info(response)
         yield Request(
             url=f"{response.url}/chuong-{self.start_chap}/",
             meta={"id": self.start_chap},
             callback=self.parse_content,
         )
-        self.total = int(response.xpath('//a[@id="nav-tab-chap"]/span[2]/text()').get())
 
     def parse_content(self, response: Response):
         """Extract content.
@@ -92,7 +93,6 @@ class MeTruyenCVSpider(Spider):
         )
         if response.meta["id"] == self.stop_chap or response.meta["id"] >= self.total:
             raise CloseSpider(reason="Done")
-
         yield Request(
             url=next_url,
             headers=response.headers,
