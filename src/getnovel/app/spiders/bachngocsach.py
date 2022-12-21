@@ -1,34 +1,40 @@
 """Get novel from domain bachngocsach.
 
 .. _Web site:
-   https://bachngocsach.com/reader
+   https://bachngocsach.com.vn/reader
 
 """
+
 from pathlib import Path
 
-import scrapy
+from scrapy import Spider, Request
+from scrapy.http import Response
+from scrapy.exceptions import CloseSpider
+
+from getnovel.app.items import Info, Chapter
+from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
-class BachNgocSachSpider(scrapy.Spider):
-    """Define spider for domain: bachngocsach"""
+class BachNgocSachSpider(Spider):
+    """Declare spider for domain: bachngocsach"""
 
     name = "bachngocsach"
 
     def __init__(
         self,
         url: str,
-        save_path: Path,
         start_chap: int,
         stop_chap: int,
+        save_path: Path,
         *args,
         **kwargs,
     ):
-        """Initialize the attributes for this spider.
+        """Initialize attributes.
 
         Parameters
         ----------
         url : str
-            The link of the novel information page.
+            Url of the novel information page.
         save_path : Path
             Path of raw directory.
         start_chap : int
@@ -38,13 +44,12 @@ class BachNgocSachSpider(scrapy.Spider):
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
-        self.save_path = save_path
         self.start_chap = start_chap
-        self.stop_chap = int(stop_chap)
+        self.stop_chap = stop_chap
+        self.save_path = save_path
 
-    def parse(self, response: scrapy.http.Response, **kwargs):
-        """Extract info of the novel and get the link of the
-        table of content (toc).
+    def parse(self, response: Response):
+        """Extract info and send request to the start chapter.
 
         Parameters
         ----------
@@ -54,52 +59,37 @@ class BachNgocSachSpider(scrapy.Spider):
         Yields
         ------
         Request
-            Request to the cover image page and toc page.
+            Info item.
+        Request
+            Request to the start chapter.
         """
-        # request cover
-        yield scrapy.Request(
-            response.xpath('//div[@id="anhbia"]/img/@src').get(),
-            callback=self.parse_cover,
-        )
-        get_info(response, self.save_path)  # get info and write it to save path
-        yield scrapy.Request(
-            url=response.url + r"/muc-luc?page=all", callback=self.parse_start_chapter
-        )
+        yield get_info(response)
+        yield Request(url=f"{response.url}/muc-luc?page=all", callback=self.parse_start)
 
-    def parse_cover(self, response: scrapy.http.Response):
-        """Download the cover of novel.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-        """
-        (self.save_path / "cover.jpg").write_bytes(response.body)
-
-    def parse_start_chapter(self, response: scrapy.http.Response):
+    def parse_start(self, response: Response):
         """Extract link of the start chapter.
 
         Parameters
         ----------
-        response : scrapy.http.Response
+        response : Response
             The response to parse.
 
         Yields
         ------
-        scrapy.Request
+        Request
             Request to the start chapter.
         """
-        yield scrapy.Request(
-            url="https://bachngocsach.com"
-            + response.xpath('//*[@class="chuong-link"]/@href').getall()[
-                self.start_chap - 1
-            ],
-            meta={"id": self.start_chap},  # id of the start chapter
+        start_url = response.xpath('//*[@class="chuong-link"]/@href').getall()[
+            self.start_chap - 1
+        ]
+        yield Request(
+            url=f"https://bachngocsach.com.vn{start_url}",
+            meta={"id": self.start_chap},
             callback=self.parse_content,
         )
 
-    def parse_content(self, response: scrapy.http.Response):
-        """Extract the content of chapter.
+    def parse_content(self, response: Response):
+        """Extract content.
 
         Parameters
         ----------
@@ -109,62 +99,52 @@ class BachNgocSachSpider(scrapy.Spider):
         Yields
         ------
         Request
+            Chapter item.
+        Request
             Request to the next chapter.
         """
-        get_content(response, self.save_path)
-        t = response.xpath('//a[contains(@class,"page-next")]/@href').getall()
-        if (len(t) <= 0) or response.meta["id"] == self.stop_chap:
-            raise scrapy.exceptions.CloseSpider(reason="Done")
-        response.request.headers[b"Referer"] = [str.encode(response.url)]
-        yield scrapy.Request(
-            url="https://bachngocsach.com" + t[0],
-            headers=response.request.headers,
+        yield get_content(response)
+        next_url = response.xpath('//a[contains(@class,"page-next")]/@href').get()
+        if not next_url or response.meta["id"] == self.stop_chap:
+            raise CloseSpider(reason="Done")
+        yield Request(
+            url=f"https://bachngocsach.com.vn{next_url}",
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
 
 
-def get_info(response: scrapy.http.Response, save_path: Path):
-    """Get info of this novel.
+def get_info(response: Response):
+    """Get novel information.
 
     Parameters
     ----------
     response : Response
         The response to parse.
-    save_path : Path
-        Path of raw directory.
     """
-    # extract info
-    title = response.xpath('//*[@id="truyen-title"]/text()').get()
-    author = response.xpath('//div[@id="tacgia"]/a/text()').get()
-    types = response.xpath('//div[@id="theloai"]/a/text()').getall()
-    foreword = response.xpath('//div[@id="gioithieu"]/div/p/text()').getall()
-    info = []
-    info.append(title)
-    info.append(author)
-    info.append(response.request.url)
-    info.append(", ".join(types))
-    info.extend(foreword)
-    # write info to file
-    (save_path / "foreword.txt").write_text("\n".join(info), encoding="utf-8")
+    r = InfoLoader(item=Info(), response=response)
+    r.add_xpath("title", '//*[@id="truyen-title"]/text()')
+    r.add_xpath("author", '//div[@id="tacgia"]/a/text()')
+    r.add_xpath("types", '//div[@id="theloai"]/a/text()')
+    r.add_xpath("foreword", '//div[@id="gioithieu"]/div/p/text()')
+    r.add_xpath("image_urls", '//div[@id="anhbia"]/img/@src')
+    r.add_value("url", response.request.url)
+    return r.load_item()
 
 
-def get_content(response: scrapy.http.Response, save_path: Path):
-    """Get content of this novel.
+def get_content(response: Response):
+    """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
-    save_path : Path
-        Path of raw directory.
     """
-    # extract chapter title
-    chapter = response.xpath('//h1[@id="chuong-title"]/text()').get()
-    # extract content
-    content = response.xpath('//div[@id="noi-dung"]/p/text()').getall()
-    content.insert(0, chapter)
-    # write content to file
-    (save_path / f'{str(response.meta["id"])}.txt').write_text(
-        "\n".join([x.strip() for x in content if x.strip() != ""]), encoding="utf-8"
+    r = ChapterLoader(item=Chapter(), response=response)
+    r.add_xpath("title", '//h1[@id="chuong-title"]/text()')
+    r.add_xpath(
+        "content",
+        '//div[@id="noi-dung"]/p/text()',
     )
+    r.add_value("id", str(response.meta["id"]))
+    return r.load_item()
