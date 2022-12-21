@@ -17,7 +17,7 @@ def filter_blank(v):
 class InfoLoader(ItemLoader):
     """Process info data"""
 
-    default_input_processor = MapCompose(filter_blank, str.strip)
+    default_input_processor = MapCompose(str.strip, filter_blank)
     default_output_processor = Join()
     types_out = Join(", ")
     foreword_out = Join("\n")
