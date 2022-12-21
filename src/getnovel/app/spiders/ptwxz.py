@@ -4,14 +4,18 @@
    https://www.ptwxz.com
 
 """
+
 from pathlib import Path
 
-import scrapy
-from bs4 import BeautifulSoup
-from scrapy.selector import Selector
+from scrapy import Spider, Request
+from scrapy.http import Response
+from scrapy.exceptions import CloseSpider
+
+from getnovel.app.items import Info, Chapter
+from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
-class PtwxzSpider(scrapy.Spider):
+class PtwxzSpider(Spider):
     """Define spider for domain: ptwxz"""
 
     name = "ptwxz"
@@ -25,12 +29,12 @@ class PtwxzSpider(scrapy.Spider):
         *args,
         **kwargs,
     ):
-        """Initialize the attributes for this spider.
+        """Initialize attributes.
 
         Parameters
         ----------
         url : str
-            The link of the novel information page.
+            Url of the novel information page.
         save_path : Path
             Path of raw directory.
         start_chap : int
@@ -40,13 +44,12 @@ class PtwxzSpider(scrapy.Spider):
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
-        self.save_path = save_path
         self.start_chap = start_chap
         self.stop_chap = stop_chap
+        self.save_path = save_path
 
-    def parse(self, response: scrapy.http.Response, **kwargs):
-        """Extract info of the novel and get the link of the
-        table of content (toc).
+    def parse(self, response: Response):
+        """Extract info and send request to the start chapter.
 
         Parameters
         ----------
@@ -56,59 +59,39 @@ class PtwxzSpider(scrapy.Spider):
         Yields
         ------
         Request
-            Request to the cover image page and toc page.
+            Info item.
+        Request
+            Request to the start chapter.
         """
-        # download cover
-        cover_link = response.xpath(
-            '//*[@id="content"]/table//td/a/img[@height="125"]/@src'
-        ).get()
-        if self.name not in cover_link:
-            cover_link = response.url.split("bookinfo")[0][:-1] + cover_link
-        yield scrapy.Request(cover_link, callback=self.parse_cover)
-        get_info(response, self.save_path)
-        # Make a request to start_chap
-        url = response.xpath('//a[contains(@title,"点击阅读")]/@href').get()
-        if self.name not in url:
-            url = (
-                response.url.split("bookinfo")[0][:-1]
-                + response.xpath('//a[contains(@title,"点击阅读")]/@href').get()
-            )
-        yield scrapy.Request(url=url, callback=self.parse_start_chapter)
+        yield get_info(response)
+        toc_url = response.xpath('//*[@id="content"]//a[1]/@href').get()
+        yield Request(url=f"https://www.ptwxz.com{toc_url}", callback=self.parse_start)
 
-    def parse_cover(self, response: scrapy.http.Response):
-        """Download the cover of novel.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-        """
-        (self.save_path / "cover.jpg").write_bytes(response.body)
-
-    def parse_start_chapter(self, response: scrapy.http.Response):
+    def parse_start(self, response: Response):
         """Extract link of the start chapter.
 
         Parameters
         ----------
-        response : scrapy.http.Response
+        response : Response
             The response to parse.
 
         Yields
         ------
-        scrapy.Request
+        Request
             Request to the start chapter.
         """
-        chapter = response.xpath('//div[@class="centent"]/ul/li/a/@href').getall()[
-            self.start_chap - 1
-        ]
-        yield scrapy.Request(
-            url=response.url + chapter,
-            meta={"id": self.start_chap, "base_url": response.url},
+        chapter_links = response.xpath('//div[@class="centent"]//@href').getall()
+        if self.start_chap > len(chapter_links):
+            raise CloseSpider(reason="Start chapter is greater than total chap!")
+        chapter = chapter_links[self.start_chap-1]
+        yield Request(
+            url=response.urljoin(chapter),
+            meta={"id": self.start_chap},
             callback=self.parse_content,
         )
 
-    def parse_content(self, response: scrapy.http.Response):
-        """Extract the content of chapter.
+    def parse_content(self, response: Response):
+        """Extract content.
 
         Parameters
         ----------
@@ -118,72 +101,50 @@ class PtwxzSpider(scrapy.Spider):
         Yields
         ------
         Request
+            Chapter item.
+        Request
             Request to the next chapter.
         """
-        get_content(response, self.save_path)
-
-        t = response.xpath('//div[@class="toplink"]/a/@href').getall()
-
-        if t[2] == "index.html" or response.meta["id"] == self.stop_chap:
-            raise scrapy.exceptions.CloseSpider(reason="Done")
-        response.request.headers[b"Referer"] = [str.encode(response.url)]
-        yield scrapy.Request(
-            url=response.meta["base_url"] + t[2],
-            headers=response.request.headers,
-            meta={"id": response.meta["id"] + 1, "base_url": response.meta["base_url"]},
+        yield get_content(response)
+        next_url = response.xpath("//div[3]/a[3]/@href").get()
+        if next_url == "index.html" or response.meta["id"] == self.stop_chap:
+            raise CloseSpider(reason="Done")
+        yield Request(
+            url=response.urljoin(next_url),
+            meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
 
 
-def get_info(response: scrapy.http.Response, save_path: Path):
-    """Get info of this novel.
+def get_info(response: Response):
+    """Get novel information.
 
     Parameters
     ----------
     response : Response
         The response to parse.
-    save_path : Path
-        Path of raw directory.
     """
-    # extract info
-    # pylint: disable=inconsistent-quotes
-    title = response.xpath('//*[@id="centerm"]//td[@align="center"]//h1/text()').get()
-    author = (
-        response.xpath('//div[@id="content"]//td/text()')[5].get().replace("\xa0", "")
-    )
-    types = (
-        response.xpath('//div[@id="content"]//td/text()')[4].get().replace("\xa0", "")
-    )
-    foreword = response.xpath(
-        '//*[@id="content"]/table//td[@valign="top"]'
-        '/div[contains(@style,"left")]//text()'
-    ).getall()
-    info = []
-    info.append(title)
-    info.append(author)
-    info.append(response.request.url)
-    info.append(types)
-    info.extend(foreword)
-    # write info to file
-    (save_path / "foreword.txt").write_text("\n".join(info), encoding="utf-8")
+    ihref = response.xpath('//*[@id="content"]//td[2]//img/@src').get()
+    r = InfoLoader(item=Info(), response=response)
+    r.add_xpath("title", '//*[@id="content"]//tr[1]//h1/text()')
+    r.add_xpath("author", '//*[@id="content"]//tr[2]/td[2]/text()')
+    r.add_xpath("types", '//*[@id="content"]//tr[2]/td[1]/text()')
+    r.add_xpath("foreword", '//*[@id="content"]//td[2]//text()[4]')
+    r.add_value("image_urls", response.urljoin(ihref))
+    r.add_value("url", response.request.url)
+    return r.load_item()
 
 
-def get_content(response: scrapy.http.Response, save_path: Path):
-    """Get content of this novel.
+def get_content(response: Response):
+    """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
-    save_path : Path
-        Path of raw directory.
     """
-    # extract chapter title
-    chapter = response.xpath("//h1/text()").get().strip()
-    soup = BeautifulSoup(response.text, "html.parser")
-    data = Selector(text=str(soup)).xpath("//body/text()").getall()
-    data.insert(0, chapter)
-    content = "\n".join([x.strip() for x in data if x.strip() != ""])
-    (save_path / f'{str(response.meta["id"])}.txt').write_text(
-        content, encoding="utf-8"
-    )
+    r = ChapterLoader(item=Chapter(), response=response)
+    r.add_xpath("title", "//h1/text()")
+    r.add_xpath("content", "//body/text()")
+    r.add_value("id", str(response.meta["id"]))
+    return r.load_item()
