@@ -10,7 +10,7 @@ from scrapy.loader import ItemLoader
 
 
 def filter_blank(v):
-    if v is not None:
+    if v:
         return v
 
 
@@ -28,6 +28,6 @@ class InfoLoader(ItemLoader):
 class ChapterLoader(ItemLoader):
     """Process chapter data"""
 
-    default_input_processor = MapCompose(filter_blank, str.strip)
+    default_input_processor = MapCompose(str.strip, filter_blank)
     default_output_processor = Join()
     content_out = Join("\n")
