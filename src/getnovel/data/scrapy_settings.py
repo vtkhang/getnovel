@@ -69,4 +69,9 @@ def mk_settings(sp: Path, sc: dict):
             t = str(sc[k])
         r.append(f"{str(k)} = {t}")
     r.append("")
-    sp.write_text(encoding="utf-8", data="\n".join(r))
+    sp.absolute().write_text(encoding="utf-8", data="\n".join(r))
+
+
+if __name__ == '__main__':
+    """Generate settings.py for scrapy shell."""
+    mk_settings(Path().absolute().parent / "app" / "settings.py", get_settings())
