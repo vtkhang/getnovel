@@ -47,6 +47,7 @@ class PtwxzSpider(Spider):
         self.start_chap = start_chap
         self.stop_chap = stop_chap
         self.save_path = save_path
+        self.total_chap = 0
 
     def parse(self, response: Response):
         """Extract info and send request to the start chapter.
@@ -81,9 +82,10 @@ class PtwxzSpider(Spider):
             Request to the start chapter.
         """
         chapter_links = response.xpath('//div[@class="centent"]//@href').getall()
-        if self.start_chap > len(chapter_links):
+        self.total_chap = len(chapter_links)
+        if self.start_chap > self.total_chap:
             raise CloseSpider(reason="Start chapter is greater than total chap!")
-        chapter = chapter_links[self.start_chap-1]
+        chapter = chapter_links[self.start_chap - 1]
         yield Request(
             url=response.urljoin(chapter),
             meta={"id": self.start_chap},
@@ -107,7 +109,9 @@ class PtwxzSpider(Spider):
         """
         yield get_content(response)
         next_url = response.xpath("//div[3]/a[3]/@href").get()
-        if next_url == "index.html" or response.meta["id"] == self.stop_chap:
+        if (response.meta["id"] == self.total_chap) or (
+            response.meta["id"] == self.stop_chap
+        ):
             raise CloseSpider(reason="Done")
         yield Request(
             url=response.urljoin(next_url),
