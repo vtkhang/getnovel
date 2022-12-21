@@ -1,5 +1,7 @@
-"""Store the settings of spider for utils crawler. """
+"""Store the settings of spider for utils crawler."""
+
 import json
+import time
 import pprint
 from pathlib import Path
 
@@ -12,22 +14,32 @@ def get_settings():
     dict
         Spider settings.
     """
+    hp = Path.home()
+    imgp = hp / "GetNovel" / "images"
+    lp = hp / "GetNovel" / "logs"
+    imgp.mkdir(parents=True, exist_ok=True)
+    lp.mkdir(parents=True, exist_ok=True)
+    lnp = f'{time.strftime("%Y_%m_%d-%H_%M_%S")}.log'
     return {
         "BOT_NAME": "GetNovel",
         "ROBOTSTXT_OBEY": False,
         "SPIDER_MODULES": ["getnovel.app.spiders"],
         "USER_AGENT": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/84.0.4147.105 Safari/537.36",
+        "(KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.54",
         # ITEM PIPELINES
         "ITEM_PIPELINES": {
             "getnovel.app.pipelines.AppPipeline": 300,
             "getnovel.app.pipelines.CoverImagesPipeline": 200,
         },
-        "IMAGES_STORE": f'{Path.home() / "GetNovel" / "images"}',
+        "IMAGES_STORE": f'{imgp}',
+        # DOWNLOADER_MIDDLEWARES
+        "DOWNLOADER_MIDDLEWARES": {
+            "getnovel.app.middlewares.AppDownloaderMiddleware": 500,
+        },
         # LOG SETTINGS
         "LOG_FORMAT": "%(asctime)s [%(name)s] %(levelname)s: %(message)s",
         "LOG_SHORT_NAMES": True,
-        "LOG_FILE": f'{Path.home() / "GetNovel" / "logs" / "log.txt"}',
+        "LOG_FILE": f'{lp / lnp}',
         "LOG_FILE_APPEND": False,
         "LOG_LEVEL": "INFO",
         # AUTOTHROTTLE SETTINGS
@@ -36,6 +48,8 @@ def get_settings():
         "DOWNLOAD_DELAY": 2,
         "AUTOTHROTTLE_MAX_DELAY": 60,
         "AUTOTHROTTLE_TARGET_CONCURRENCY": 0.5,
+        # COOKIE
+        "COOKIES_DEBUG": True
     }
 
 
