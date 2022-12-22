@@ -126,4 +126,4 @@ class AppDownloaderMiddleware:
 
 
 def mpprint(d: dict):
-    return f'\n\n{pformat(d, indent=4)}\n\n'
+    return f'\n\n{pformat(d, indent=4, width=200)}\n'
