@@ -4,32 +4,38 @@
    https://truyenchu.vn/
 
 """
+
 import json
 from pathlib import Path
 
-import scrapy
+from scrapy import Spider, Request, FormRequest, Selector
+from scrapy.http import Response
+from scrapy.exceptions import CloseSpider
+
+from getnovel.app.items import Info, Chapter
+from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
-class TruyenchuSpider(scrapy.Spider):
-    """Define spider for domain: truyenchu"""
+class TruyenChuSpider(Spider):
+    """Declare spider for domain: truyenchu"""
 
     name = "truyenchu"
 
     def __init__(
         self,
         url: str,
-        save_path: Path,
         start_chap: int,
         stop_chap: int,
+        save_path: Path,
         *args,
-        **kwargs,
+        **kwargs
     ):
-        """Initialize the attributes for this spider.
+        """Initialize attributes.
 
         Parameters
         ----------
         url : str
-            The link of the novel information page.
+            Url of the novel information page.
         save_path : Path
             Path of raw directory.
         start_chap : int
@@ -39,15 +45,13 @@ class TruyenchuSpider(scrapy.Spider):
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
-        self.save_path = save_path
         self.start_chap = start_chap
         self.stop_chap = stop_chap
-        self.info_url = str()
-        self.menu = []
+        self.save_path = save_path
+        self.mini_toc = []
 
-    def parse(self, response: scrapy.http.Response, **kwargs):
-        """Extract info of the novel and get the link of the
-        table of content (toc).
+    def parse(self, response: Response):
+        """Extract info and send request to table of content.
 
         Parameters
         ----------
@@ -57,72 +61,32 @@ class TruyenchuSpider(scrapy.Spider):
         Yields
         ------
         Request
-            Request to the cover image page and toc page.
+            Info item.
+        Request
+            Request to the start chapter.
         """
-        self.info_url = response.request.url
-        # get cover
-        cover_link = "https://truyenchu.vn{}".format(
-            response.xpath('//div[@class="book"]/img/@src').get()
-        )
-        yield scrapy.Request(url=cover_link, callback=self.parse_cover)
-        get_info(response, self.save_path)
-        # request menu list
-        total_chap = 50
+        yield get_info(response)
         # calculate the position of start_chap in menu list
-        menu_page_have_start_chap = self.start_chap // total_chap + 1
-        pos_of_start_chap_in_menu = self.start_chap % total_chap
-        if pos_of_start_chap_in_menu == -1:
-            menu_page_have_start_chap -= 1
-            pos_of_start_chap_in_menu = total_chap
-        pos_of_start_chap_in_menu -= 1  # because list in python have index begin with 0
+        total_chap = 50
+        start_chap = self.start_chap - 1
+        menu_page_have_start_chap = start_chap // total_chap + 1
+        pos_of_start_chap_in_menu = start_chap % total_chap
         fd = {
             "type": "list_chapter",
             "tid": response.xpath('//input[@id="truyen-id"]/@value').get(),
             "tascii": response.xpath('//input[@id="truyen-ascii"]/@value').get(),
             "page": str(menu_page_have_start_chap),
         }
-        yield scrapy.FormRequest(
+        yield FormRequest(
             method="GET",
             url="https://truyenchu.vn/api/services/list-chapter",
-            headers=response.request.headers,
             formdata=fd,
             meta={"pos_start": pos_of_start_chap_in_menu},
             callback=self.parse_start,
         )
 
-    def parse_start(self, response: scrapy.http.Response):
-        """Extract link of the start chapter.
-
-        Parameters
-        ----------
-        response : scrapy.http.Response
-            The response to parse.
-
-        Yields
-        ------
-        scrapy.Request
-            Request to the start chapter.
-        """
-        t = json.loads(response.body.decode("utf8").replace("'", '"'))
-        if "chap_list" not in t:
-            raise scrapy.exceptions.CloseSpider(
-                reason="response of xhr doesn't have chap_list"
-            )
-        if t["chap_list"] == "":
-            raise scrapy.exceptions.CloseSpider(reason="start chapter is not exists")
-        s: scrapy.Selector = scrapy.Selector(text=t["chap_list"])
-        chapter_links = s.xpath("//li//a/@href").getall()
-        self.menu.extend(chapter_links)
-        yield scrapy.Request(
-            url="https://truyenchu.vn{}".format(
-                chapter_links[response.meta["pos_start"]]
-            ),
-            callback=self.parse_content,
-            meta={"id": self.start_chap},
-        )
-
-    def parse_content(self, response: scrapy.http.Response):
-        """Extract the content of chapter.
+    def parse_start(self, response: Response):
+        """Send request to the start chapter.
 
         Parameters
         ----------
@@ -132,38 +96,47 @@ class TruyenchuSpider(scrapy.Spider):
         Yields
         ------
         Request
-            Request to the next chapter.
+            Request to the start chapter.
         """
-        get_content(response, self.save_path)
-        npu = response.xpath('//a[@id="next_chap"]/@href').get()
-        if npu.replace("/", "") == self.info_url.rsplit("/", 1)[1]:
-            i1 = str(response.meta["id"] + 1)
-            i2 = str((response.meta["id"] + 1) // 50 + 1)
-            raise scrapy.exceptions.CloseSpider(
-                reason="The chapter " + i1 + " at " + i2 + " have errors"
-            )
-        if (npu == "#") or response.meta["id"] == self.stop_chap:
-            raise scrapy.exceptions.CloseSpider(reason="Done")
-        response.request.headers[b"Referer"] = [str.encode(response.url)]
-        yield scrapy.Request(
-            url="https://truyenchu.vn{}".format(npu),
-            headers=response.request.headers,
-            meta={"id": response.meta["id"] + 1},
+        t = json.loads(response.text)
+        if "chap_list" not in t:
+            raise CloseSpider(reason="response of xhr doesn't have chap_list")
+        if t["chap_list"] == "":
+            raise CloseSpider(reason="start chapter is not exists")
+        mini_toc = Selector(text=t["chap_list"]).xpath("//li//a/@href").getall()
+        yield Request(
+            url=response.urljoin(mini_toc[response.meta["pos_start"]]),
             callback=self.parse_content,
+            meta={"id": self.start_chap},
         )
 
-    def parse_cover(self, response: scrapy.http.Response):
-        """Download the cover of novel.
+    def parse_content(self, response: Response):
+        """Extract content.
 
         Parameters
         ----------
         response : Response
             The response to parse.
+
+        Yields
+        ------
+        Request
+            Chapter item.
+        Request
+            Request to the next chapter.
         """
-        (self.save_path / "cover.jpg").write_bytes(response.body)
+        yield get_content(response)
+        next_url = response.xpath('//a[@id="next_chap"]/@href').get()
+        if (next_url == "#") or (response.meta["id"] == self.stop_chap):
+            raise CloseSpider(reason="Done")
+        yield Request(
+            url=response.urljoin(next_url),
+            meta={"id": response.meta["id"] + 1},
+            callback=self.parse_content,
+        )
 
 
-def get_info(response: scrapy.http.Response, save_path: Path):
+def get_info(response: Response):
     """Get info of this novel.
 
     Parameters
@@ -173,44 +146,27 @@ def get_info(response: scrapy.http.Response, save_path: Path):
     save_path : Path
         Path of raw directory.
     """
-    # get title
-    title = response.xpath('//h1[@class="story-title"]/a/text()').get()
-    # get book info
-    author = response.xpath('//div[@itemprop="author"]/a/span/text()').get()
-    types = response.xpath(
-        '//div[@class="info"]/div/a[@itemprop="genre"]/text()'
-    ).getall()
-    foreword = response.xpath('//div[@class="desc-text"]/p/text()').get()
-    info = list()
-    info.append(title)
-    info.append(author)
-    info.append(response.request.url)
-    info.append(", ".join(types))
-    info.extend(foreword.split("\n"))
-    (save_path / "foreword.txt").write_text(
-        "\n".join([x.replace("\n", " ") for x in info]), encoding="utf-8"
-    )
+    imgurl = response.xpath('//div[@class="book"]/img/@src').get()
+    r = InfoLoader(item=Info(), response=response)
+    r.add_xpath("title", '//h1[@class="story-title"]/a/text()')
+    r.add_xpath("author", '//*[@itemprop="author"]//span/text()')
+    r.add_xpath("types", '//*[@id="truyen"]//div[1]//div[1]/div[3]/a/text()')
+    r.add_xpath("foreword", '//*[@id="truyen"]/div[1]/div[2]/div[2]/div[2]//text()')
+    r.add_value("image_urls", response.urljoin(imgurl))
+    r.add_value("url", response.request.url)
+    return r.load_item()
 
 
-def get_content(response: scrapy.http.Response, save_path: Path):
-    """Get content of this novel.
+def get_content(response: Response):
+    """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
-    save_path : Path
-        Path of raw directory.
     """
-    chapter = response.xpath('//a[@class="chapter-title"]/@title').get()
-    # get content
-    content = response.xpath(
-        '//div[@id="chapter-c"]//text()[not(parent::script)]'
-    ).getall()
-    if chapter is None or content is None:
-        chapter = "Chương này bị lỗi. Mời lên website của truyện để tìm hiểu thêm"
-        content = []
-    content.insert(0, chapter)
-    (save_path / f'{str(response.meta["id"])}.txt').write_text(
-        "\n".join([x.strip() for x in content if x.strip() != ""]), encoding="utf-8"
-    )
+    r = ChapterLoader(item=Chapter(), response=response)
+    r.add_xpath("title", '//a[@class="chapter-title"]//text()')
+    r.add_xpath("content", '//div[@id="chapter-c"]//text()[not(parent::script)]')
+    r.add_value("id", str(response.meta["id"]))
+    return r.load_item()
