@@ -5,11 +5,11 @@
 
 """
 
-import json
 from pathlib import Path
 
-from scrapy import Spider, Request, FormRequest, Selector
-from scrapy.http import Response
+from scrapy import Spider, Selector
+from scrapy.http import Response, FormRequest
+from scrapy.http.response.text import TextResponse
 from scrapy.exceptions import CloseSpider
 
 from getnovel.app.items import Info, Chapter
@@ -71,26 +71,25 @@ class TruyenChuSpider(Spider):
         start_chap = self.start_chap - 1
         menu_page_have_start_chap = start_chap // total_chap + 1
         pos_of_start_chap_in_menu = start_chap % total_chap
-        fd = {
-            "type": "list_chapter",
-            "tid": response.xpath('//input[@id="truyen-id"]/@value').get(),
-            "tascii": response.xpath('//input[@id="truyen-ascii"]/@value').get(),
-            "page": str(menu_page_have_start_chap),
-        }
         yield FormRequest(
             method="GET",
             url="https://truyenchu.vn/api/services/list-chapter",
-            formdata=fd,
             meta={"pos_start": pos_of_start_chap_in_menu},
             callback=self.parse_start,
+            formdata={
+                "type": "list_chapter",
+                "tid": response.xpath('//input[@id="truyen-id"]/@value').get(),
+                "tascii": response.xpath('//input[@id="truyen-ascii"]/@value').get(),
+                "page": str(menu_page_have_start_chap),
+            },
         )
 
-    def parse_start(self, response: Response):
+    def parse_start(self, response: TextResponse):
         """Send request to the start chapter.
 
         Parameters
         ----------
-        response : Response
+        response : TextResponse
             The response to parse.
 
         Yields
@@ -98,14 +97,12 @@ class TruyenChuSpider(Spider):
         Request
             Request to the start chapter.
         """
-        t = json.loads(response.text)
-        if "chap_list" not in t:
-            raise CloseSpider(reason="response of xhr doesn't have chap_list")
-        if t["chap_list"] == "":
+        jsonr = response.json()
+        if jsonr["chap_list"] == "":
             raise CloseSpider(reason="start chapter is not exists")
-        mini_toc = Selector(text=t["chap_list"]).xpath("//li//a/@href").getall()
-        yield Request(
-            url=response.urljoin(mini_toc[response.meta["pos_start"]]),
+        mini_toc = Selector(text=["chap_list"]).xpath("//li//a/@href").getall()
+        yield response.follow(
+            url=mini_toc[response.meta["pos_start"]],
             callback=self.parse_content,
             meta={"id": self.start_chap},
         )
@@ -129,8 +126,8 @@ class TruyenChuSpider(Spider):
         next_url = response.xpath('//a[@id="next_chap"]/@href').get()
         if (next_url == "#") or (response.meta["id"] == self.stop_chap):
             raise CloseSpider(reason="Done")
-        yield Request(
-            url=response.urljoin(next_url),
+        yield response.follow(
+            url=next_url,
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
