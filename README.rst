@@ -126,21 +126,17 @@ Supported websites
 
 2. `https://bachngocsach.com/reader/ <https://bachngocsach.com/reader>`_
 
-3. `https://webtruyen.com/ <https://webtruyen.com>`_
+3. `https://sstruyen.com/ <https://sstruyen.com>`_
 
-4. `https://sstruyen.com/ <https://sstruyen.com>`_
+4. `https://truyenfull.vn/ <https://truyenfull.vn>`_
 
-5. `https://truyenfull.vn/ <https://truyenfull.vn>`_
+5. `https://metruyencv.com/ <https://metruyencv.com>`_
 
-6. `https://metruyencv.com/ <https://metruyencv.com>`_
+6. `https://www.69shu.com/ <https://www.69shu.com>`_
 
-7. `https://vtruyen.com/ <https://vtruyen.com>`_
+7.  `https://www.uukanshu.com/ <https://www.uukanshu.com>`_
 
-8. `https://www.69shu.com/ <https://www.69shu.com>`_
-
-9.  `https://www.uukanshu.com/ <https://www.uukanshu.com>`_
-
-10. `https://www.ptwxz.com/ <https://www.ptwxz.com>`_
+8.  `https://www.ptwxz.com/ <https://www.ptwxz.com>`_
 
 Frameworks, packages and IDEs
 =============================
