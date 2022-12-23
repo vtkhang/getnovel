@@ -1,4 +1,4 @@
-"""Get novel from domain sstruyen.
+"""Get novel on domain sstruyen.
 
 .. _Web site:
    https://sstruyen.vn/
@@ -7,7 +7,7 @@
 
 from pathlib import Path
 
-from scrapy import Spider, Request
+from scrapy import Spider
 from scrapy.http import Response
 from scrapy.exceptions import CloseSpider
 
@@ -16,7 +16,7 @@ from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
 class SSTruyenSpider(Spider):
-    """Declare spider for domain: sstruyen"""
+    """Define spider for domain: sstruyen"""
 
     name = "sstruyen"
 
@@ -40,7 +40,7 @@ class SSTruyenSpider(Spider):
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters.
+            Stop crawling at this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
@@ -49,7 +49,7 @@ class SSTruyenSpider(Spider):
         self.save_path = save_path
 
     def parse(self, response: Response):
-        """Extract info and send request to start chapter.
+        """Extract info and send request to table of content.
 
         Parameters
         ----------
@@ -58,14 +58,14 @@ class SSTruyenSpider(Spider):
 
         Yields
         ------
-        Request
+        Info
             Info item.
         Request
-            Request to the start chapter.
+            Request to table of content.
         """
         yield get_info(response)
-        yield Request(
-            url=response.urljoin(f"chuong-{str(self.start_chap)}/"),
+        yield response.follow(
+            url=f"chuong-{str(self.start_chap)}/",
             callback=self.parse_content,
             meta={"id": self.start_chap},
         )
@@ -80,7 +80,7 @@ class SSTruyenSpider(Spider):
 
         Yields
         ------
-        Request
+        Chapter
             Chapter item.
         Request
             Request to the next chapter.
@@ -91,22 +91,25 @@ class SSTruyenSpider(Spider):
         ).get()
         if (npu is None) or (response.meta["id"] == self.stop_chap):
             raise CloseSpider(reason="Done")
-        yield Request(
-            url=response.urljoin(npu),
+        yield response.follow(
+            url=npu,
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
 
 
-def get_info(response: Response):
-    """Get info of this novel.
+def get_info(response: Response) -> Info:
+    """Get novel information.
 
     Parameters
     ----------
     response : Response
         The response to parse.
-    save_path : Path
-        Path of raw directory.
+
+    Returns
+    -------
+    Info
+        Populated Info item.
     """
     r = InfoLoader(item=Info(), response=response)
     r.add_xpath("title", "//div[5]//h1//text()")
@@ -118,13 +121,18 @@ def get_info(response: Response):
     return r.load_item()
 
 
-def get_content(response: Response):
+def get_content(response: Response) -> Chapter:
     """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Chapter
+        Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", '//*[@id="j_content"]//h2//text()')
