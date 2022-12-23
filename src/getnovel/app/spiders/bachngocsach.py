@@ -81,13 +81,17 @@ class BachNgocSachSpider(Spider):
         Request
             Request to the start chapter.
         """
-        yield response.follow(
-            url=response.xpath(
-                f'(//*[@class="chuong-link"])[{self.start_chap}]'
-            ).attrib["href"],
-            meta={"id": self.start_chap},
-            callback=self.parse_content,
-        )
+        try:
+            yield response.follow(
+                url=response.xpath(
+                    f'(//*[@class="chuong-link"])[{self.start_chap}]'
+                ).attrib["href"],
+                meta={"id": self.start_chap},
+                callback=self.parse_content,
+            )
+        except KeyError:
+            self.logger.exception(msg="Start chap is not exist or xpath need to be fixed!")
+            raise CloseSpider(reason="Stopped")
 
     def parse_content(self, response: Response):
         """Extract content.
@@ -115,7 +119,7 @@ class BachNgocSachSpider(Spider):
         )
 
 
-def get_info(response: Response):
+def get_info(response: Response) -> Info:
     """Get novel information.
 
     Parameters
@@ -138,7 +142,7 @@ def get_info(response: Response):
     return r.load_item()
 
 
-def get_content(response: Response):
+def get_content(response: Response) -> Chapter:
     """Get chapter content.
 
     Parameters

@@ -7,7 +7,7 @@
 
 from pathlib import Path
 
-from scrapy import Spider, Request
+from scrapy import Spider
 from scrapy.http import Response
 from scrapy.exceptions import CloseSpider
 
@@ -23,9 +23,9 @@ class PtwxzSpider(Spider):
     def __init__(
         self,
         url: str,
-        save_path: Path,
         start_chap: int,
         stop_chap: int,
+        save_path: Path,
         *args,
         **kwargs,
     ):
@@ -40,17 +40,16 @@ class PtwxzSpider(Spider):
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters.
+            Stop crawling at this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
         self.start_chap = start_chap
         self.stop_chap = stop_chap
         self.save_path = save_path
-        self.total_chap = 0
 
     def parse(self, response: Response):
-        """Extract info and send request to the start chapter.
+        """Extract info and send request to table of content.
 
         Parameters
         ----------
@@ -59,14 +58,16 @@ class PtwxzSpider(Spider):
 
         Yields
         ------
-        Request
+        Info
             Info item.
         Request
-            Request to the start chapter.
+            Request to table of content.
         """
         yield get_info(response)
-        toc_url = response.xpath('//*[@id="content"]//a[1]/@href').get()
-        yield Request(url=f"https://www.ptwxz.com{toc_url}", callback=self.parse_start)
+        yield response.follow(
+            url=response.xpath('//*[@id="content"]//a[1]/@href').get(),
+            callback=self.parse_start
+        )
 
     def parse_start(self, response: Response):
         """Extract link of the start chapter.
@@ -81,16 +82,17 @@ class PtwxzSpider(Spider):
         Request
             Request to the start chapter.
         """
-        chapter_links = response.xpath('//div[@class="centent"]//@href').getall()
-        self.total_chap = len(chapter_links)
-        if self.start_chap > self.total_chap:
-            raise CloseSpider(reason="Start chapter is greater than total chap!")
-        chapter = chapter_links[self.start_chap - 1]
-        yield Request(
-            url=response.urljoin(chapter),
-            meta={"id": self.start_chap},
-            callback=self.parse_content,
-        )
+        try:
+            yield response.follow(
+                url=response.xpath(
+                    f'(//div[@class="centent"]//a)[{self.start_chap}]'
+                ).attrib["href"],
+                meta={"id": self.start_chap},
+                callback=self.parse_content,
+            )
+        except KeyError:
+            self.logger.exception(msg="Start chap is not exist or xpath need to be fixed!")
+            raise CloseSpider(reason="Stopped")
 
     def parse_content(self, response: Response):
         """Extract content.
@@ -102,33 +104,36 @@ class PtwxzSpider(Spider):
 
         Yields
         ------
-        Request
+        Chapter
             Chapter item.
         Request
             Request to the next chapter.
         """
         yield get_content(response)
-        next_url = response.xpath("//div[3]/a[3]/@href").get()
-        if (response.meta["id"] == self.total_chap) or (
-            response.meta["id"] == self.stop_chap
-        ):
+        next_url = response.xpath("//div[3]/a[3]").attrib["href"]
+        if ("i" in next_url) or (response.meta["id"] == self.stop_chap):
             raise CloseSpider(reason="Done")
-        yield Request(
-            url=response.urljoin(next_url),
+        yield response.follow(
+            url=next_url,
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
 
 
-def get_info(response: Response):
+def get_info(response: Response) -> Info:
     """Get novel information.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Info
+        Populated Info item.
     """
-    ihref = response.xpath('//*[@id="content"]//td[2]//img/@src').get()
+    ihref = response.xpath('//*[@id="content"]//td[2]//img').attrib["src"]
     r = InfoLoader(item=Info(), response=response)
     r.add_xpath("title", '//*[@id="content"]//tr[1]//h1/text()')
     r.add_xpath("author", '//*[@id="content"]//tr[2]/td[2]/text()')
@@ -139,13 +144,18 @@ def get_info(response: Response):
     return r.load_item()
 
 
-def get_content(response: Response):
+def get_content(response: Response) -> Chapter:
     """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Chapter
+        Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", "//h1/text()")
