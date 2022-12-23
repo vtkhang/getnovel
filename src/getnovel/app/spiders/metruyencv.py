@@ -65,6 +65,9 @@ class MeTruyenCVSpider(Spider):
             Request to the start chapter.
         """
         self.total = int(response.xpath('//a[@id="nav-tab-chap"]/span[2]/text()').get())
+        if self.start_chap > self.total:
+            self.logger.error(msg="Start chapter is greater than total chapters")
+            raise CloseSpider(reason="Stopped")
         yield get_info(response)
         yield response.follow(
             url=f"{response.url}/chuong-{self.start_chap}/",
