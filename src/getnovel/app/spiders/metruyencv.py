@@ -7,7 +7,7 @@
 
 from pathlib import Path
 
-from scrapy import Spider, Request
+from scrapy import Spider
 from scrapy.http import Response
 from scrapy.exceptions import CloseSpider
 
@@ -16,7 +16,7 @@ from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
 class MeTruyenCVSpider(Spider):
-    """Declare spider for domain: metruyencv"""
+    """Define spider for domain: metruyencv"""
 
     name = "metruyencv"
 
@@ -40,7 +40,7 @@ class MeTruyenCVSpider(Spider):
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters.
+            Stop crawling at this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
@@ -59,14 +59,14 @@ class MeTruyenCVSpider(Spider):
 
         Yields
         ------
-        Request
+        Info
             Info item.
         Request
             Request to the start chapter.
         """
         self.total = int(response.xpath('//a[@id="nav-tab-chap"]/span[2]/text()').get())
         yield get_info(response)
-        yield Request(
+        yield response.follow(
             url=f"{response.url}/chuong-{self.start_chap}/",
             meta={"id": self.start_chap},
             callback=self.parse_content,
@@ -82,7 +82,7 @@ class MeTruyenCVSpider(Spider):
 
         Yields
         ------
-        Request
+        Chapter
             Chapter item.
         Request
             Request to the next chapter.
@@ -91,23 +91,29 @@ class MeTruyenCVSpider(Spider):
         next_url = (
             f'{response.url.rsplit("/", 2)[0]}/chuong-{str(response.meta["id"] + 1)}/'
         )
-        if response.meta["id"] == self.stop_chap or response.meta["id"] >= self.total:
+        if (response.meta["id"] == self.stop_chap) or (
+            response.meta["id"] >= self.total
+        ):
             raise CloseSpider(reason="Done")
-        yield Request(
+        yield response.follow(
             url=next_url,
-            headers=response.headers,
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
 
 
-def get_info(response: Response):
+def get_info(response: Response) -> Info:
     """Get novel information.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Info
+        Populated Info item.
     """
     r = InfoLoader(item=Info(), response=response)
     r.add_xpath("title", '//h1[@class="h3 mr-2"]/a/text()')
@@ -119,13 +125,18 @@ def get_info(response: Response):
     return r.load_item()
 
 
-def get_content(response: Response):
+def get_content(response: Response) -> Chapter:
     """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Chapter
+        Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", '//div[contains(@class,"nh-read__title")]/text()')
