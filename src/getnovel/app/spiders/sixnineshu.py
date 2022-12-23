@@ -1,4 +1,4 @@
-"""Get novels from domain 69shu.
+"""Get novel on domain 69shu.
 
 .. _Web site:
    https://www.69shu.com
@@ -7,7 +7,7 @@
 
 from pathlib import Path
 
-from scrapy import Spider, Request
+from scrapy import Spider
 from scrapy.http import Response
 from scrapy.exceptions import CloseSpider
 
@@ -15,8 +15,8 @@ from getnovel.app.items import Info, Chapter
 from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
-class SixNineshuSpider(Spider):
-    """Declare spider for domain: 69shu"""
+class SixNineShuSpider(Spider):
+    """Define spider for domain: 69shu"""
 
     name = "69shu"
 
@@ -40,7 +40,7 @@ class SixNineshuSpider(Spider):
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters.
+            Stop crawling at this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
@@ -50,7 +50,7 @@ class SixNineshuSpider(Spider):
         self.total_chap = 0
 
     def parse(self, response: Response):
-        """Extract info and send request to the start chapter.
+        """Extract info and send request to table of content.
 
         Parameters
         ----------
@@ -59,14 +59,16 @@ class SixNineshuSpider(Spider):
 
         Yields
         ------
-        Request
+        Info
             Info item.
         Request
-            Request to the start chapter.
+            Request to table of content.
         """
         yield get_info(response)
-        toc_url = response.xpath("//div[3]//div[3]/a/@href").get()
-        yield Request(url=response.urljoin(toc_url), callback=self.parse_start)
+        yield response.follow(
+            url=response.xpath("//div[3]//div[3]/a/@href").get(),
+            callback=self.parse_start
+        )
 
     def parse_start(self, response: Response):
         """Extract link of the start chapter.
@@ -87,7 +89,7 @@ class SixNineshuSpider(Spider):
             raise CloseSpider(
                 reason="Start chapter index is greater than total chapters"
             )
-        yield Request(
+        yield response.follow(
             url=chapter_links[self.start_chap - 1],
             meta={"id": self.start_chap},
             callback=self.parse_content,
@@ -103,7 +105,7 @@ class SixNineshuSpider(Spider):
 
         Yields
         ------
-        Request
+        Chapter
             Chapter item.
         Request
             Request to the next chapter.
@@ -114,20 +116,25 @@ class SixNineshuSpider(Spider):
             response.meta["id"] == self.stop_chap
         ):
             raise CloseSpider(reason="Done")
-        yield Request(
-            url=response.urljoin(next_url),
+        yield response.follow(
+            url=next_url,
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
 
 
-def get_info(response: Response):
+def get_info(response: Response) -> Info:
     """Get novel information.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Info
+        Populated Info item.
     """
     r = InfoLoader(item=Info(), response=response)
     r.add_xpath("title", '//*[@class="booknav2"]/h1//text()')
@@ -139,13 +146,18 @@ def get_info(response: Response):
     return r.load_item()
 
 
-def get_content(response: Response):
+def get_content(response: Response) -> Chapter:
     """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Chapter
+        Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", "//div[3]//h1/text()")
