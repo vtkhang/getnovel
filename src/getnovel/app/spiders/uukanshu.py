@@ -16,7 +16,7 @@ from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
 class UukanshuSpider(Spider):
-    """Declare spider for domain: uukanshu"""
+    """Define spider for domain: uukanshu"""
 
     name = "uukanshu"
 
@@ -40,7 +40,7 @@ class UukanshuSpider(Spider):
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters.
+            Stop crawling at this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
@@ -60,10 +60,10 @@ class UukanshuSpider(Spider):
 
         Yields
         ------
-        Request
+        Info
             Info item.
         Request
-            Request to table of content.
+            Request to the start chapter.
         """
         yield get_info(response)
         self.toc.extend(response.xpath('//*[@id="chapterList"]/li/a/@href').getall())
@@ -86,7 +86,7 @@ class UukanshuSpider(Spider):
 
         Yields
         ------
-        Request
+        Chapter
             Chapter item.
         Request
             Request to the next chapter.
@@ -110,6 +110,11 @@ def get_info(response: Response):
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Info
+        Populated Info item.
     """
     title = (
         response.xpath('//*[@class="jieshao_content"]/h1/a/@title')
@@ -134,6 +139,11 @@ def get_content(response: Response):
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Chapter
+        Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", '//*[@id="timu"]/text()')
