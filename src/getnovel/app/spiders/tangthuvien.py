@@ -7,7 +7,7 @@
 
 from pathlib import Path
 
-from scrapy import Spider, Request
+from scrapy import Spider
 from scrapy.http import Response
 from scrapy.exceptions import CloseSpider
 
@@ -16,7 +16,7 @@ from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
 class TangThuVienSpider(Spider):
-    """Declare spider for domain: tangthuvien"""
+    """Define spider for domain: tangthuvien"""
 
     name = "tangthuvien"
 
@@ -40,7 +40,7 @@ class TangThuVienSpider(Spider):
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters.
+            Stop crawling at this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
@@ -48,6 +48,7 @@ class TangThuVienSpider(Spider):
         self.stop_chap = stop_chap
         self.save_path = save_path
         self.toc = []
+        self.toc_len = 0
 
     def parse(self, response: Response):
         """Extract info and send request to table of content.
@@ -59,15 +60,15 @@ class TangThuVienSpider(Spider):
 
         Yields
         ------
-        Request
+        Info
             Info item.
         Request
-            Request to the start chapter.
+            Request to table of content.
         """
         yield get_info(response)
         uid = response.xpath('//*[@name="book_detail"]/@content').get()
-        yield Request(
-            url=response.urljoin(f"/story/chapters?story_id={uid}"),
+        yield response.follow(
+            url=f"/story/chapters?story_id={uid}",
             callback=self.parse_start,
         )
 
@@ -85,7 +86,8 @@ class TangThuVienSpider(Spider):
             Request to the start chapter.
         """
         self.toc.extend(response.xpath("//a/@href").getall())
-        yield Request(
+        self.toc_len = len(self.toc)
+        yield response.follow(
             url=self.toc[self.start_chap - 1],
             meta={"id": self.start_chap},
             callback=self.parse_content,
@@ -101,30 +103,35 @@ class TangThuVienSpider(Spider):
 
         Yields
         ------
-        Request
+        Chapter
             Chapter item.
         Request
             Request to the next chapter.
         """
         yield get_content(response)
-        if (response.meta["id"] == len(self.toc)) or (
+        if (response.meta["id"] == self.toc_len) or (
             response.meta["id"] == self.stop_chap
         ):
             raise CloseSpider(reason="Done")
-        yield Request(
+        yield response.follow(
             url=self.toc[response.meta["id"]],
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
         )
 
 
-def get_info(response: Response):
+def get_info(response: Response) -> Info:
     """Get novel information.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Info
+        Populated Info item.
     """
     r = InfoLoader(item=Info(), response=response)
     r.add_xpath("title", "//div[5]//h1/text()")
@@ -136,13 +143,18 @@ def get_info(response: Response):
     return r.load_item()
 
 
-def get_content(response: Response):
+def get_content(response: Response) -> Chapter:
     """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Chapter
+        Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", "//div[5]//h2/text()")
