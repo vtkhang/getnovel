@@ -17,7 +17,7 @@ class AppPipeline:
 
     def process_item(self, item: scrapy.Item, spider):
         """Process logic"""
-        sp: Path = spider.save_path
+        sp = Path(spider.settings["SAVE_PATH"])
         el = ""
         fk = ""
         if type(item) == items.Info:
@@ -45,4 +45,4 @@ class CoverImagesPipeline(ImagesPipeline):
     """Define Image Pipeline"""
 
     def file_path(self, request, response=None, info=None, *, item=None):
-        return str(info.spider.save_path / "cover.jpg")
+        return str(Path(info.spider.settings["SAVE_PATH"]) / "cover.jpg")

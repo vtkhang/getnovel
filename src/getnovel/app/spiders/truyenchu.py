@@ -5,8 +5,6 @@
 
 """
 
-from pathlib import Path
-
 from scrapy import Spider, Selector
 from scrapy.http import Response, FormRequest
 from scrapy.http.response.text import TextResponse
@@ -26,7 +24,6 @@ class TruyenChuSpider(Spider):
         url: str,
         start_chap: int,
         stop_chap: int,
-        save_path: Path,
         *args,
         **kwargs,
     ):
@@ -36,8 +33,6 @@ class TruyenChuSpider(Spider):
         ----------
         url : str
             Url of the novel information page.
-        save_path : Path
-            Path of raw directory.
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
@@ -47,7 +42,6 @@ class TruyenChuSpider(Spider):
         self.start_urls = [url]
         self.start_chap = start_chap
         self.stop_chap = stop_chap
-        self.save_path = save_path
 
     def parse(self, response: Response):
         """Extract info and send request to table of content.

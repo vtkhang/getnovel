@@ -6,7 +6,7 @@ import pprint
 from pathlib import Path
 
 
-def get_settings():
+def get_settings(save_path: Path):
     """Return the settings of spider.
 
     Returns
@@ -41,7 +41,7 @@ def get_settings():
         "LOG_SHORT_NAMES": True,
         "LOG_FILE": f'{lp / lnp}',
         "LOG_FILE_APPEND": False,
-        "LOG_LEVEL": "INFO",
+        "LOG_LEVEL": "DEBUG",
         # AUTOTHROTTLE SETTINGS
         "AUTOTHROTTLE_ENABLED": True,
         "AUTOTHROTTLE_START_DELAY": 5,
@@ -49,7 +49,9 @@ def get_settings():
         "AUTOTHROTTLE_MAX_DELAY": 60,
         "AUTOTHROTTLE_TARGET_CONCURRENCY": 0.5,
         # COOKIE
-        "COOKIES_DEBUG": True
+        "COOKIES_DEBUG": True,
+        # SAVE PATH
+        "SAVE_PATH": f"{save_path}"
     }
 
 

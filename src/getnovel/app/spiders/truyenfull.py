@@ -5,8 +5,6 @@
 
 """
 
-from pathlib import Path
-
 from scrapy import Spider
 from scrapy.http import Response
 from scrapy.exceptions import CloseSpider
@@ -25,7 +23,6 @@ class TruyenFullSpider(Spider):
         url: str,
         start_chap: int,
         stop_chap: int,
-        save_path: Path,
         *args,
         **kwargs,
     ):
@@ -35,8 +32,6 @@ class TruyenFullSpider(Spider):
         ----------
         url : str
             Url of the novel information page.
-        save_path : Path
-            Path of raw directory.
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
@@ -46,7 +41,6 @@ class TruyenFullSpider(Spider):
         self.start_urls = [url]
         self.start_chap = start_chap
         self.stop_chap = stop_chap
-        self.save_path = save_path
 
     def parse(self, response: Response):
         """Extract info and send request to the start chapter.

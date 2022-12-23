@@ -96,17 +96,17 @@ class NovelCrawler:
             if rp.exists():
                 rmtree(rp)
         rp.mkdir(exist_ok=True, parents=True)
+        rp = rp.resolve()
         spider_class = self._get_spider()
-        process = CrawlerProcess(settings=scrapy_settings.get_settings())
+        process = CrawlerProcess(settings=scrapy_settings.get_settings(rp))
         process.crawl(
             spider_class,
             url=self.u,
-            save_path=rp,
             start_chap=start_chap,
             stop_chap=stop_chap,
         )
         process.start()
-        _logger.info("Done crawling. View result at: %s", str(rp.resolve()))
+        _logger.info("Done crawling. View result at: %s", str(rp))
         if clean is True:
             _logger.info("Start cleaning")
             c = FileConverter(rp, rp)
