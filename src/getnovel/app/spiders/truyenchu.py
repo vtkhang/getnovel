@@ -1,4 +1,4 @@
-"""Get novel from domain webtruyen.
+"""Get novel on domain truyenchu.
 
 .. _Web site:
    https://truyenchu.vn/
@@ -17,7 +17,7 @@ from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
 class TruyenChuSpider(Spider):
-    """Declare spider for domain: truyenchu"""
+    """Define spider for domain: truyenchu"""
 
     name = "truyenchu"
 
@@ -28,7 +28,7 @@ class TruyenChuSpider(Spider):
         stop_chap: int,
         save_path: Path,
         *args,
-        **kwargs
+        **kwargs,
     ):
         """Initialize attributes.
 
@@ -41,14 +41,13 @@ class TruyenChuSpider(Spider):
         start_chap : int
             Start crawling from this chapter.
         stop_chap : int
-            Stop crawling from this chapter, input -1 to get all chapters.
+            Stop crawling at this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [url]
         self.start_chap = start_chap
         self.stop_chap = stop_chap
         self.save_path = save_path
-        self.mini_toc = []
 
     def parse(self, response: Response):
         """Extract info and send request to table of content.
@@ -60,10 +59,10 @@ class TruyenChuSpider(Spider):
 
         Yields
         ------
-        Request
+        Info
             Info item.
         Request
-            Request to the start chapter.
+            Request to table of content.
         """
         yield get_info(response)
         # calculate the position of start_chap in menu list
@@ -85,11 +84,11 @@ class TruyenChuSpider(Spider):
         )
 
     def parse_start(self, response: TextResponse):
-        """Send request to the start chapter.
+        """Extract link of the start chapter.
 
         Parameters
         ----------
-        response : TextResponse
+        response : Response
             The response to parse.
 
         Yields
@@ -117,7 +116,7 @@ class TruyenChuSpider(Spider):
 
         Yields
         ------
-        Request
+        Chapter
             Chapter item.
         Request
             Request to the next chapter.
@@ -133,15 +132,18 @@ class TruyenChuSpider(Spider):
         )
 
 
-def get_info(response: Response):
-    """Get info of this novel.
+def get_info(response: Response) -> Info:
+    """Get novel information.
 
     Parameters
     ----------
     response : Response
         The response to parse.
-    save_path : Path
-        Path of raw directory.
+
+    Returns
+    -------
+    Info
+        Populated Info item.
     """
     imgurl = response.xpath('//div[@class="book"]/img/@src').get()
     r = InfoLoader(item=Info(), response=response)
@@ -154,13 +156,18 @@ def get_info(response: Response):
     return r.load_item()
 
 
-def get_content(response: Response):
+def get_content(response: Response) -> Chapter:
     """Get chapter content.
 
     Parameters
     ----------
     response : Response
         The response to parse.
+
+    Returns
+    -------
+    Chapter
+        Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
     r.add_xpath("title", '//a[@class="chapter-title"]//text()')
