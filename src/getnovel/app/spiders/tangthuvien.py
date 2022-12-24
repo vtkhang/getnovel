@@ -6,7 +6,7 @@
 """
 
 from scrapy import Spider
-from scrapy.http import Response
+from scrapy.http import Response, Request
 from scrapy.exceptions import CloseSpider
 
 from getnovel.app.items import Info, Chapter
@@ -81,7 +81,7 @@ class TangThuVienSpider(Spider):
         """
         self.toc.extend(response.xpath("//a/@href").getall())
         self.toc_len = len(self.toc)
-        yield response.follow(
+        yield Request(
             url=self.toc[self.start_chap - 1],
             meta={"id": self.start_chap},
             callback=self.parse_content,
@@ -107,7 +107,7 @@ class TangThuVienSpider(Spider):
             response.meta["id"] == self.stop_chap
         ):
             raise CloseSpider(reason="Done")
-        yield response.follow(
+        yield Request(
             url=self.toc[response.meta["id"]],
             meta={"id": response.meta["id"] + 1},
             callback=self.parse_content,
