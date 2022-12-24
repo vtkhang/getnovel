@@ -3,8 +3,6 @@ import logging
 from pathlib import Path
 from shutil import rmtree, copy
 
-import unicodedata as ud
-
 try:
     from importlib_resources import files
 except ImportError:
@@ -31,6 +29,8 @@ class FileConverter:
         self.x = Path(raw_dir_path)
         if not self.x.exists():
             raise FileConverterError(f"Raw directory not found: {self.x}")
+        if not any(self.x.iterdir()):
+            raise FileConverterError("Raw directory is empty.")
         if result_dir_path is None:
             self.y = self.x.parent / "result_dir"
         else:
@@ -41,7 +41,7 @@ class FileConverter:
                 "Result directory not found, auto created at: %s", self.y.resolve()
             )
         self.txt: DictPath = {}  # use to track txt files in result directory
-        self.xhtml: DictPath = {}  # use to track txt files in result directory
+        self.xhtml: DictPath = {}  # use to track xhtml files in result directory
 
     def clean(self, duplicate_chapter: bool, rm_result: bool) -> int:
         """Clean all raw files in raw directory.
@@ -53,8 +53,6 @@ class FileConverter:
         Returns:
             int: -1 if raw directory empty
         """
-        if not any(self.x.iterdir()):
-            return -1
         if rm_result is True:
             _logger.info("Remove existing files in: %s", self.y.resolve())
             self._rm_result()
@@ -69,8 +67,9 @@ class FileConverter:
         fw_lines = [
             line.strip() for line in fw_path.read_text(encoding="utf-8").splitlines()
         ]
-        r = fw_lines[:4]
-        r.extend(fix_bad_indent(tuple(fw_lines[4:])))
+        r = fw_lines[:3]
+        r.append(fw_lines[-1])
+        r.extend(fix_bad_newline(tuple(fw_lines[3:-1])))
         tmp = self.y / fw_path.name
         tmp.write_text("\n".join(r), encoding="utf-8")
         self.txt[0] = tmp
@@ -87,7 +86,7 @@ class FileConverter:
             if duplicate_chapter is True:
                 c_lines.pop(1)
             tmp = self.y / chapter.name
-            tmp.write_text("\n".join(fix_bad_indent(tuple(c_lines))), encoding="utf-8")
+            tmp.write_text("\n".join(fix_bad_newline(tuple(c_lines))), encoding="utf-8")
             self.txt[int(chapter.stem)] = tmp
         _logger.info("Done cleaning. View result at: %s", self.y.resolve())
 
@@ -104,8 +103,6 @@ class FileConverter:
         Returns:
             int: -1 if raw directory empty
         """
-        if not any(self.x.iterdir()):
-            return -1
         # Check if default template is exist, if not throw exception
         # template of chapter
         txtp = files(data).joinpath(r"template/OEBPS/Text")
@@ -133,7 +130,7 @@ class FileConverter:
             for line in fwp.read_text(encoding="utf-8").splitlines()
         ]
         foreword_p_tag_list = [
-            ("<p>" + line + "</p>") for line in fix_bad_indent(tuple(fw_lines[4:]))
+            ("<p>" + line + "</p>") for line in fix_bad_newline(tuple(fw_lines[3:-1]))
         ]
         foreword_title = "Lời tựa"
         if lang_code == "zh":
@@ -144,8 +141,8 @@ class FileConverter:
                 foreword_title=foreword_title,
                 novel_title=fw_lines[0],
                 author_name=fw_lines[1],
-                url=fw_lines[2],
-                types=fw_lines[3],
+                url=fw_lines[-1],
+                types=fw_lines[2],
                 foreword_p_tag_list="\n\n  ".join(foreword_p_tag_list),
             ),
             encoding="utf-8",
@@ -166,7 +163,7 @@ class FileConverter:
             tmp = self.y / f"c{chapter.stem}.xhtml"
             try:
                 chapter_p_tag_list = [
-                    "<p>" + line + "</p>" for line in fix_bad_indent(tuple(c_lines[1:]))
+                    "<p>" + line + "</p>" for line in fix_bad_newline(tuple(c_lines[1:]))
                 ]
                 tmp.write_text(
                     ctp.read_text(encoding="utf-8").format(
@@ -242,30 +239,48 @@ class FileConverterError(Exception):
     pass
 
 
-def fix_bad_indent(data_in: tuple) -> tuple:
-    """Remove empty lines, bad indentation,...
+def fix_bad_newline(lines):
+    """Concatenate lines that likely to be in the same setence.
+    Input data must not contain any blank lines, and all lines must be strimmed.
 
-    Args:
-      data_in: list of lines
+    Examples
+    --------
+    >>> fix_bad_newline(("A and", "b"))
+    >>> ("A and b")
+    >>> fix_bad_newline(("A said:", "\"B should...\""))
+    >>> ("A said: \"B should...\"")
 
-    Returns:
-        tuple: cleaned text lines
+    Parameters
+    ----------
+    lines : List
+        Input lines.
+
+    Returns
+    -------
+    List
+        Fixed lines.
     """
-    temp = []
-    # filter the blank line out of data_in and store to temp
-    for x in data_in:
-        if x != "":
-            temp.append(x.replace("\n", " "))
-    # Fix the content when it was composed by Notepad
-    temp2 = [temp[0]]
-    pa = ",:"
-    for x in range(1, len(temp)):
-        t2 = ud.category(temp[x][0])[1]
-        if (temp2[-1][-1] in pa) or (t2 == "l"):
-            temp2[-1] += " " + temp[x]
-        else:
-            temp2.append(temp[x])
-    return tuple(temp2)
+    result = []
+    pa1 = ',:"'
+    pa2 = '.,:'
+    try:
+        result.append(lines[0])
+        for index in range(1, len(lines) - 1):
+            if (
+                (result[-1][-1] in pa1)
+                or (lines[index][0] == '"')
+                or (lines[index][0].islower())
+                or (result[-1][-1].islower())
+            ):
+                result[-1] = result[-1] + " " + lines[index]
+            elif (lines[index][0] in pa2):
+                result[-1] = result[-1] + lines[index]
+            else:
+                result.append(lines[index])
+    except IndexError:
+        _logger.exception("Input data contains blank lines", stack_info=True)
+
+    return result
 
 
 def escape_char(text: str):
