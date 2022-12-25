@@ -108,6 +108,8 @@ class TruyenChuSpider(Spider):
         Request
             Request to the next chapter.
         """
+        if response.xpath('//*[@id="pre-vip"]/text()').get():
+            raise CloseSpider(reason="Reached VIP Chapters!")
         yield get_content(response)
         next_url = response.xpath('//*[@id="chapter"]/div[1]/a[4]').attrib["href"]
         if (next_url == "#") or (response.meta["id"] == self.stop_chap):
