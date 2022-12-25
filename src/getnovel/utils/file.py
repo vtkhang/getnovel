@@ -253,8 +253,7 @@ def fix_bad_newline(lines: ListStr, escape: bool = False):
     """
     flines = []
     result = []
-    pa1 = ',:"'
-    pa2 = '.,:'
+    pa = ".,:"
     for line in lines:
         t = line.strip()
         if t:
@@ -266,14 +265,17 @@ def fix_bad_newline(lines: ListStr, escape: bool = False):
     if len(flines) == 1:
         return result
     for index in range(1, len(flines)):
+        last = result[-1][-1]
+        first = flines[index][0]
         if (
-            (result[-1][-1] in pa1)
-            or (flines[index][0] == '"')
-            or (flines[index][0].islower())
-            or (result[-1][-1].islower())
+            (last == ",")
+            or (first.islower())
+            or (last.islower())
+            or (last == '"' and first.islower())
+            or (first == '"' and last.islower())
         ):
             result[-1] = result[-1] + " " + flines[index]
-        elif flines[index][0] in pa2:
+        elif first in pa:
             result[-1] = result[-1] + flines[index]
         else:
             result.append(flines[index])
