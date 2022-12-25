@@ -44,7 +44,8 @@ class ChapterLoader(ItemLoader):
     --------
     >>> after_process = {
         "title": "XpathResult1 XpathResult2 ...",
-        "content": "XpathResult1\\nXpathResult2\\n..."
+        "content": "XpathResult1\\nXpathResult2\\n...",
+        "id": "1"
     }
     """
     default_input_processor = MapCompose(str.strip, filter_blank)
