@@ -15,7 +15,19 @@ def filter_blank(v):
 
 
 class InfoLoader(ItemLoader):
-    """Process info data"""
+    """Process info data
+
+    Examples
+    --------
+    >>> after_process = {
+        "title": "XpathResult1 XpathResult2 ...",
+        "author": "XpathResult1 XpathResult2 ...",
+        "types": "XpathResult1, XpathResult2, ...",
+        "foreword": "XpathResult1\\nXpathResult2\\n...",
+        "image_urls": ["XpathResult1", "XpathResult2",...],
+        "images": "AUTO_GENERATED_BY_IMAGEPIPLINE"
+    }
+    """
 
     default_input_processor = MapCompose(str.strip, filter_blank)
     default_output_processor = Join()
@@ -26,8 +38,15 @@ class InfoLoader(ItemLoader):
 
 
 class ChapterLoader(ItemLoader):
-    """Process chapter data"""
+    """Process chapter data
 
+    Examples
+    --------
+    >>> after_process = {
+        "title": "XpathResult1 XpathResult2 ...",
+        "content": "XpathResult1\\nXpathResult2\\n..."
+    }
+    """
     default_input_processor = MapCompose(str.strip, filter_blank)
     default_output_processor = Join()
     content_out = Join("\n")
