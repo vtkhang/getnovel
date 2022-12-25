@@ -9,3 +9,4 @@ from typing import Union, Dict, List
 PathStr = Union[Path, str]  # pylint: disable=E1136
 DictPath = Dict[int, Path]  # Dict object which key type int and value type pathlib.Path
 ListPath = List[Path]  # List path
+ListStr = List[str]  # List string
