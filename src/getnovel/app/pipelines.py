@@ -7,37 +7,59 @@
 """
 from pathlib import Path
 
-import scrapy
+from scrapy.exceptions import DropItem
 from scrapy.pipelines.images import ImagesPipeline
-from getnovel.app import items
+from getnovel.app.items import Info, Chapter
 
 
 class AppPipeline:
     """Define App pipeline"""
 
-    def process_item(self, item: scrapy.Item, spider):
-        """Process logic"""
+    def process_item(self, item, spider):
+        """Store items to files.
+
+        Parameters
+        ----------
+        item : Item
+            Input item.
+        spider : Spider
+            The spider that scraped input item.
+
+        Returns
+        -------
+        Item
+            Return item for another pipelines.
+
+        Raises
+        ------
+        DropItem
+            If item contains empty fields.
+        DropItem
+            If any field is not exists.
+        DropItem
+            Invalid item detected.
+        """
         sp = Path(spider.settings["SAVE_PATH"])
-        el = ""
-        fk = ""
-        if type(item) == items.Info:
-            sp = sp / "foreword.txt"
-            el = "of novel info is empty"
-            fk = ["images", "image_urls"]
-        elif type(item) == items.Chapter:
-            cid = item.get("id", "Unknown")
-            sp = sp / f'{cid}.txt'
-            el = f"of chapter {cid} is empty"
-            fk = ["id"]
-        else:
-            raise scrapy.exceptions.DropItem("Invalid item detected!")
         r = []
         for k in item.keys():
-            if item.get(k, "") == "":
-                raise scrapy.exceptions.DropItem(f"Field {k} {el}")
-            elif k not in fk:
-                r.append(item[k])
-        sp.write_text(data="\n".join(r), encoding="utf-8")
+            if item.get(k) == "":
+                raise DropItem(f"Field {k} is empty!")
+        try:
+            if isinstance(item, Info):
+                r.append(item["title"])
+                r.append(item["author"])
+                r.append(item["types"])
+                r.append(item["url"])
+                r.append(item["foreword"])
+                (sp/"foreword.txt").write_text(data="\n".join(r), encoding="utf-8")
+            elif isinstance(item, Chapter):
+                r.append(item["title"])
+                r.append(item["content"])
+                (sp/f"{item['id']}.txt").write_text(data="\n".join(r), encoding="utf-8")
+            else:
+                raise DropItem("Invalid item detected!")
+        except KeyError as key:
+            raise DropItem(f"Field {key} is not exists!")
         return item
 
 
@@ -45,4 +67,5 @@ class CoverImagesPipeline(ImagesPipeline):
     """Define Image Pipeline"""
 
     def file_path(self, request, response=None, info=None, *, item=None):
+        """Customize save path for cover image."""
         return str(Path(info.spider.settings["SAVE_PATH"]) / "cover.jpg")
