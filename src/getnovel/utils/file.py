@@ -1,4 +1,5 @@
-"""Define FileConverter class"""
+"""Define FileConverter class."""
+import html
 import logging
 from pathlib import Path
 from shutil import rmtree, copy
@@ -7,14 +8,15 @@ try:
     from importlib_resources import files
 except ImportError:
     from importlib.resources import files
+
 from getnovel import data
-from getnovel.utils.typehint import PathStr, DictPath
+from getnovel.utils.typehint import PathStr, DictPath, ListStr
 
 _logger = logging.getLogger(__name__)
 
 
 class FileConverter:
-    """This class define clean method and convert to xhtml method"""
+    """This class define clean method and convert to xhtml method."""
 
     def __init__(self, raw_dir_path: PathStr, result_dir_path: PathStr = None) -> None:
         """Init path of raw directory and result directory.
@@ -64,29 +66,26 @@ class FileConverter:
         self.txt[-1] = tmp
         # clean foreword.txt
         fw_path = self.x / "foreword.txt"
-        fw_lines = [
-            line.strip() for line in fw_path.read_text(encoding="utf-8").splitlines()
-        ]
-        r = fw_lines[:3]
-        r.append(fw_lines[-1])
-        r.extend(fix_bad_newline(tuple(fw_lines[3:-1])))
+        fw_lines = fw_path.read_text(encoding="utf-8").splitlines()
+        r = fw_lines[:4]
+        r.extend(fix_bad_newline(fw_lines[4:]))
         tmp = self.y / fw_path.name
         tmp.write_text("\n".join(r), encoding="utf-8")
         self.txt[0] = tmp
         # clean chapter.txt
-        r = fw_path.with_suffix(".temp")
-        fw_path.rename(r)
-        f_list = [item for item in self.x.glob("*.txt") if item.is_file()]
-        r.rename(fw_path)
+        f_list = [item for item in self.x.glob("*[0-9].txt")]
         for chapter in f_list:
-            c_lines = [
-                line.strip()
-                for line in chapter.read_text(encoding="utf-8").splitlines()
-            ]
+            r = []
+            c_lines = chapter.read_text(encoding="utf-8").splitlines()
+            r.append(c_lines.pop(0))
             if duplicate_chapter is True:
-                c_lines.pop(1)
+                c_lines.pop(0)
+            if len(c_lines) == 0:
+                _logger.info(f"The structure of chapter {chapter.stem} is wrong!")
+                continue
+            r.extend(fix_bad_newline(c_lines))
             tmp = self.y / chapter.name
-            tmp.write_text("\n".join(fix_bad_newline(tuple(c_lines))), encoding="utf-8")
+            tmp.write_text("\n".join(r), encoding="utf-8")
             self.txt[int(chapter.stem)] = tmp
         _logger.info("Done cleaning. View result at: %s", self.y.resolve())
 
@@ -125,12 +124,9 @@ class FileConverter:
         self.xhtml[-1] = tmp
         # clean foreword.txt
         fwp = self.x / "foreword.txt"
-        fw_lines = [
-            escape_char(line.strip())
-            for line in fwp.read_text(encoding="utf-8").splitlines()
-        ]
+        fw_lines = fwp.read_text(encoding="utf-8").splitlines()
         foreword_p_tag_list = [
-            ("<p>" + line + "</p>") for line in fix_bad_newline(tuple(fw_lines[3:-1]))
+            f"<p>{line}</p>" for line in fix_bad_newline(fw_lines[4:], escape=True)
         ]
         foreword_title = "Lời tựa"
         if lang_code == "zh":
@@ -139,41 +135,34 @@ class FileConverter:
         tmp.write_text(
             fwtp.read_text(encoding="utf-8").format(
                 foreword_title=foreword_title,
-                novel_title=fw_lines[0],
-                author_name=fw_lines[1],
-                url=fw_lines[-1],
-                types=fw_lines[2],
+                novel_title=html.escape(fw_lines[0]),
+                author_name=html.escape(fw_lines[1]),
+                types=html.escape(fw_lines[2]),
+                url=fw_lines[3],
                 foreword_p_tag_list="\n\n  ".join(foreword_p_tag_list),
             ),
             encoding="utf-8",
         )
         self.xhtml[0] = tmp
         # clean chapter.txt
-        r = fwp.with_suffix(".temp")
-        fwp.rename(r)
-        f_list = [item for item in self.x.glob("*.txt") if item.is_file()]
-        r.rename(fwp)
+        f_list = [item for item in self.x.glob("*[0-9].txt") if item.is_file()]
         for chapter in f_list:
-            c_lines = [
-                escape_char(line.strip())
-                for line in chapter.read_text(encoding="utf-8").splitlines()
-            ]
+            c_lines = chapter.read_text(encoding="utf-8").splitlines()
+            title = c_lines.pop(0)
             if duplicate_chapter is True:
-                c_lines.pop(1)
+                c_lines.pop(0)
             tmp = self.y / f"c{chapter.stem}.xhtml"
-            try:
-                chapter_p_tag_list = [
-                    "<p>" + line + "</p>" for line in fix_bad_newline(tuple(c_lines[1:]))
-                ]
-                tmp.write_text(
-                    ctp.read_text(encoding="utf-8").format(
-                        chapter_title=c_lines[0],
-                        chapter_p_tag_list="\n\n  ".join(chapter_p_tag_list),
-                    ),
-                    encoding="utf-8",
-                )
-            except IndexError:
-                _logger.warning("Empty chapter: %s", tmp)
+            chapter_p_tag_list = [
+                f"<p>{line}</p>"
+                for line in fix_bad_newline(tuple(c_lines), escape=True)
+            ]
+            tmp.write_text(
+                ctp.read_text(encoding="utf-8").format(
+                    chapter_title=title,
+                    chapter_p_tag_list="\n\n  ".join(chapter_p_tag_list),
+                ),
+                encoding="utf-8",
+            )
             self.xhtml[int(chapter.stem)] = tmp
         _logger.info("Done converting. View result at: %s", self.y.resolve())
 
@@ -239,57 +228,55 @@ class FileConverterError(Exception):
     pass
 
 
-def fix_bad_newline(lines):
-    """Concatenate lines that likely to be in the same setence.
-    Input data must not contain any blank lines, and all lines must be strimmed.
+def fix_bad_newline(lines: ListStr, escape: bool = False):
+    """Filtered blank lines. Concatenate lines that
+    likely to be in the same setence. Escape all lines if `escape` is True.
 
     Examples
     --------
     >>> fix_bad_newline(("A and", "b"))
     >>> ("A and b")
     >>> fix_bad_newline(("A said:", "\"B should...\""))
-    >>> ("A said: \"B should...\"")
+    >>> ("A said: \\"B should...\\"")
 
     Parameters
     ----------
     lines : List
         Input lines.
+    escape : bool, optional
+        If True escape lines for html, by default False
 
     Returns
     -------
     List
         Fixed lines.
     """
+    flines = []
     result = []
     pa1 = ',:"'
     pa2 = '.,:'
-    try:
-        result.append(lines[0])
-        for index in range(1, len(lines) - 1):
-            if (
-                (result[-1][-1] in pa1)
-                or (lines[index][0] == '"')
-                or (lines[index][0].islower())
-                or (result[-1][-1].islower())
-            ):
-                result[-1] = result[-1] + " " + lines[index]
-            elif (lines[index][0] in pa2):
-                result[-1] = result[-1] + lines[index]
-            else:
-                result.append(lines[index])
-    except IndexError:
-        _logger.exception("Input data contains blank lines", stack_info=True)
-
+    for line in lines:
+        t = line.strip()
+        if t:
+            flines.append(t)
+    if not flines:
+        _logger.error("Input data does not contain any valid line.")
+        return None
+    result.append(flines[0])
+    if len(flines) == 1:
+        return result
+    for index in range(1, len(flines)):
+        if (
+            (result[-1][-1] in pa1)
+            or (flines[index][0] == '"')
+            or (flines[index][0].islower())
+            or (result[-1][-1].islower())
+        ):
+            result[-1] = result[-1] + " " + flines[index]
+        elif flines[index][0] in pa2:
+            result[-1] = result[-1] + flines[index]
+        else:
+            result.append(flines[index])
+    if escape:
+        return [html.escape(line) for line in result]
     return result
-
-
-def escape_char(text: str):
-    """Escape special character for XHTML.
-
-    Args:
-      text: input string
-
-    Returns:
-
-    """
-    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
