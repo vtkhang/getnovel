@@ -103,7 +103,7 @@ class BachNgocSachSpider(Spider):
             Request to the next chapter.
         """
         yield get_content(response)
-        next_url = response.xpath('//a[contains(@class,"page-next")]').attrib["href"]
+        next_url = response.xpath('//a[contains(@class,"page-next")]/@href').get()
         if (not next_url) or (response.meta["id"] == self.stop_chap):
             raise CloseSpider(reason="Done")
         yield response.follow(
