@@ -138,6 +138,8 @@ Supported websites
 
 8.  `https://www.ptwxz.com/ <https://www.ptwxz.com>`_
 
+9.  `https://dtruyen.com/ <https://dtruyen.com/>`_
+
 Frameworks, packages and IDEs
 =============================
 
