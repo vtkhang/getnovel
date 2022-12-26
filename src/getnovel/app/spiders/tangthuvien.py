@@ -20,9 +20,10 @@ class TangThuVienSpider(Spider):
 
     def __init__(
         self,
-        url: str,
-        start_chap: int,
-        stop_chap: int,
+        u: str,
+        n: int,
+        i: int = 1,
+        s: int = 1,
         *args,
         **kwargs,
     ):
@@ -30,17 +31,20 @@ class TangThuVienSpider(Spider):
 
         Parameters
         ----------
-        url : str
-            Url of the novel information page.
-        start_chap : int
-            Start crawling from this chapter.
-        stop_chap : int
-            Stop crawling at this chapter, input -1 to get all chapters.
+        u : str
+            Url of the start chapter.
+        n : int
+            Amount of chapters need to be crawled, input -1 to get all chapters.
+        i : int
+            Skip info page if value is 0.
+        s : int
+            Begin value for file name id.
         """
         super().__init__(*args, **kwargs)
-        self.start_urls = [url]
-        self.start_chap = start_chap
-        self.stop_chap = stop_chap
+        self.start_urls = [u]
+        self.s = int(s)
+        self.n = int(n) + self.s
+        self.i = int(i)
         self.toc = []
         self.toc_len = 0
 
@@ -59,15 +63,18 @@ class TangThuVienSpider(Spider):
         Request
             Request to table of content.
         """
-        yield get_info(response)
-        uid = response.xpath('//*[@name="book_detail"]/@content').get()
+        yield get_content(response, self.s)
+        sid = response.xpath("//div[4]//input[3]/@value").get()
         yield response.follow(
-            url=f"/story/chapters?story_id={uid}",
-            callback=self.parse_start,
+            url=f"/story/chapters?story_id={sid}",
+            callback=self.parse_next,
         )
+        if self.i != 0:
+            self.i = 0
+            yield Request(url=response.url.rsplit("/", 1)[0], callback=self.parse_info)
 
-    def parse_start(self, response: Response):
-        """Extract link of the start chapter.
+    def parse_next(self, response: Response):
+        """Extract link of the next chapter.
 
         Parameters
         ----------
@@ -77,13 +84,22 @@ class TangThuVienSpider(Spider):
         Yields
         ------
         Request
-            Request to the start chapter.
+            Request to the next chapter.
         """
-        self.toc.extend(response.xpath("//a/@href").getall())
+        self.toc.extend([i.strip() for i in response.xpath("//a/@href").getall()])
         self.toc_len = len(self.toc)
+        cur_chap = 0
+        for index in range(len(self.toc)):
+            if self.toc[index] == self.start_urls[0]:
+                cur_chap = index
+        if cur_chap + 1 == self.toc_len:
+            raise CloseSpider(reason="Done")
         yield Request(
-            url=self.toc[self.start_chap - 1],
-            meta={"id": self.start_chap},
+            url=self.toc[cur_chap + 1],
+            meta={
+                "id": self.s + 1,
+                "cur_chap": cur_chap + 2,
+            },
             callback=self.parse_content,
         )
 
@@ -102,16 +118,34 @@ class TangThuVienSpider(Spider):
         Request
             Request to the next chapter.
         """
-        yield get_content(response)
-        if (response.meta["id"] == self.toc_len) or (
-            response.meta["id"] == self.stop_chap
+        yield get_content(response, response.meta["id"])
+        if (response.meta["id"] == self.n) or (
+            response.meta["cur_chap"] == self.toc_len
         ):
             raise CloseSpider(reason="Done")
         yield Request(
-            url=self.toc[response.meta["id"]],
-            meta={"id": response.meta["id"] + 1},
+            url=self.toc[response.meta["cur_chap"]],
+            meta={
+                "id": response.meta["id"] + 1,
+                "cur_chap": response.meta["cur_chap"] + 1,
+            },
             callback=self.parse_content,
         )
+
+    def parse_info(self, response: Response):
+        """Extract info.
+
+        Parameters
+        ----------
+        response : Response
+            The response to parse.
+
+        Yields
+        ------
+        Info
+            Info item.
+        """
+        yield get_info(response)
 
 
 def get_info(response: Response) -> Info:
@@ -137,7 +171,7 @@ def get_info(response: Response) -> Info:
     return r.load_item()
 
 
-def get_content(response: Response) -> Chapter:
+def get_content(response: Response, id: int) -> Chapter:
     """Get chapter content.
 
     Parameters
@@ -145,13 +179,16 @@ def get_content(response: Response) -> Chapter:
     response : Response
         The response to parse.
 
+    id: int
+        File name id.
     Returns
     -------
     Chapter
         Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
+    r.add_value("id", str(id))
+    r.add_value("url", response.url)
     r.add_xpath("title", "//div[5]//h2/text()")
     r.add_xpath("content", '//div[contains(@class,"box-chap")]//text()')
-    r.add_value("id", str(response.meta["id"]))
     return r.load_item()

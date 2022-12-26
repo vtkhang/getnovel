@@ -24,6 +24,7 @@ class InfoLoader(ItemLoader):
         "author": "XpathResult1 XpathResult2 ...",
         "types": "XpathResult1, XpathResult2, ...",
         "foreword": "XpathResult1\\nXpathResult2\\n...",
+        "url": "url_str"
         "image_urls": ["XpathResult1", "XpathResult2",...],
         "images": "AUTO_GENERATED_BY_IMAGEPIPLINE"
     }
@@ -43,9 +44,10 @@ class ChapterLoader(ItemLoader):
     Examples
     --------
     >>> after_process = {
+        "id": "1",
+        "url": "url_str",
         "title": "XpathResult1 XpathResult2 ...",
-        "content": "XpathResult1\\nXpathResult2\\n...",
-        "id": "1"
+        "content": "XpathResult1\\nXpathResult2\\n..."
     }
     """
     default_input_processor = MapCompose(str.strip, filter_blank)

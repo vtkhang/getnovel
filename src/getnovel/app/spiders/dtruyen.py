@@ -7,23 +7,23 @@
 
 from scrapy import Spider
 from scrapy.http import Response, Request
-from scrapy.http.response.text import TextResponse
 from scrapy.exceptions import CloseSpider
 
 from getnovel.app.items import Info, Chapter
 from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
-class TruyenChuSpider(Spider):
-    """Define spider for domain: truyenchu"""
+class DtruyenSpider(Spider):
+    """Define spider for domain: dtruyen"""
 
     name = "dtruyen"
 
     def __init__(
         self,
-        url: str,
-        start_chap: int,
-        stop_chap: int,
+        u: str,
+        n: int,
+        i: int = 1,
+        s: int = 1,
         *args,
         **kwargs,
     ):
@@ -31,70 +31,24 @@ class TruyenChuSpider(Spider):
 
         Parameters
         ----------
-        url : str
-            Url of the novel information page.
-        start_chap : int
-            Start crawling from this chapter.
-        stop_chap : int
-            Stop crawling at this chapter, input -1 to get all chapters.
+        u : str
+            Url of the start chapter.
+        n : int
+            Amount of chapters need to be crawled, input -1 to get all chapters.
+        i : int
+            Skip info page if value is 0.
+        s : int
+            Begin value for file name id.
         """
         super().__init__(*args, **kwargs)
-        self.start_urls = [url]
-        self.start_chap = start_chap
-        self.stop_chap = stop_chap
+        self.start_urls = [u]
+        self.s = int(s)
+        self.n = int(n) + self.s
+        self.i = int(i)
 
     def parse(self, response: Response):
-        """Extract info and send request to table of content.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-
-        Yields
-        ------
-        Info
-            Info item.
-        Request
-            Request to table of content.
-        """
-        yield get_info(response)
-        # calculate the position of start_chap in menu list
-        total_chap = 30
-        start_chap = self.start_chap - 1
-        menu_page_have_start_chap = start_chap // total_chap + 1
-        pos_of_start_chap_in_menu = start_chap % total_chap + 1
-        yield Request(
-            url=f"{response.url}{menu_page_have_start_chap}/",
-            meta={
-                "pos_start": pos_of_start_chap_in_menu,
-            },
-            callback=self.parse_start,
-        )
-
-    def parse_start(self, response: TextResponse):
-        """Extract link of the start chapter.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-
-        Yields
-        ------
-        Request
-            Request to the start chapter.
-        """
-        yield Request(
-            url=response.xpath(
-                f'(//*[@id="chapters"]/ul//a)[{response.meta["pos_start"]}]'
-            ).attrib["href"],
-            callback=self.parse_content,
-            meta={"id": self.start_chap},
-        )
-
-    def parse_content(self, response: Response):
-        """Extract content.
+        """Extract content, send request to next chapter.
+        Send request to info page.
 
         Parameters
         ----------
@@ -107,18 +61,40 @@ class TruyenChuSpider(Spider):
             Chapter item.
         Request
             Request to the next chapter.
+        Request
+            Request to the novel info page.
         """
         if response.xpath('//*[@id="pre-vip"]/text()').get():
             raise CloseSpider(reason="Reached VIP Chapters!")
-        yield get_content(response)
-        next_url = response.xpath('//*[@id="chapter"]/div[1]/a[4]').attrib["href"]
-        if (next_url == "#") or (response.meta["id"] == self.stop_chap):
+        yield get_content(response, self.s)
+        next_url = response.xpath('//*[@id="chapter"]/div[1]/a[4]/@href').get()
+        if (next_url == "#") or (self.s == self.n):
             raise CloseSpider(reason="Done")
+        self.s += 1
         yield Request(
             url=next_url,
-            meta={"id": response.meta["id"] + 1},
-            callback=self.parse_content,
+            callback=self.parse,
         )
+        if self.i != 0:
+            self.i = 0
+            yield Request(
+                url=f'{response.url.rsplit("/", 1)[0]}/', callback=self.parse_info
+            )
+
+    def parse_info(self, response: Response):
+        """Extract info.
+
+        Parameters
+        ----------
+        response : Response
+            The response to parse.
+
+        Yields
+        ------
+        Info
+            Info item.
+        """
+        yield get_info(response)
 
 
 def get_info(response: Response) -> Info:
@@ -144,7 +120,7 @@ def get_info(response: Response) -> Info:
     return r.load_item()
 
 
-def get_content(response: Response) -> Chapter:
+def get_content(response: Response, id: int) -> Chapter:
     """Get chapter content.
 
     Parameters
@@ -152,13 +128,16 @@ def get_content(response: Response) -> Chapter:
     response : Response
         The response to parse.
 
+    id: int
+        File name id.
     Returns
     -------
     Chapter
         Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
+    r.add_value("id", str(id))
+    r.add_value("url", response.url)
     r.add_xpath("title", '//*[@id="chapter"]/header/h2/text()')
     r.add_xpath("content", '//*[@id="chapter-content"]/text()')
-    r.add_value("id", str(response.meta["id"]))
     return r.load_item()

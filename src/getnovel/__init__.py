@@ -50,8 +50,8 @@ def crawl_func(args):
     p = NovelCrawler(url=args.url)
     p.crawl(
         rm_raw=not args.keep_raw,
-        start_chap=args.start,
-        stop_chap=args.stop,
+        start_index=args.start,
+        num_chap=args.stop,
         clean=args.clean,
         output=args.raw_dir,
     )
@@ -85,7 +85,7 @@ def rm_dup_func(args):
 def epub_from_url_func(args):
     """Make epub from url process"""
     e = EpubMaker()
-    e.from_url(args.url, args.dup_chap, args.start, args.stop)
+    e.from_url(args.url, args.dup_chap, args.start_index, args.stop_index)
 
 
 def epub_from_raw_func(args):
@@ -121,16 +121,16 @@ def _build_parser():
     # crawl parser
     crawl = subparsers.add_parser("crawl", help="get novel text")
     crawl.add_argument(
-        "--start",
+        "--start_index",
         type=int,
         default=1,
-        help="start chapter index (default:  %(default)s)",
+        help="file name will increase from this value (default:  %(default)s)",
     )
     crawl.add_argument(
-        "--stop",
+        "--num_chap",
         type=int,
         default=-1,
-        help="stop chapter index, input -1 to get all chapters (default:  %(default)s)",
+        help="number of chapters to crawl, input -1 to crawl all chapters (default:  %(default)s)",
     )
     crawl.add_argument(
         "--keep_raw",
@@ -197,16 +197,16 @@ def _build_parser():
         help="if specified, remove duplicate chapter title (default:  %(default)s)",
     )
     from_url.add_argument(
-        "--start",
+        "--start_index",
         type=int,
         default=1,
-        help="start chapter index (default:  %(default)s)",
+        help="file name will increase from this value (default:  %(default)s)",
     )
     from_url.add_argument(
         "--stop",
         type=int,
         default=-1,
-        help="stop chapter index, input -1 to get all chapters (default:  %(default)s)",
+        help="number of chapters to crawl, input -1 to get all chapters (default:  %(default)s)",
     )
     from_url.add_argument("url", type=str, help="full web site to novel info page")
     from_url.set_defaults(func=epub_from_url_func)

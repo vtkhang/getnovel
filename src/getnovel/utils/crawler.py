@@ -40,8 +40,8 @@ class NovelCrawler:
     def crawl(
         self,
         rm_raw: bool,
-        start_chap: int,
-        stop_chap: int,
+        start_index: int,
+        num_chap: int,
         clean: bool = True,
         output: PathStr = None,
     ) -> PathStr:
@@ -51,10 +51,10 @@ class NovelCrawler:
         ----------
         rm_raw : bool
             If specified, remove all existing files in raw directory.
-        start_chap : int
-            Start crawling from this chapter.
-        stop_chap : int
-            Stop crawling at this chapter.
+        start_index : int
+            File name will increase from this value.
+        num_chap : int
+            Number of chapters to crawl.
         clean : bool, optional
             If specified, clean result files, by default True.
         output : PathStr, optional
@@ -71,14 +71,9 @@ class NovelCrawler:
         PathStr
             Path the raw directory.
         """
-        if start_chap < 1:
+        if start_index < 1:
             raise CrawlNovelError(
                 "Index of start chapter need to be greater than zero"
-            )
-        if stop_chap < start_chap and stop_chap != -1:
-            raise CrawlNovelError(
-                "Index of stop chapter need to be "
-                "greater than start chapter or equal -1"
             )
         if output is None:
             tmp: list = self.u.split("/")
@@ -101,9 +96,9 @@ class NovelCrawler:
         process = CrawlerProcess(settings=scrapy_settings.get_settings(rp))
         process.crawl(
             spider_class,
-            url=self.u,
-            start_chap=start_chap,
-            stop_chap=stop_chap,
+            u=self.u,
+            s=start_index,
+            n=num_chap,
         )
         process.start()
         _logger.info("Done crawling. View result at: %s", str(rp))

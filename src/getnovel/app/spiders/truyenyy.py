@@ -1,11 +1,7 @@
-"""This is the next generation spider for bachngocsach.
-
-   This spider will start crawling from chapter page instead of novel info page.
-   So we can easily make request to next chapter and info page instead of caculating start chapter
-   and make request to table of content.
+"""Get novel on domain truyenyy.
 
 .. _Web site:
-   https://bachngocsach.com.vn/reader
+   https://truyenyy.vip/
 
 """
 
@@ -17,17 +13,10 @@ from getnovel.app.items import Info, Chapter
 from getnovel.app.itemloaders import InfoLoader, ChapterLoader
 
 
-class BachNgocSachSpider(Spider):
-    """Define spider for domain: bachngocsach
+class TruyenYYSpider(Spider):
+    """Define spider for domain: truyenyy"""
 
-    Examples
-    --------
-    >>> scrapy crawl next_gen_spider `
-        -a url=https://bachngocsach.com.vn/reader/truong-sinh-do-convert/nhqj `
-        -a n=2
-    """
-
-    name = "next_gen_spider"
+    name = "truyenyy"
 
     def __init__(
         self,
@@ -42,23 +31,24 @@ class BachNgocSachSpider(Spider):
 
         Parameters
         ----------
-        url : str
+        u : str
             Url of the start chapter.
         n : int
             Amount of chapters need to be crawled, input -1 to get all chapters.
         i : int
-            If is 0 then skip info page.
+            Skip info page if value is 0.
         s : int
             Begin value for file name id.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [u]
-        self.n = n+s
         self.s = int(s)
+        self.n = int(n) + self.s
         self.i = int(i)
 
     def parse(self, response: Response):
-        """Extract content.
+        """Extract content, send request to next chapter.
+        Send request to info page.
 
         Parameters
         ----------
@@ -74,9 +64,11 @@ class BachNgocSachSpider(Spider):
         Request
             Request to the novel info page.
         """
+        if response.xpath("//div[2]/div[2]/div[4]//div[2]").get():
+            raise CloseSpider(reason="Reached vip chapters!")
         yield get_content(response, self.s)
-        next_url = response.xpath('//a[contains(@class,"page-next")]/@href').get()
-        if not next_url or self.s == self.n:
+        next_url = response.xpath("//div[2]/div[2]/a/@href").get()
+        if (not next_url) or (self.s == self.n):
             raise CloseSpider(reason="Done")
         self.s += 1
         yield response.follow(
@@ -85,7 +77,9 @@ class BachNgocSachSpider(Spider):
         )
         if self.i != 0:
             self.i = 0
-            yield Request(url=response.url.rsplit("/", 1)[0], callback=self.parse_info)
+            yield Request(
+                url=f'{response.url.rsplit("/", 1)[0]}/', callback=self.parse_info
+            )
 
     def parse_info(self, response: Response):
         """Extract info.
@@ -106,17 +100,6 @@ class BachNgocSachSpider(Spider):
 def get_info(response: Response) -> Info:
     """Get novel information.
 
-    Examples
-    --------
-    >>> before_process_by_loader = {
-        "title": ["XpathResult1", "XpathResult2",...],
-        "author": ["XpathResult1", "XpathResult2",...],
-        "types": ["XpathResult1", "XpathResult2",...],
-        "foreword": ["XpathResult1", "XpathResult2",...],
-        "image_urls": ["XpathResult1", "XpathResult2",...],
-        "images": "AUTO_GENERATED_BY_IMAGEPIPLINE"
-    }
-
     Parameters
     ----------
     response : Response
@@ -128,24 +111,17 @@ def get_info(response: Response) -> Info:
         Populated Info item.
     """
     r = InfoLoader(item=Info(), response=response)
-    r.add_xpath("title", '//*[@id="truyen-title"]/text()')
-    r.add_xpath("author", '//div[@id="tacgia"]/a/text()')
-    r.add_xpath("types", '//div[@id="theloai"]/a/text()')
-    r.add_xpath("foreword", '//div[@id="gioithieu"]/div/p/text()')
-    r.add_xpath("image_urls", '//div[@id="anhbia"]/img/@src')
+    r.add_xpath("title", '//h1[@class="name"]/text()')
+    r.add_xpath("author", '//div[@class="info"]/div[1]/a/text()')
+    r.add_xpath("types", '//div[@class="info"]/ul[1]/li[1]//text()')
+    r.add_xpath("foreword", '//*[@id="id_novel_summary"]//text()')
+    r.add_xpath("image_urls", '//div[@class="novel-info"]/a/img/@data-src')
     r.add_value("url", response.request.url)
     return r.load_item()
 
 
 def get_content(response: Response, id: int) -> Chapter:
     """Get chapter content.
-
-    Examples
-    --------
-    >>> before_process_by_loader = {
-        "title": ["XpathResult1", "XpathResult2",...],
-        "content": ["XpathResult1", "XpathResult2",...]
-    }
 
     Parameters
     ----------
@@ -160,10 +136,14 @@ def get_content(response: Response, id: int) -> Chapter:
         Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
-    r.add_xpath("title", '//h1[@id="chuong-title"]/text()')
+    r.add_value("id", str(id))
+    r.add_value("url", response.url)
+    r.add_xpath(
+        "title",
+        "//div[2]/div[2]/div[1]//span/text() | //div[2]/div[2]/h2/text()",
+    )
     r.add_xpath(
         "content",
-        '//div[@id="noi-dung"]/p/text()',
+        '//*[@id="inner_chap_content_1"]/p/text()',
     )
-    r.add_value("id", str(response.meta["id"]))
     return r.load_item()

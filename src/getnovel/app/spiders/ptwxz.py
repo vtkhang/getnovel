@@ -1,4 +1,4 @@
-"""Get novel from domain ptwxz.
+"""Get novel on domain ptwxz.
 
 .. _Web site:
    https://www.ptwxz.com
@@ -6,7 +6,7 @@
 """
 
 from scrapy import Spider
-from scrapy.http import Response
+from scrapy.http import Response, Request
 from scrapy.exceptions import CloseSpider
 
 from getnovel.app.items import Info, Chapter
@@ -20,9 +20,10 @@ class PtwxzSpider(Spider):
 
     def __init__(
         self,
-        url: str,
-        start_chap: int,
-        stop_chap: int,
+        u: str,
+        n: int,
+        i: int = 1,
+        s: int = 1,
         *args,
         **kwargs,
     ):
@@ -30,66 +31,24 @@ class PtwxzSpider(Spider):
 
         Parameters
         ----------
-        url : str
-            Url of the novel information page.
-        start_chap : int
-            Start crawling from this chapter.
-        stop_chap : int
-            Stop crawling at this chapter, input -1 to get all chapters.
+        u : str
+            Url of the start chapter.
+        n : int
+            Amount of chapters need to be crawled, input -1 to get all chapters.
+        i : int
+            Skip info page if value is 0.
+        s : int
+            Begin value for file name id.
         """
         super().__init__(*args, **kwargs)
-        self.start_urls = [url]
-        self.start_chap = start_chap
-        self.stop_chap = stop_chap
+        self.start_urls = [u]
+        self.s = int(s)
+        self.n = int(n) + self.s
+        self.i = int(i)
 
     def parse(self, response: Response):
-        """Extract info and send request to table of content.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-
-        Yields
-        ------
-        Info
-            Info item.
-        Request
-            Request to table of content.
-        """
-        yield get_info(response)
-        yield response.follow(
-            url=response.xpath('//*[@id="content"]//a[1]/@href').get(),
-            callback=self.parse_start
-        )
-
-    def parse_start(self, response: Response):
-        """Extract link of the start chapter.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-
-        Yields
-        ------
-        Request
-            Request to the start chapter.
-        """
-        try:
-            yield response.follow(
-                url=response.xpath(
-                    f'(//div[@class="centent"]//a)[{self.start_chap}]'
-                ).attrib["href"],
-                meta={"id": self.start_chap},
-                callback=self.parse_content,
-            )
-        except KeyError:
-            self.logger.exception(msg="Start chap is not exist or xpath need to be fixed!")
-            raise CloseSpider(reason="Stopped")
-
-    def parse_content(self, response: Response):
-        """Extract content.
+        """Extract content, send request to next chapter.
+        Send request to info page.
 
         Parameters
         ----------
@@ -102,16 +61,39 @@ class PtwxzSpider(Spider):
             Chapter item.
         Request
             Request to the next chapter.
+        Request
+            Request to the novel info page.
         """
-        yield get_content(response)
-        next_url = response.xpath("//div[3]/a[3]").attrib["href"]
-        if ("i" in next_url) or (response.meta["id"] == self.stop_chap):
+        yield get_content(response, self.s)
+        next_url = response.xpath("//div[3]/a[3]/@href").get()
+        if ("i" in next_url) or (self.s == self.n):
             raise CloseSpider(reason="Done")
+        self.s += 1
         yield response.follow(
             url=next_url,
-            meta={"id": response.meta["id"] + 1},
-            callback=self.parse_content,
+            callback=self.parse,
         )
+        if self.i != 0:
+            self.i = 0
+            yield Request(
+                url=f'{response.url.rsplit("/", 1)[0].replace("html","bookinfo")}.html',
+                callback=self.parse_info,
+            )
+
+    def parse_info(self, response: Response):
+        """Extract info.
+
+        Parameters
+        ----------
+        response : Response
+            The response to parse.
+
+        Yields
+        ------
+        Info
+            Info item.
+        """
+        yield get_info(response)
 
 
 def get_info(response: Response) -> Info:
@@ -138,7 +120,7 @@ def get_info(response: Response) -> Info:
     return r.load_item()
 
 
-def get_content(response: Response) -> Chapter:
+def get_content(response: Response, id: int) -> Chapter:
     """Get chapter content.
 
     Parameters
@@ -146,13 +128,16 @@ def get_content(response: Response) -> Chapter:
     response : Response
         The response to parse.
 
+    id: int
+        File name id.
     Returns
     -------
     Chapter
         Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=response)
+    r.add_value("id", str(id))
+    r.add_value("url", response.url)
     r.add_xpath("title", "//h1/text()")
     r.add_xpath("content", "//body/text()")
-    r.add_value("id", str(response.meta["id"]))
     return r.load_item()

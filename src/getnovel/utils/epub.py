@@ -40,22 +40,22 @@ class EpubMaker:
         self.tmp_edp = Path()
 
     def from_url(
-        self, url: str, duplicate_chapter: bool, start: int, stop: int
+        self, url: str, duplicate_chapter: bool, start_index: int, num_chap: int
     ) -> None:
-        """Get novel from web site, zip them to epub.
+        """Get novel on web site, zip them to epub.
 
         Args:
           url: full web site to novel info page
           duplicate_chapter: if specified, remove duplicate chapter title
-          start: start chapter index
-          stop: stop chapter index, input -1 to get all chapters
+          start_index: start chapter index
+          num_chap: stop chapter index, input -1 to get all chapters
 
         Returns:
           None
         """
-        # get novel from web site.
+        # Get novel on web site.
         p = NovelCrawler(url=url)
-        rdp = p.crawl(rm_raw=True, start_chap=start, stop_chap=stop)
+        rdp = p.crawl(rm_raw=True, start_index=start_index, num_chap=num_chap)
         # convert to xhtml
         c = FileConverter(rdp)
         c.convert_to_xhtml(
