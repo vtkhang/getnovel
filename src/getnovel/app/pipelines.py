@@ -5,11 +5,16 @@
 
    useful for handling different item types with a single interface
 """
+
+import logging
 from pathlib import Path
 
 from scrapy.exceptions import DropItem
 from scrapy.pipelines.images import ImagesPipeline
 from getnovel.app.items import Info, Chapter
+
+
+_logger = logging.getLogger(__name__)
 
 
 class AppPipeline:
@@ -59,7 +64,8 @@ class AppPipeline:
             else:
                 raise DropItem("Invalid item detected!")
         except KeyError as key:
-            raise DropItem(f"Field {key} is not exists!")
+            _logger.warn(f"Error url: {item.get('url', 'Field url is not exist!')}")
+            raise DropItem(f"Field {key} is not exist!")
         return item
 
 
