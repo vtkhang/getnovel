@@ -6,7 +6,7 @@ import pprint
 from pathlib import Path
 
 
-def get_settings(save_path: Path):
+def get_settings(save_path: Path = None, log_level: str = "INFO"):
     """Return the settings of spider.
 
     Returns
@@ -17,6 +17,9 @@ def get_settings(save_path: Path):
     hp = Path.home()
     imgp = hp / "GetNovel" / "images"
     lp = hp / "GetNovel" / "logs"
+    if save_path is None:
+        save_path = hp / "GetNovel" / "crawled"
+    save_path.mkdir(parents=True, exist_ok=True)
     imgp.mkdir(parents=True, exist_ok=True)
     lp.mkdir(parents=True, exist_ok=True)
     lnp = f'{time.strftime("%Y_%m_%d-%H_%M_%S")}.log'
@@ -31,7 +34,7 @@ def get_settings(save_path: Path):
             "getnovel.app.pipelines.AppPipeline": 300,
             "getnovel.app.pipelines.CoverImagesPipeline": 200,
         },
-        "IMAGES_STORE": f'{imgp}',
+        "IMAGES_STORE": f"{imgp}",
         # DOWNLOADER_MIDDLEWARES
         "DOWNLOADER_MIDDLEWARES": {
             "getnovel.app.middlewares.AppDownloaderMiddleware": 500,
@@ -39,19 +42,19 @@ def get_settings(save_path: Path):
         # LOG SETTINGS
         "LOG_FORMAT": "%(asctime)s [%(name)s] %(levelname)s: %(message)s",
         "LOG_SHORT_NAMES": True,
-        "LOG_FILE": f'{lp / lnp}',
+        "LOG_FILE": f"{lp / lnp}",
         "LOG_FILE_APPEND": False,
-        "LOG_LEVEL": "DEBUG",
+        "LOG_LEVEL": log_level,
         # AUTOTHROTTLE SETTINGS
         "AUTOTHROTTLE_ENABLED": True,
-        "AUTOTHROTTLE_START_DELAY": 5,
-        "DOWNLOAD_DELAY": 2,
+        "AUTOTHROTTLE_START_DELAY": 6,
+        "DOWNLOAD_DELAY": 6,
         "AUTOTHROTTLE_MAX_DELAY": 60,
         "AUTOTHROTTLE_TARGET_CONCURRENCY": 0.5,
         # COOKIE
         "COOKIES_DEBUG": True,
         # SAVE PATH
-        "SAVE_PATH": f"{save_path}"
+        "SAVE_PATH": f"{save_path}",
     }
 
 
@@ -74,6 +77,7 @@ def mk_settings(sp: Path, sc: dict):
     sp.absolute().write_text(encoding="utf-8", data="\n".join(r))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """Generate settings.py for scrapy shell."""
-    mk_settings(Path().absolute().parent / "app" / "settings.py", get_settings())
+    mk_settings(sp=Path(__file__).parent.parent / "app" / "settings.py", sc=get_settings())
+
