@@ -9,7 +9,7 @@ readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["crawler", "scrapy"]
 license = { text = "MIT" }
-version = "1.2.3"
+version = "1.3.0"
 classifiers = [
     "Framework :: Scrapy",
     "Programming Language :: Python :: 3.7",
@@ -23,7 +23,6 @@ classifiers = [
 dependencies = [
     "scrapy >= 2.5.1",
     "pydantic",
-    "beautifulsoup4 >= 4.11.1",
     "Pillow >= 9.1.0",
     "tldextract >= 3.2.1",
     "validators >= 0.18.2",
