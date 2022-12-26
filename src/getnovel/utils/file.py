@@ -145,7 +145,7 @@ class FileConverter:
         )
         self.xhtml[0] = tmp
         # clean chapter.txt
-        f_list = [item for item in self.x.glob("*[0-9].txt") if item.is_file()]
+        f_list = [item for item in self.x.glob("*[0-9].txt")]
         for chapter in f_list:
             c_lines = chapter.read_text(encoding="utf-8").splitlines()
             title = c_lines.pop(0)
@@ -236,8 +236,6 @@ def fix_bad_newline(lines: ListStr, escape: bool = False):
     --------
     >>> fix_bad_newline(("A and", "b"))
     >>> ("A and b")
-    >>> fix_bad_newline(("A said:", "\"B should...\""))
-    >>> ("A said: \\"B should...\\"")
 
     Parameters
     ----------
