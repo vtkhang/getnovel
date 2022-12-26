@@ -122,23 +122,18 @@ Ussage
 Supported websites
 ==================
 
-1. `https://truyen.tangthuvien.vn/ <https://truyen.tangthuvien.vn/>`_
+1. `https://bachngocsach.com/reader/ <https://bachngocsach.com/reader>`_
+2. `https://dtruyen.com/ <https://dtruyen.com/>`_
+3. `https://metruyencv.com/ <https://metruyencv.com>`_
+4. `https://www.ptwxz.com/ <https://www.ptwxz.com>`_
+5. `https://www.69shu.com/ <https://www.69shu.com>`_
+6. `https://sstruyen.com/ <https://sstruyen.com>`_
+7. `https://truyen.tangthuvien.vn/ <https://truyen.tangthuvien.vn/>`_
+8. `https://truyenchu.vn/ <https://truyenchu.vn/>`_
+9.  `https://truyenfull.vn/ <https://truyenfull.vn>`_
+10. `https://truyenyy.vip/ <https://truyenyy.vip/>`_
+11. `https://www.uukanshu.com/ <https://www.uukanshu.com>`_
 
-2. `https://bachngocsach.com/reader/ <https://bachngocsach.com/reader>`_
-
-3. `https://sstruyen.com/ <https://sstruyen.com>`_
-
-4. `https://truyenfull.vn/ <https://truyenfull.vn>`_
-
-5. `https://metruyencv.com/ <https://metruyencv.com>`_
-
-6. `https://www.69shu.com/ <https://www.69shu.com>`_
-
-7.  `https://www.uukanshu.com/ <https://www.uukanshu.com>`_
-
-8.  `https://www.ptwxz.com/ <https://www.ptwxz.com>`_
-
-9.  `https://dtruyen.com/ <https://dtruyen.com/>`_
 
 Frameworks, packages and IDEs
 =============================
