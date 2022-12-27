@@ -79,9 +79,18 @@ class FileConverter:
             c_lines = chapter.read_text(encoding="utf-8").splitlines()
             r.append(c_lines.pop(0))
             if duplicate_chapter is True:
-                c_lines.pop(0)
+                c_lines_temp = list(c_lines)
+                for line in c_lines_temp:
+                    if "Chương" in line and len(line) < 100:
+                        t = c_lines.pop(0)
+                        _logger.debug(msg=f"Removed:{t}\nPath:{chapter}\n")
+                    else:
+                        break
             if len(c_lines) == 0:
-                _logger.info(f"The structure of chapter {chapter.stem} is wrong!")
+                _logger.error(
+                    f"The structure of chapter {chapter.stem} is wrong!"
+                    f"\nPath: {chapter}"
+                )
                 continue
             r.extend(fix_bad_newline(c_lines))
             tmp = self.y / chapter.name
