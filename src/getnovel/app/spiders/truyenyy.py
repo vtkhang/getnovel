@@ -140,10 +140,10 @@ def get_content(response: Response, id: int) -> Chapter:
     r.add_value("url", response.url)
     r.add_xpath(
         "title",
-        "//div[2]/div[2]/div[1]//span/text() | //div[2]/div[2]/h2/text()",
+        "//div[2]//h1/span/text() | //div[2]//h2/text()",
     )
     r.add_xpath(
         "content",
-        '//*[@id="inner_chap_content_1"]/p/text()',
+        '//*[@id="inner_chap_content_1"]/div/p/text()',
     )
     return r.load_item()
