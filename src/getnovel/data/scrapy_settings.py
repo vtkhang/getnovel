@@ -48,7 +48,7 @@ def get_settings(save_path: Path = None, log_level: str = "INFO"):
         # AUTOTHROTTLE SETTINGS
         "AUTOTHROTTLE_ENABLED": True,
         "AUTOTHROTTLE_START_DELAY": 6,
-        "DOWNLOAD_DELAY": 6,
+        "DOWNLOAD_DELAY": 3,
         "AUTOTHROTTLE_MAX_DELAY": 60,
         "AUTOTHROTTLE_TARGET_CONCURRENCY": 0.5,
         # COOKIE
@@ -80,4 +80,3 @@ def mk_settings(sp: Path, sc: dict):
 if __name__ == "__main__":
     """Generate settings.py for scrapy shell."""
     mk_settings(sp=Path(__file__).parent.parent / "app" / "settings.py", sc=get_settings())
-
