@@ -62,7 +62,7 @@ def convert_func(args):
     c = FileConverter(args.raw_dir, args.result_dir)
     c.convert_to_xhtml(
         lang_code=args.lang_code,
-        duplicate_chapter=args.dup_chap,
+        dedup=args.dup_chap,
         rm_result=not args.keep_result,
     )
 
@@ -79,7 +79,7 @@ def rm_dup_func(args):
         c = FileConverter(args.raw_dir, args.raw_dir)
     else:
         c = FileConverter(args.raw_dir, args.result_dir)
-    c.clean(duplicate_chapter=True, rm_result=False)
+    c.clean(dedup=True, rm_result=False)
 
 
 def epub_from_url_func(args):

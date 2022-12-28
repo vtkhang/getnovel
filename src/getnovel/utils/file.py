@@ -45,11 +45,11 @@ class FileConverter:
         self.txt: DictPath = {}  # use to track txt files in result directory
         self.xhtml: DictPath = {}  # use to track xhtml files in result directory
 
-    def clean(self, duplicate_chapter: bool, rm_result: bool) -> int:
+    def clean(self, dedup: bool, rm_result: bool) -> int:
         """Clean all raw files in raw directory.
 
         Args:
-            duplicate_chapter: if specified, remove duplicate chapter title
+            dedup: if specified, remove duplicate chapter title
             rm_result: if specified, remove all old files in result directory
 
         Returns:
@@ -78,14 +78,8 @@ class FileConverter:
             r = []
             c_lines = chapter.read_text(encoding="utf-8").splitlines()
             r.append(c_lines.pop(0))
-            if duplicate_chapter is True:
-                c_lines_temp = list(c_lines)
-                for line in c_lines_temp:
-                    if "Chương" in line and len(line) < 100:
-                        t = c_lines.pop(0)
-                        _logger.debug(msg=f"Removed:{t}\nPath:{chapter}\n")
-                    else:
-                        break
+            if dedup is True:
+                c_lines = dedup_title_plus(c_lines, chapter)
             if len(c_lines) == 0:
                 _logger.error(
                     f"The structure of chapter {chapter.stem} is wrong!"
@@ -98,13 +92,11 @@ class FileConverter:
             self.txt[int(chapter.stem)] = tmp
         _logger.info("Done cleaning. View result at: %s", self.y.resolve())
 
-    def convert_to_xhtml(
-        self, duplicate_chapter: bool, rm_result: bool, lang_code: str
-    ) -> int:
+    def convert_to_xhtml(self, dedup: bool, rm_result: bool, lang_code: str) -> int:
         """Clean files and convert to XHTML.
 
         Args:
-            duplicate_chapter: if specified, remove duplicate chapter title
+            dedup: if specified, remove duplicate chapter title
             rm_result: if specified, remove all old files in result directory
             lang_code: language code of the novel
 
@@ -158,8 +150,14 @@ class FileConverter:
         for chapter in f_list:
             c_lines = chapter.read_text(encoding="utf-8").splitlines()
             title = c_lines.pop(0)
-            if duplicate_chapter is True:
-                c_lines.pop(0)
+            if dedup is True:
+                c_lines = dedup_title_plus(c_lines, chapter)
+            if len(c_lines) == 0:
+                _logger.error(
+                    f"The structure of chapter {chapter.stem} is wrong!"
+                    f"\nPath: {chapter}"
+                )
+                continue
             tmp = self.y / f"c{chapter.stem}.xhtml"
             chapter_p_tag_list = [
                 f"<p>{line}</p>"
@@ -289,3 +287,42 @@ def fix_bad_newline(lines: ListStr, escape: bool = False):
     if escape:
         return [html.escape(line) for line in result]
     return result
+
+
+def dedup_title_plus(
+    chapter_lines: ListStr,
+    chapter_path: Path,
+    identities: ListStr = ["Chương", "章"],
+    max_length: int = 100,
+) -> ListStr:
+    """Deduplicate chapter title.
+
+    Parameters
+    ----------
+    chapter_lines : ListStr
+        Chapter content splitted into lines.
+    identities : ListStr, optional
+        Identify key, by default ["Chương", "章"]
+    max_length : int, optional
+        Max length of chapter title, by default 100
+
+    Returns
+    -------
+    ListStr
+        Deduplicated chapter title.
+    """
+    index = 0
+    for line in chapter_lines:
+        s = len(identities)
+        for k in identities:
+            if k in line and len(line) < max_length:
+                _logger.debug(msg=f"Removed: {chapter_lines[index]}")
+                index += 1
+                break
+            else:
+                s -= 1
+        if s == 0:
+            break
+    if index != 0:
+        _logger.debug(mse=f"Path: {chapter_path}")
+    return chapter_lines[index:]

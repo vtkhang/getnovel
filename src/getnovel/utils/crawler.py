@@ -105,7 +105,7 @@ class NovelCrawler:
         if clean is True:
             _logger.info("Start cleaning")
             c = FileConverter(rp, rp)
-            c.clean(duplicate_chapter=False, rm_result=False)
+            c.clean(dedup=False, rm_result=False)
         return rp
 
     def _get_spider(self):

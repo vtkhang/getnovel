@@ -40,13 +40,13 @@ class EpubMaker:
         self.tmp_edp = Path()
 
     def from_url(
-        self, url: str, duplicate_chapter: bool, start_index: int, num_chap: int
+        self, url: str, dedup: bool, start_index: int, num_chap: int
     ) -> None:
         """Get novel on web site, zip them to epub.
 
         Args:
           url: full web site to novel info page
-          duplicate_chapter: if specified, remove duplicate chapter title
+          dedup: if specified, remove duplicate chapter title
           start_index: start chapter index
           num_chap: stop chapter index, input -1 to get all chapters
 
@@ -59,7 +59,7 @@ class EpubMaker:
         # convert to xhtml
         c = FileConverter(rdp)
         c.convert_to_xhtml(
-            duplicate_chapter=duplicate_chapter,
+            dedup=dedup,
             rm_result=True,
             lang_code=p.get_langcode(),
         )
@@ -71,13 +71,13 @@ class EpubMaker:
         self._make_epub(list(c.get_file_list("xhtml")), p.get_langcode())
 
     def from_raw(
-        self, raw_dir_path: PathStr, duplicate_chapter: bool, lang_code: str
+        self, raw_dir_path: PathStr, dedup: bool, lang_code: str
     ) -> None:
         """Convert chapters from raw directory to xhtml and make epub.
 
         Args:
           raw_dir_path: path to raw directory
-          duplicate_chapter: if specified, remove duplicate chapter title
+          dedup: if specified, remove duplicate chapter title
           lang_code: language code of the novel
 
         Returns:
@@ -93,7 +93,7 @@ class EpubMaker:
         # convert raw files to xhtml
         c = FileConverter(raw_dir_path)
         c.convert_to_xhtml(
-            duplicate_chapter=duplicate_chapter, rm_result=True, lang_code=lang_code
+            dedup=dedup, rm_result=True, lang_code=lang_code
         )
         # create temp epub directory
         self.tmp_edp = raw_dir_path.parent / "epub"

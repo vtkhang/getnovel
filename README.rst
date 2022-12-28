@@ -109,7 +109,7 @@ Ussage
 
       from getnovel.utils.file import FileConverter
       c = FileConverter(raw_dir_path="/path/to/raw/dir")
-      c.convert_to_xhtml(duplicate_chapter=False, rm_result=True, lang_code="vi")
+      c.convert_to_xhtml(dedup=False, rm_result=True, lang_code="vi")
 
   - Create epub from the input link:
 
@@ -117,7 +117,7 @@ Ussage
 
       from getnovel.utils.epub import EpubMaker
       e = EpubMaker()
-      e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", duplicate_chapter=False, start=1, stop=-1)
+      e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", dedup=False, start=1, stop=-1)
 
 Supported websites
 ==================
