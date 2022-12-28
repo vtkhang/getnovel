@@ -1,13 +1,11 @@
-"""Define NovelCrawler class"""
+"""Define NovelCrawler class."""
 
-import re
 import logging
 from pathlib import Path
 from shutil import rmtree
 
 import tldextract
 import validators
-import unicodedata
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 from scrapy.spiderloader import SpiderLoader
@@ -130,7 +128,7 @@ class NovelCrawler:
 
     def get_langcode(self) -> str:
         """Return language code of novel"""
-        if self.spn in ("ptwxz", "uukanshu", "69shu", "twpiaotian"):
+        if self.spn in ("ptwxz", "uukanshu", "69shu"):
             return "zh"
         else:
             return "vi"
@@ -138,26 +136,3 @@ class NovelCrawler:
 
 class CrawlNovelError(Exception):
     """Handle NovelCrawler Exception"""
-
-
-def slugify(value, allow_unicode=False):
-    """Convert string to valid filename.
-
-    This code was taken from
-    https://github.com/django/django/blob/main/django/utils/text.py
-    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
-    dashes to single dashes. Remove characters that aren't alphanumerics,
-    underscores, or hyphens. Convert to lowercase. Also strip leading and
-    trailing whitespace, dashes, and underscores.
-    """
-    value = str(value)
-    if allow_unicode:
-        value = unicodedata.normalize("NFKC", value)
-    else:
-        value = (
-            unicodedata.normalize("NFKD", value)
-            .encode("ascii", "ignore")
-            .decode("ascii")
-        )
-    value = re.sub(r"[^\w\s-]", "", value.lower())
-    return re.sub(r"[-\s]+", "-", value).strip("-_")
