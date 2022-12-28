@@ -47,7 +47,7 @@ class AppPipeline:
         sp = Path(spider.settings["SAVE_PATH"])
         r = []
         for k in item.keys():
-            if item.get(k) == "":
+            if item.get(k) == "" or item.get(k) is None:
                 raise DropItem(f"Field {k} is empty!")
         try:
             if isinstance(item, Info):
