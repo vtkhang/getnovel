@@ -1,11 +1,20 @@
-"""Define FileConverter class."""
+"""Define FileConverter class.
+
+Limitations
+-----------
+    1. Can only work with exact structure and file name: cover.jpg, foreword.txt, 1.txt,...
+    2. Can only work with exact file structure:
+        - foreword: line 1 is title, line 2 is author, line 3 is types,
+        line 4 is url, rest are foreword.
+        - chapter: line 1 is chapter title, rest are content.
+"""
 import html
 import logging
 from pathlib import Path
 from shutil import rmtree
 
 try:
-    from importlib_resources import files
+    from importlib_resources import files  # type: ignore
 except ImportError:
     from importlib.resources import files
 
@@ -26,7 +35,7 @@ class FileConverter:
         raw_dir_path : PathStr
             Path of raw directory.
         result_dir_path : PathStr, optional
-            Path of result directory, by default None
+            Path of result directory, by default None.
 
         Raises
         ------
@@ -58,15 +67,16 @@ class FileConverter:
         Parameters
         ----------
         dedup : bool
-            If specified, remove duplicate chapter title.
+            If specified, deduplicate chapter title.
         rm_result : bool
             If specified, remove all old files in result directory.
 
         Returns
         -------
         int
-            -1 if raw directory empty
+            Value -1 if raw directory empty
         """
+        # remove old files in result directory
         if rm_result is True:
             _logger.info(f"Remove existing files in: {self.y.resolve()}")
             self._rm_result()
@@ -126,7 +136,7 @@ class FileConverter:
             raise FileConverterError(f"Foreword template not found: {ctp}")
         # remove old files in result directory
         if rm_result is True:
-            _logger.info("Remove existing files in: %s", self.y.resolve())
+            _logger.info(f"Remove existing files in: {self.y.resolve()}")
             self._rm_result()
         # copy cover image to result dir
         cop = self.x / "cover.jpg"
@@ -138,13 +148,13 @@ class FileConverter:
         fwp = self.x / "foreword.txt"
         if fwp.exists():
             fwpn = self.y / (fwp.with_suffix(".xhtml")).name
-            process(fwp, "info", fwpn, "xhtml", fwtp, lang_code)
+            process(fwp, "info", fwpn, "convert", fwtp, lang_code)
             self.xhtml[0] = fwpn
         # clean chapter.txt
         f_list = [item for item in self.x.glob("*[0-9].txt")]
         for cp in f_list:
             cpn = self.y / (cp.with_suffix(".xhtml")).name
-            process(cp, "chapter", cpn, "xhtml", ctp, dedup=dedup)
+            process(cp, "chapter", cpn, "convert", ctp, dedup=dedup)
             self.xhtml[int(cp.stem)] = cpn
         _logger.info("Done converting. View result at: %s", self.y.resolve())
 
@@ -210,9 +220,9 @@ class FileConverterError(Exception):
     pass
 
 
-def fix_bad_newline(lines: ListStr, escape: bool = False):
+def fix_bad_newline(lines: ListStr):
     """Filtered blank lines. Concatenate lines that
-    likely to be in the same setence. Escape all lines if `escape` is True.
+    likely to be in the same setence.
 
     Examples
     --------
@@ -223,8 +233,6 @@ def fix_bad_newline(lines: ListStr, escape: bool = False):
     ----------
     lines : List
         Input lines.
-    escape : bool, optional
-        If True escape lines for html, by default False
 
     Returns
     -------
@@ -259,13 +267,11 @@ def fix_bad_newline(lines: ListStr, escape: bool = False):
             result[-1] = result[-1] + flines[index]
         else:
             result.append(flines[index])
-    if escape:
-        return [html.escape(line) for line in result]
     return result
 
 
-def dedup_title_plus(
-    chapter_lines: ListStr,
+def dedup_title(
+    content_lines: ListStr,
     chapter_path: Path,
     identities: ListStr = ["Chương", "章"],
     max_length: int = 100,
@@ -274,9 +280,11 @@ def dedup_title_plus(
 
     Parameters
     ----------
-    chapter_lines : ListStr
+    content_lines : ListStr
         Chapter content splitted into lines.
-    identities : ListStr, optional
+    chapter_path: Path
+        Use chapter path to display debug messages.
+    identities : ListStr
         Identify key, by default ["Chương", "章"]
     max_length : int, optional
         Max length of chapter title, by default 100
@@ -287,11 +295,11 @@ def dedup_title_plus(
         Deduplicated chapter title.
     """
     index = 0
-    for line in chapter_lines:
+    for line in content_lines:
         s = len(identities)
         for k in identities:
             if k in line and len(line) < max_length:
-                _logger.debug(msg=f"Removed: {chapter_lines[index]}")
+                _logger.debug(msg=f"Removed: {content_lines[index]}")
                 index += 1
                 break
             else:
@@ -300,7 +308,7 @@ def dedup_title_plus(
             break
     if index != 0:
         _logger.debug(msg=f"Path: {chapter_path}")
-    return chapter_lines[index:]
+    return content_lines[index:]
 
 
 def process(
@@ -331,48 +339,41 @@ def process(
     dedup : bool, optional
         If specified, deduplicate chapter title, by default False
     """
-    if ip.exists():
-        lines = ip.read_text(encoding="utf-8").splitlines()
-        index = 0
+    lines = ip.read_text(encoding="utf-8").splitlines()
+    index = 0
+    if t == "info":
+        index = 4
+    elif t == "chapter":
+        index = 1
+        if dedup:
+            lines[1:] = dedup_title(lines[1:], ip)
+    r = lines[:index]
+    r.extend(fix_bad_newline(lines[index:]))
+    if m == "clean":
+        sp.write_text("\n".join(r), encoding="utf-8")
+    elif m == "convert":
+        r = [html.escape(line) for line in r]
+        p_tags = [f"<p>{line}</p>" for line in r[index:]]
         if t == "info":
-            index = 4
+            foreword_title = "Lời tựa"
+            if lang == "zh":
+                foreword_title = "内容简介"
+            sp.write_text(
+                tp.read_text(encoding="utf-8").format(
+                    foreword_title=foreword_title,
+                    novel_title=r[0],
+                    author_name=r[1],
+                    types=r[2],
+                    url=r[3],
+                    foreword_p_tag_list="\n\n  ".join(p_tags),
+                ),
+                encoding="utf-8",
+            )
         elif t == "chapter":
-            index = 1
-            if dedup:
-                lines[1:] = dedup_title_plus(lines[1:], ip)
-        else:
-            return
-        r = lines[:index]
-        r.extend(fix_bad_newline(lines[index:]))
-        if m == "clean":
-            sp.write_text("\n".join(r), encoding="utf-8")
-        elif m == "xhtml":
-            r = [html.escape(line) for line in r]
-            if tp is None:
-                return
-            p_tags = [f"<p>{line}</p>" for line in r[index:]]
-            if t == "info":
-                foreword_title = "Lời tựa"
-                if lang == "zh":
-                    foreword_title = "内容简介"
-                sp.write_text(
-                    tp.read_text(encoding="utf-8").format(
-                        foreword_title=foreword_title,
-                        novel_title=r[0],
-                        author_name=r[1],
-                        types=r[2],
-                        url=r[3],
-                        foreword_p_tag_list="\n\n  ".join(p_tags),
-                    ),
-                    encoding="utf-8",
-                )
-            elif t == "chapter":
-                sp.write_text(
-                    tp.read_text(encoding="utf-8").format(
-                        chapter_title=r[0],
-                        chapter_p_tag_list="\n\n  ".join(p_tags),
-                    ),
-                    encoding="utf-8",
-                )
-            else:
-                return
+            sp.write_text(
+                tp.read_text(encoding="utf-8").format(
+                    chapter_title=r[0],
+                    chapter_p_tag_list="\n\n  ".join(p_tags),
+                ),
+                encoding="utf-8",
+            )
