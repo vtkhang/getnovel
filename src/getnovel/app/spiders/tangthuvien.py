@@ -89,7 +89,7 @@ class TangThuVienSpider(Spider):
         self.toc.extend([i.strip() for i in response.xpath("//a/@href").getall()])
         self.toc_len = len(self.toc)
         cur_chap = 0
-        for index in range(len(self.toc)):
+        for index in range(self.toc_len):
             if self.toc[index] == self.start_urls[0]:
                 cur_chap = index
         if cur_chap + 1 == self.toc_len:
