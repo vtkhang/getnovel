@@ -50,8 +50,8 @@ def crawl_func(args):
     p = NovelCrawler(url=args.url)
     p.crawl(
         rm_raw=not args.keep_raw,
-        start_index=args.start,
-        num_chap=args.stop,
+        start_index=args.start_index,
+        num_chap=args.num_chap,
         clean=args.clean,
         output=args.raw_dir,
     )
@@ -85,7 +85,7 @@ def rm_dup_func(args):
 def epub_from_url_func(args):
     """Make epub from url process"""
     e = EpubMaker()
-    e.from_url(args.url, args.dup_chap, args.start_index, args.stop_index)
+    e.from_url(args.url, args.dup_chap, args.start_index, args.num_chap)
 
 
 def epub_from_raw_func(args):
