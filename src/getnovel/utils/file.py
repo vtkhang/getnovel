@@ -8,15 +8,16 @@ Limitations
         line 4 is url, rest are foreword.
         - chapter: line 1 is chapter title, rest are content.
 """
+import sys
 import html
 import logging
 from pathlib import Path
 from shutil import rmtree
 
-try:
-    from importlib_resources import files  # type: ignore
-except ImportError:
+if sys.version_info >= (3, 8):
     from importlib.resources import files
+else:
+    from importlib_resources import files
 
 from getnovel import data
 from getnovel.utils.typehint import PathStr, DictPath, ListStr
@@ -165,6 +166,7 @@ class FileConverter:
             int: -1 if result directory is raw directory
         """
         if self.x == self.y:
+            # TODO: create temporary directory to store old files to process.
             return -1
         rmtree(self.y)
         self.y.mkdir()

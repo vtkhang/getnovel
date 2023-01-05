@@ -1,14 +1,14 @@
 """Make EPUB module"""
+import sys
 import logging
-
 from uuid import uuid1
 from pathlib import Path
 from datetime import datetime
 
-try:
-    from importlib_resources import files
-except ImportError:
+if sys.version_info >= (3, 8):
     from importlib.resources import files
+else:
+    from importlib_resources import files
 from shutil import move, rmtree, copy
 from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
