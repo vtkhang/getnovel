@@ -58,7 +58,7 @@ def crawl_func(args):
         start_index=args.start_index,
         num_chap=args.num_chap,
         clean=args.clean,
-        output=args.result,
+        result=args.result,
     )
 
 
@@ -145,13 +145,13 @@ def _build_parser():
         "--result",
         type=str,
         default=None,
-        help="path of result directory (default:  %(default)s)",
+        help="path of the result directory (default:  %(default)s)",
         metavar="",
     )
     crawl.add_argument(
         "--clean",
         action="store_false",
-        help="if specified, clean all result files after crawling (default:  %(default)s)",
+        help="if specified, clean result files after crawling (default:  %(default)s)",
     )
     crawl.add_argument(
         "url",

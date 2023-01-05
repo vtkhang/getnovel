@@ -1,5 +1,6 @@
 """Define NovelCrawler class."""
 
+import time
 import logging
 from pathlib import Path
 from shutil import rmtree
@@ -40,8 +41,8 @@ class NovelCrawler:
         rm: bool,
         start_index: int,
         num_chap: int,
-        clean: bool = True,
-        output: PathStr = None,
+        clean: bool,
+        result: PathStr = None,
     ) -> PathStr:
         """Download novel and store it in the raw directory.
 
@@ -52,17 +53,16 @@ class NovelCrawler:
         start_index : int
             File name will increase from this value.
         num_chap : int
-            Number of chapters to crawl.
-        clean : bool, optional
-            If specified, clean result files, by default True.
-        output : PathStr, optional
-            Path of the result directory, by default None.
+            Number of chapters to crawl, input -1 to crawl\
+            until the last chapter.
+        clean : bool
+            If specified, clean result files after crawling.
+        result : PathStr, optional
+            Path of result directory, by default None.
         Raises
         ------
         CrawlNovelError
             Index of start chapter need to be greater than zero.
-        CrawlNovelError
-            Index of stop chapter need to be greater than start chapter or equal -1
 
         Returns
         -------
@@ -71,19 +71,12 @@ class NovelCrawler:
         """
         if start_index < 1:
             raise CrawlNovelError(
-                "Index of start chapter need to be greater than zero"
+                "Index of start index need to be greater than zero"
             )
-        if output is None:
-            tmp: list = self.u.split("/")
-            tmp_1: str = tmp[-1]
-            if tmp_1 == "":
-                for item in reversed(tmp):
-                    if item != "":
-                        tmp_1 = item
-                        break
-            rp = Path.cwd() / tmp_1 / "raw"
+        if result is None:
+            rp = Path.cwd() / self.spn / time.strftime(r"%Y_%m_%d-%H_%M_%S") / "raw"
         else:
-            rp = Path(output)
+            rp = Path(result)
         if rm is True:
             _logger.info("Remove existing files in: %s", rp.resolve())
             if rp.exists():
