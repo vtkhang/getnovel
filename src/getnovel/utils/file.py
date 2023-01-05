@@ -154,7 +154,7 @@ class FileConverter:
         # clean chapter.txt
         f_list = [item for item in self.x.glob("*[0-9].txt")]
         for cp in f_list:
-            cpn = self.y / (cp.with_suffix(".xhtml")).name
+            cpn = self.y / f"c{cp.stem}.xhtml"
             process(cp, "chapter", cpn, "convert", ctp, dedup=dedup)
             self.xhtml[int(cp.stem)] = cpn
         _logger.info("Done converting. View result at: %s", self.y.resolve())
