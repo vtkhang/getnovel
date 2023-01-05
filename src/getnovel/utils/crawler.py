@@ -59,6 +59,7 @@ class NovelCrawler:
             If specified, clean result files after crawling.
         result : PathStr, optional
             Path of result directory, by default None.
+
         Raises
         ------
         CrawlNovelError

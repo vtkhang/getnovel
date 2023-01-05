@@ -71,12 +71,12 @@ class EpubMaker:
         self._make_epub(list(c.get_file_list("xhtml")), p.get_langcode())
 
     def from_raw(
-        self, raw_dir_path: PathStr, dedup: bool, lang_code: str
+        self, raw: PathStr, dedup: bool, lang_code: str
     ) -> None:
         """Convert chapters from raw directory to xhtml and make epub.
 
         Args:
-          raw_dir_path: path to raw directory
+          raw: path to raw directory
           dedup: if specified, remove duplicate chapter title
           lang_code: language code of the novel
 
@@ -84,19 +84,19 @@ class EpubMaker:
             None
         """
         # validate raw directory path input
-        if raw_dir_path is None:
+        if raw is None:
             raise EpubMakerError("Raw directory path is None")
-        elif isinstance(raw_dir_path, str):
-            raw_dir_path = Path(raw_dir_path)
-        elif not isinstance(raw_dir_path, Path):
-            raise EpubMakerError("raw_dir_path type must be str or Path")
+        elif isinstance(raw, str):
+            raw = Path(raw)
+        elif not isinstance(raw, Path):
+            raise EpubMakerError("raw type must be str or Path")
         # convert raw files to xhtml
-        c = FileConverter(raw_dir_path)
+        c = FileConverter(raw)
         c.convert_to_xhtml(
             dedup=dedup, rm_result=True, lang_code=lang_code
         )
         # create temp epub directory
-        self.tmp_edp = raw_dir_path.parent / "epub"
+        self.tmp_edp = raw.parent / "epub"
         self.tmp_edp.mkdir(exist_ok=True)
         # copy epub template and then copy all files converted to epub directory
         self._copy_to_epub(c.get_result_dir())
