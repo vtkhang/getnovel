@@ -3,8 +3,9 @@
 GETNOVEL uses the Scrapy framework to download novel from a website
 and convert all chapters to XHTML, TXT, or to make EPUB.
 """
-import argparse
+
 import sys
+import argparse
 import traceback
 from getnovel.utils.crawler import NovelCrawler
 from getnovel.utils.epub import EpubMaker
@@ -20,10 +21,14 @@ __version__ = metadata.version(__name__)
 def main(argv) -> int:
     """Main program.
 
-    Arguments:
-        argv: command-line arguments, such as sys.argv (including the program name in argv[0])
+    Parameters
+    ----------
+    argv : Any
+        command-line arguments, such as sys.argv (including the program name in argv[0])
 
-    Returns:
+    Returns
+    -------
+    int
         Zero on successful program termination, non-zero otherwise.
     """
     parser = _build_parser()
@@ -46,71 +51,67 @@ def main(argv) -> int:
 
 
 def crawl_func(args):
-    """Run crawling process"""
+    """Run crawling process."""
     p = NovelCrawler(url=args.url)
     p.crawl(
-        rm_raw=not args.keep_raw,
+        rm_raw=args.rm,
         start_index=args.start_index,
         num_chap=args.num_chap,
         clean=args.clean,
-        output=args.raw_dir,
+        output=args.result,
     )
 
 
 def convert_func(args):
-    """Convert process"""
-    c = FileConverter(args.raw_dir, args.result_dir)
+    """Convert process."""
+    c = FileConverter(args.raw, args.result)
     c.convert_to_xhtml(
-        lang_code=args.lang_code,
-        dedup=args.dup_chap,
-        rm_result=not args.keep_result,
+        lang_code=args.lang,
+        dedup=args.dedup,
+        rm_result=args.rm,
     )
 
 
-def rm_dup_func(args):
-    """Remove duplicates of chapters name.
-
-    Examples:
-     getnovel rm_dup .\raw
-     getnovel rm_dup --result_dir=.\result .\raw
-
-    """
-    if args.result_dir is None:
-        c = FileConverter(args.raw_dir, args.raw_dir)
+def dedup_func(args):
+    """Deduplicate chapter title."""
+    if args.result is None:
+        c = FileConverter(args.raw, args.raw)
     else:
-        c = FileConverter(args.raw_dir, args.result_dir)
+        c = FileConverter(args.raw, args.result)
     c.clean(dedup=True, rm_result=False)
 
 
 def epub_from_url_func(args):
-    """Make epub from url process"""
+    """Make epub from url process."""
     e = EpubMaker()
-    e.from_url(args.url, args.dup_chap, args.start_index, args.num_chap)
+    e.from_url(args.url, args.dedup, args.start_index, args.num_chap)
 
 
 def epub_from_raw_func(args):
-    """Make epub from raw process"""
+    """Make epub from raw process."""
     e = EpubMaker()
-    e.from_raw(args.raw_dir, args.dup_chap, args.lang_code)
+    e.from_raw(args.raw, args.dedup, args.lang)
 
 
 def _build_parser():
     """Constructs the parser for the command line arguments.
 
-    Examples:
-      $ getnovel crawl [start=1] [stop=-1] [rm_raw=True] [dup_chap=False] {url} [raw_dir=None]
-      $ getnovel crawl https://bachngocsach.com/reader/livestream-sieu-kinh-di
+    Usage
+    -----
+        getnovel crawl [-h] [--start_index] [--num_chap] [--rm] [--result] [--clean] url
 
-      $ getnovel convert [lang_code=vi] [dup_chap=False] [rm_result=True] {raw_dir} [result_dir=None]
-      $ getnovel convert /home/user/raw
+        getnovel convert [-h] [--lang] [--dedup] [--rm] [--result] raw
 
-      $ getnovel epub from_url [dup_chap=False] [start=1] [stop=-1] {url}
-      $ getnovel epub from_url https://bachngocsach.com/reader/livestream-sieu-kinh-di
+        getnovel dedup [-h] [--result] raw
 
-      $ getnovel epub from_raw [dup_chap=False] [lang_code=vi] {raw_dir}
-      $ getnovel epub from_raw /home/user/raw
-    Returns:
-      An ArgumentParser instance for the CLI.
+        getnovel epub from_url [-h] [--dedup] [--start_index] [--num_chap] url
+
+        getnovel epub from_raw [-h] [--dedup] [--lang] raw
+
+    Returns
+    -------
+    int
+        An ArgumentParser instance for the CLI.
     """
     # parser
     parser = argparse.ArgumentParser(prog="getnovel", allow_abbrev=False)
@@ -119,124 +120,155 @@ def _build_parser():
     )
     subparsers = parser.add_subparsers(title="modes", help="supported modes")
     # crawl parser
-    crawl = subparsers.add_parser("crawl", help="get novel text")
+    crawl = subparsers.add_parser("crawl", help="get novel content")
     crawl.add_argument(
         "--start_index",
         type=int,
         default=1,
         help="file name will increase from this value (default:  %(default)s)",
+        metavar="",
     )
     crawl.add_argument(
         "--num_chap",
         type=int,
         default=-1,
-        help="number of chapters to crawl, input -1 to crawl all chapters (default:  %(default)s)",
+        help="number of chapters to crawl, input -1 to crawl"
+        " until the last chapter (default:  %(default)s)",
+        metavar="",
     )
     crawl.add_argument(
-        "--keep_raw",
+        "--rm",
         action="store_true",
-        help="if specified, keep all old files in raw directory (default:  %(default)s)",
+        help="if specified, remove old files in the result directory (default:  %(default)s)",
     )
     crawl.add_argument(
-        "--raw_dir",
+        "--result",
         type=str,
         default=None,
-        metavar="RAW_PATH",
-        help="path to raw directory (default: working directory)",
+        help="path of result directory (default:  %(default)s)",
+        metavar="",
     )
     crawl.add_argument(
-        "--clean", action="store_false", help="clean all the text files after crawling"
+        "--clean",
+        action="store_false",
+        help="clean all result files after crawling (default:  %(default)s)",
     )
-    crawl.add_argument("url", type=str, help="full web site to novel info page")
+    crawl.add_argument(
+        "url",
+        type=str,
+        help="url to start crawling",
+    )
     crawl.set_defaults(func=crawl_func)
     # convert parser
     convert = subparsers.add_parser("convert", help="convert chapters to xhtml")
     convert.add_argument(
-        "--lang_code",
+        "--lang",
         default="vi",
         help="language code of the novel (default: %(default)s)",
+        metavar="",
     )
     convert.add_argument(
-        "--dup_chap",
+        "--dedup",
         action="store_true",
-        help="if specified, remove duplicate chapter title (default:  %(default)s)",
+        help="if specified, deduplicate chapter title (default:  %(default)s)",
     )
     convert.add_argument(
-        "--keep_result",
+        "--rm",
         action="store_true",
-        help="if specified, keep all old files in result directory (default:  %(default)s)",
+        help="if specified, remove old files in result directory (default:  %(default)s)",
     )
     convert.add_argument(
-        "--result_dir",
+        "--result",
         type=str,
         default=None,
-        metavar="RESULT_PATH",
-        help="path to result directory (default: same parent as raw directory)",
+        help="path of result directory (default:  %(default)s)",
+        metavar="",
     )
-    convert.add_argument("raw_dir", type=str, help="path to raw directory")
+    convert.add_argument(
+        "raw",
+        type=str,
+        help="path of raw directory (default:  %(default)s)",
+        metavar="",
+    )
     convert.set_defaults(func=convert_func)
-    # remove duplicate
-    rm_dup = subparsers.add_parser("rm_dup", help="remove duplicates of chapter name")
-    rm_dup.add_argument(
-        "--result_dir",
+    # deduplicate
+    dedup = subparsers.add_parser("dedup", help="deduplicate chapter title")
+    dedup.add_argument(
+        "--result",
         type=str,
         default=None,
-        metavar="RESULT_PATH",
-        help="path to result directory (default: replace files in raw directory)",
+        help="path of result directory (default:  %(default)s)",
+        metavar="",
     )
-    rm_dup.add_argument("raw_dir", type=str, help="path to raw directory")
-    rm_dup.set_defaults(func=rm_dup_func)
+    dedup.add_argument(
+        "raw",
+        type=str,
+        help="path of raw directory (default:  %(default)s)",
+    )
+    dedup.set_defaults(func=dedup_func)
     # epub parser
     epub = subparsers.add_parser("epub", help="make epub")
     subparsers_epub = epub.add_subparsers(title="modes", help="supported modes")
     # epub from_url parser
     from_url = subparsers_epub.add_parser("from_url", help="make epub from web site")
     from_url.add_argument(
-        "--dup_chap",
+        "--dedup",
         action="store_true",
-        help="if specified, remove duplicate chapter title (default:  %(default)s)",
+        help="if specified, deduplicate chapter title (default:  %(default)s)",
     )
     from_url.add_argument(
         "--start_index",
         type=int,
         default=1,
         help="file name will increase from this value (default:  %(default)s)",
+        metavar="",
     )
     from_url.add_argument(
-        "--stop",
+        "--num_chap",
         type=int,
         default=-1,
-        help="number of chapters to crawl, input -1 to get all chapters (default:  %(default)s)",
+        help="number of chapters to crawl, input -1 to crawl"
+        " until the last chapter (default:  %(default)s)",
+        metavar="",
     )
-    from_url.add_argument("url", type=str, help="full web site to novel info page")
+    from_url.add_argument(
+        "url",
+        type=str,
+        help="url to start crawling",
+    )
     from_url.set_defaults(func=epub_from_url_func)
     # epub from_raw parser
     from_raw = subparsers_epub.add_parser(
         "from_raw", help="make epub from raw directory"
     )
     from_raw.add_argument(
-        "--dup_chap",
+        "--dedup",
         action="store_true",
-        help="if specified, remove duplicate chapter title (default:  %(default)s)",
+        help="if specified, deduplicate chapter title (default:  %(default)s)",
     )
     from_raw.add_argument(
-        "--lang_code",
+        "--lang",
         default="vi",
         help="language code of the novel (default: %(default)s)",
+        metavar="",
     )
-    from_raw.add_argument("raw_dir", type=str, help="path to raw directory")
+    from_raw.add_argument(
+        "raw",
+        type=str,
+        help="path of raw directory (default:  %(default)s)",
+    )
     from_raw.set_defaults(func=epub_from_raw_func)
     return parser
 
 
 class GetnovelException(BaseException):
-    """General exception for getnovel"""
+    """General exception for getnovel."""
 
     pass
 
 
 def run_main():
-    """Run main program"""
+    """Run main program."""
     try:
         sys.exit(main(sys.argv))
     except GetnovelException as e:
