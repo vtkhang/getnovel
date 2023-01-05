@@ -61,7 +61,7 @@ def get_settings(save_path: Path = None, log_level: str = "INFO"):
 def mk_settings(sp: Path, sc: dict):
     """Create setting file for scrapy project from dict"""
     r = []
-    r.append("# flake8: noqa: E501")
+    r.append("# flake8: noqa")
     for k in sc:
         t = ""
         if type(sc[k]) == str:
