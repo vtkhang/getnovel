@@ -55,7 +55,7 @@ class EpubMaker:
         """
         # Get novel on web site.
         p = NovelCrawler(url=url)
-        rdp = p.crawl(rm_raw=True, start_index=start_index, num_chap=num_chap)
+        rdp = p.crawl(rm=True, start_index=start_index, num_chap=num_chap)
         # convert to xhtml
         c = FileConverter(rdp)
         c.convert_to_xhtml(

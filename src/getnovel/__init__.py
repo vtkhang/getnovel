@@ -54,7 +54,7 @@ def crawl_func(args):
     """Run crawling process."""
     p = NovelCrawler(url=args.url)
     p.crawl(
-        rm_raw=args.rm,
+        rm=args.rm,
         start_index=args.start_index,
         num_chap=args.num_chap,
         clean=args.clean,

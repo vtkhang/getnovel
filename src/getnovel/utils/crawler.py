@@ -37,7 +37,7 @@ class NovelCrawler:
 
     def crawl(
         self,
-        rm_raw: bool,
+        rm: bool,
         start_index: int,
         num_chap: int,
         clean: bool = True,
@@ -47,7 +47,7 @@ class NovelCrawler:
 
         Parameters
         ----------
-        rm_raw : bool
+        rm : bool
             If specified, remove all existing files in raw directory.
         start_index : int
             File name will increase from this value.
@@ -84,7 +84,7 @@ class NovelCrawler:
             rp = Path.cwd() / tmp_1 / "raw"
         else:
             rp = Path(output)
-        if rm_raw is True:
+        if rm is True:
             _logger.info("Remove existing files in: %s", rp.resolve())
             if rp.exists():
                 rmtree(rp)
