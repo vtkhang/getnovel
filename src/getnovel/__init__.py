@@ -151,7 +151,7 @@ def _build_parser():
     crawl.add_argument(
         "--clean",
         action="store_false",
-        help="clean all result files after crawling (default:  %(default)s)",
+        help="if specified, clean all result files after crawling (default:  %(default)s)",
     )
     crawl.add_argument(
         "url",
