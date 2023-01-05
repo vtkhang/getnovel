@@ -108,7 +108,7 @@ Ussage
     ::
 
       from getnovel.utils.file import FileConverter
-      c = FileConverter(raw_dir_path="/path/to/raw/dir")
+      c = FileConverter(raw="/path/to/raw/dir")
       c.convert_to_xhtml(dedup=False, rm_result=True, lang_code="vi")
 
   - Create epub from the input link:

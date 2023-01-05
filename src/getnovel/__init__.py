@@ -64,7 +64,10 @@ def crawl_func(args):
 
 def convert_func(args):
     """Convert process."""
-    c = FileConverter(args.raw, args.result)
+    c = FileConverter(
+        raw=args.raw,
+        result=args.result,
+    )
     c.convert_to_xhtml(
         lang_code=args.lang,
         dedup=args.dedup,
@@ -75,9 +78,15 @@ def convert_func(args):
 def dedup_func(args):
     """Deduplicate chapter title."""
     if args.result is None:
-        c = FileConverter(args.raw, args.raw)
+        c = FileConverter(
+            raw=args.raw,
+            result=args.raw,
+        )
     else:
-        c = FileConverter(args.raw, args.result)
+        c = FileConverter(
+            raw=args.raw,
+            result=args.result,
+        )
     c.clean(dedup=True, rm_result=False)
 
 
@@ -187,7 +196,7 @@ def _build_parser():
     convert.add_argument(
         "raw",
         type=str,
-        help="path of raw directory (default:  %(default)s)",
+        help="path of raw directory",
         metavar="",
     )
     convert.set_defaults(func=convert_func)
@@ -203,7 +212,7 @@ def _build_parser():
     dedup.add_argument(
         "raw",
         type=str,
-        help="path of raw directory (default:  %(default)s)",
+        help="path of raw directory",
     )
     dedup.set_defaults(func=dedup_func)
     # epub parser
@@ -255,7 +264,7 @@ def _build_parser():
     from_raw.add_argument(
         "raw",
         type=str,
-        help="path of raw directory (default:  %(default)s)",
+        help="path of raw directory",
     )
     from_raw.set_defaults(func=epub_from_raw_func)
     return parser

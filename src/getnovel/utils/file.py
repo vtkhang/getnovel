@@ -28,14 +28,14 @@ _logger = logging.getLogger(__name__)
 class FileConverter:
     """This class define clean method and convert to xhtml method."""
 
-    def __init__(self, raw_dir_path: PathStr, result_dir_path: PathStr = None):
+    def __init__(self, raw: PathStr, result: PathStr = None):
         """Init path of raw directory and result directory.
 
         Parameters
         ----------
-        raw_dir_path : PathStr
+        raw : PathStr
             Path of raw directory.
-        result_dir_path : PathStr, optional
+        result : PathStr, optional
             Path of result directory, by default None.
 
         Raises
@@ -45,15 +45,15 @@ class FileConverter:
         FileConverterError
             Raw directory is empty.
         """
-        self.x = Path(raw_dir_path)
+        self.x = Path(raw)
         if not self.x.exists():
             raise FileConverterError(f"Raw directory not found: {self.x}")
         if not any(self.x.iterdir()):
             raise FileConverterError("Raw directory is empty.")
-        if result_dir_path is None:
+        if result is None:
             self.y = self.x.parent / "result_dir"
         else:
-            self.y = Path(result_dir_path)
+            self.y = Path(result)
         if not self.y.exists():
             self.y.mkdir(parents=True)
             _logger.info(
@@ -348,7 +348,7 @@ def process(
     elif t == "chapter":
         index = 1
         if dedup:
-            lines[1:] = dedup_title(lines[1:], ip)
+            lines[index:] = dedup_title(lines[index:], ip)
     r = lines[:index]
     r.extend(fix_bad_newline(lines[index:]))
     if m == "clean":
