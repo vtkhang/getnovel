@@ -6,26 +6,42 @@ import pprint
 from pathlib import Path
 
 
-def get_settings(save_path: Path = None, log_level: str = "INFO"):
-    """Return the settings of spider.
+def get_settings(
+    log_level: str,
+    result: Path = None,
+):
+    """Generate project settings.
+
+    Parameters
+    ----------
+    result : Path, optional
+        Path of result directory, by default None
+    log_level : str, optional
+        Log level of logging, by default "INFO"
+    lp : Path, optional
+        Path of directory that stores logs, by default None
 
     Returns
     -------
     dict
-        Spider settings.
+        Settings.
     """
     hp = Path.home()
+    # Default image path for imagepipeline
     imgp = hp / "GetNovel" / "images"
-    lp = hp / "GetNovel" / "logs"
-    if save_path is None:
-        save_path = hp / "GetNovel" / "crawled"
-    save_path.mkdir(parents=True, exist_ok=True)
     imgp.mkdir(parents=True, exist_ok=True)
+    # Result directory
+    if result is None:
+        result = hp / "GetNovel" / "crawled"
+    result.mkdir(parents=True, exist_ok=True)
+    # Log
+    lp = hp / "GetNovel" / "logs"
     lp.mkdir(parents=True, exist_ok=True)
-    lnp = f'{time.strftime("%Y_%m_%d-%H_%M_%S")}.log'
+    lnp = lp / f'{time.strftime("%Y_%m_%d-%H_%M_%S")}.log'
+    print(f"> Please view log file at: {str(lnp)}")
     return {
         "BOT_NAME": "GetNovel",
-        "ROBOTSTXT_OBEY": False,
+        "ROBOTSTXT_OBEY": True,
         "SPIDER_MODULES": ["getnovel.app.spiders"],
         "USER_AGENT": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
         "(KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.54",
@@ -34,7 +50,7 @@ def get_settings(save_path: Path = None, log_level: str = "INFO"):
             "getnovel.app.pipelines.AppPipeline": 300,
             "getnovel.app.pipelines.CoverImagesPipeline": 200,
         },
-        "IMAGES_STORE": f"{imgp}",
+        "IMAGES_STORE": str(imgp),
         # DOWNLOADER_MIDDLEWARES
         "DOWNLOADER_MIDDLEWARES": {
             "getnovel.app.middlewares.AppDownloaderMiddleware": 500,
@@ -42,7 +58,7 @@ def get_settings(save_path: Path = None, log_level: str = "INFO"):
         # LOG SETTINGS
         "LOG_FORMAT": "%(asctime)s [%(name)s] %(levelname)s: %(message)s",
         "LOG_SHORT_NAMES": True,
-        "LOG_FILE": f"{lp / lnp}",
+        "LOG_FILE": str(lnp),
         "LOG_FILE_APPEND": False,
         "LOG_LEVEL": log_level,
         # AUTOTHROTTLE SETTINGS
@@ -54,12 +70,12 @@ def get_settings(save_path: Path = None, log_level: str = "INFO"):
         # COOKIE
         "COOKIES_DEBUG": True,
         # SAVE PATH
-        "SAVE_PATH": f"{save_path}",
+        "RESULT": str(result),
     }
 
 
 def mk_settings(sp: Path, sc: dict):
-    """Create setting file for scrapy project from dict"""
+    """Create setting file for scrapy project from dict."""
     r = []
     r.append("# flake8: noqa")
     for k in sc:
@@ -78,5 +94,5 @@ def mk_settings(sp: Path, sc: dict):
 
 
 if __name__ == "__main__":
-    """Generate settings.py for scrapy shell."""
-    mk_settings(sp=Path(__file__).parent.parent / "app" / "settings.py", sc=get_settings())
+    """Workplace."""
+    pass

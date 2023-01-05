@@ -21,14 +21,14 @@ _logger = logging.getLogger(__name__)
 class NovelCrawler:
     """Download novel from website"""
 
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str):
         """Initialize NovelCrawler with url, and assign path of raw
         directory.
 
         Parameters
         ----------
         url : str
-            The link of the novel information page.
+            Url to start crawling.
         """
         if validators.url(url) is False:
             _logger.error("The input url not valid!")
@@ -43,6 +43,7 @@ class NovelCrawler:
         num_chap: int,
         clean: bool,
         result: PathStr = None,
+        log_level: str = "INFO",
     ) -> PathStr:
         """Download novel and store it in the raw directory.
 
@@ -71,9 +72,7 @@ class NovelCrawler:
             Path the raw directory.
         """
         if start_index < 1:
-            raise CrawlNovelError(
-                "Index of start index need to be greater than zero"
-            )
+            raise CrawlNovelError("Index of start index need to be greater than zero")
         if result is None:
             rp = Path.cwd() / self.spn / time.strftime(r"%Y_%m_%d-%H_%M_%S") / "raw"
         else:
@@ -85,7 +84,7 @@ class NovelCrawler:
         rp.mkdir(exist_ok=True, parents=True)
         rp = rp.resolve()
         spider_class = self._get_spider()
-        process = CrawlerProcess(settings=scrapy_settings.get_settings(rp))
+        process = CrawlerProcess(settings=scrapy_settings.get_settings(rp, log_level))
         process.crawl(
             spider_class,
             u=self.u,
