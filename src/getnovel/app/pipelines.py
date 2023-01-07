@@ -44,7 +44,7 @@ class AppPipeline:
         DropItem
             Invalid item detected.
         """
-        sp = Path(spider.settings["SAVE_PATH"])
+        sp = Path(spider.settings["RESULT"])
         r = []
         for k in item.keys():
             if item.get(k) == "" or item.get(k) is None:
@@ -74,4 +74,4 @@ class CoverImagesPipeline(ImagesPipeline):
 
     def file_path(self, request, response=None, info=None, *, item=None):
         """Customize save path for cover image."""
-        return str(Path(info.spider.settings["SAVE_PATH"]) / "cover.jpg")
+        return str(Path(info.spider.settings["RESULT"]) / "cover.jpg")

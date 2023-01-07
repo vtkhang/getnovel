@@ -33,6 +33,7 @@ def get_settings(
     # Result directory
     if result is None:
         result = hp / "GetNovel" / "crawled"
+    result = Path(result)
     result.mkdir(parents=True, exist_ok=True)
     # Log
     lp = hp / "GetNovel" / "logs"
