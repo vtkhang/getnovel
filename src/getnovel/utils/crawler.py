@@ -98,7 +98,7 @@ class NovelCrawler:
             with cwd_settings.open(mode="r", encoding="utf-8") as cws:
                 settings.update(json.load(cws))
                 cws.close()
-        print(f"> Please view log file at: {settings['LOG_FILE']}")
+        print(f"> Please view log file at: {Path(settings['LOG_FILE']).resolve()}")
         process = CrawlerProcess(settings=settings)
         process.crawl(
             spider_class,
