@@ -33,6 +33,9 @@ dev = [
     "ipython >= 7.34.0",
     "flake8 >= 5.0.4"
 ]
+build = [
+    "build >= 0.9.0"
+]
 
 [project.scripts]
 getnovel = "getnovel:run_main"
