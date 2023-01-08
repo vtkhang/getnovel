@@ -4,12 +4,8 @@
    https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 """
 
-import logging
 from pprint import pformat
 from scrapy import signals
-
-
-_logger = logging.getLogger(__name__)
 
 
 class AppSpiderMiddleware:
@@ -94,7 +90,6 @@ class AppDownloaderMiddleware:
           installed downloader middleware will be called
           """
         _ = (self, request, spider)
-        _logger.debug('%s' % mpprint(request.headers))
         return None
 
     def process_response(self, request, response, spider):
