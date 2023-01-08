@@ -25,7 +25,7 @@ def main(argv) -> int:
     Parameters
     ----------
     argv : Any
-        command-line arguments, such as sys.argv (including the program name in argv[0])
+        Command-line arguments, such as sys.argv (including the program name in argv[0])
 
     Returns
     -------

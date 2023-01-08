@@ -14,7 +14,21 @@ from getnovel.app.items import Info, Chapter
 
 
 class TruyenChuSpider(Spider):
-    """Define spider for domain: truyenchu"""
+    """Define spider for domain: truyenchu.
+
+    Attributes
+    ----------
+    name : str
+        Name of the spider.
+    start_urls : list
+        List of url to start crawling from.
+    sa : int
+        The chapter index to start crawling.
+    so : int
+        The chapter index to stop crawling after that.
+    c : str
+        Language code of novel.
+    """
 
     name = "truyenchu"
 
