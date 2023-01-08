@@ -36,7 +36,7 @@ class PtwxzSpider(Spider):
         self.so = int(stop)
         self.c = "zh"  # language code
 
-    def parse(self, res: Response):
+    def parse(self, res: Response, *args, **kwargs):
         """Extract info and send request to the table of content.
 
         Parameters
@@ -88,6 +88,7 @@ class PtwxzSpider(Spider):
         ------
         Chapter
             Chapter item.
+
         Request
             Request to the next chapter.
         """
@@ -134,8 +135,6 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    id: int
-        File name id.
     Returns
     -------
     Chapter

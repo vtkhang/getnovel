@@ -37,7 +37,7 @@ class MeTruyenCVSpider(Spider):
         self.c = "vi"  # language code
         self.n = 0  # total chapters
 
-    def parse(self, res: Response):
+    def parse(self, res: Response, *args, **kwargs):
         """Extract info and send request to the start chapter.
 
         Parameters
@@ -72,6 +72,7 @@ class MeTruyenCVSpider(Spider):
         ------
         Chapter
             Chapter item.
+
         Request
             Request to the next chapter.
         """
@@ -117,8 +118,6 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    id: int
-        File name id.
     Returns
     -------
     Chapter

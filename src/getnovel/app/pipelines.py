@@ -64,7 +64,7 @@ class AppPipeline:
             else:
                 raise DropItem("Invalid item detected!")
         except KeyError as key:
-            _logger.warn(f"Error url: {item.get('url', 'Field url is not exist!')}")
+            _logger.warning(f"Error url: {item.get('url', 'Field url is not exist!')}")
             raise DropItem(f"Field {key} is not exist!")
         return item
 

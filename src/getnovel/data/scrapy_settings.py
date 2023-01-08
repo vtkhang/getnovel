@@ -18,8 +18,6 @@ def get_settings(
         Path of result directory, by default None
     log_level : str, optional
         Log level of logging, by default "INFO"
-    lp : Path, optional
-        Path of directory that stores logs, by default None
 
     Returns
     -------
@@ -75,10 +73,9 @@ def get_settings(
 
 def mk_settings(sp: Path, sc: dict):
     """Create setting file for scrapy project from dict."""
-    r = []
+    r = list()
     r.append("# flake8: noqa")
     for k in sc:
-        t = ""
         if type(sc[k]) == str:
             t = f'r"{str(sc[k])}"'
         elif type(sc[k]) == dict:

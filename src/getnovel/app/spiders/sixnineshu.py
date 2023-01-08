@@ -1,6 +1,6 @@
 """Get novel on domain 69shu.
 
-   Note: Can't get all chapters if use start chapter,
+   Note: Can't get all chapters if using start chapter,
    use -1 to get all chapters instead.
 
 .. _Web site:
@@ -39,7 +39,7 @@ class SixNineShuSpider(Spider):
         self.so = int(stop)
         self.c = "zh"  # language code
 
-    def parse(self, res: Response):
+    def parse(self, res: Response, *args, **kwargs):
         """Extract info and send request to the table of content.
 
         Parameters
@@ -97,6 +97,7 @@ class SixNineShuSpider(Spider):
         ------
         Chapter
             Chapter item.
+
         Request
             Request to the next chapter.
         """
@@ -142,8 +143,6 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    id: int
-        File name id.
     Returns
     -------
     Chapter

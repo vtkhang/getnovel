@@ -62,7 +62,7 @@ class FileConverter:
         self.txt: DictPath = {}  # use to track txt files in result directory
         self.xhtml: DictPath = {}  # use to track xhtml files in result directory
 
-    def clean(self, dedup: bool, rm_result: bool) -> int:
+    def clean(self, dedup: bool, rm_result: bool):
         """Clean raw files in raw directory.
 
         Parameters
@@ -101,7 +101,7 @@ class FileConverter:
             self.txt[int(cp.stem)] = cpn
         _logger.info(f"Done cleaning. View result at: {self.y.resolve()}")
 
-    def convert_to_xhtml(self, dedup: bool, rm_result: bool, lang_code: str) -> int:
+    def convert_to_xhtml(self, dedup: bool, rm_result: bool, lang_code: str):
         """Clean files and convert to XHTML.
 
         Parameters
@@ -125,9 +125,9 @@ class FileConverter:
         FileConverterError
             Foreword template not found.
         """
-        # Check if default template is exist, if not throw exception
+        # Check default template, if not exist throw exception
         # template of chapter
-        tp = files(data).joinpath(r"template/OEBPS/Text")
+        tp = Path(str(files(data).joinpath(r"template/OEBPS/Text")))
         ctp = tp / "c1.xhtml"
         if ctp.exists() is False or ctp.is_dir():
             raise FileConverterError(f"Chapter template not found: {ctp}")
@@ -179,7 +179,6 @@ class FileConverter:
         Returns:
             None
         """
-        # https://www.geeksforgeeks.org/python-delete-items-from-dictionary-while-iterating/
         t = {}
         if ext == "txt":
             t = self.txt
@@ -228,8 +227,8 @@ def fix_bad_newline(lines: ListStr):
 
     Examples
     --------
-    >>> fix_bad_newline(("A and", "b"))
-    >>> ("A and b")
+    >>> fix_bad_newline(["A and", "b"])
+    >>> ["A and b"]
 
     Parameters
     ----------
@@ -275,7 +274,7 @@ def fix_bad_newline(lines: ListStr):
 def dedup_title(
     content_lines: ListStr,
     chapter_path: Path,
-    identities: ListStr = ["Chương", "章"],
+    identities: ListStr = ("Chương", "章"),
     max_length: int = 100,
 ) -> ListStr:
     """Deduplicate chapter title.
@@ -283,7 +282,7 @@ def dedup_title(
     Parameters
     ----------
     content_lines : ListStr
-        Chapter content splitted into lines.
+        Chapter content split into lines.
     chapter_path: Path
         Use chapter path to display debug messages.
     identities : ListStr

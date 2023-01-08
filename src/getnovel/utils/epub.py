@@ -42,7 +42,7 @@ class EpubMaker:
     def from_url(
         self, url: str, dedup: bool, start: int, stop: int
     ) -> None:
-        """Get novel on web site, zip them to epub.
+        """Get novel on website, zip them to epub.
 
         Parameters
         ----------
@@ -111,7 +111,7 @@ class EpubMaker:
             rmtree(self.tmp_edp)
             self.tmp_edp.mkdir()
         # copy template epub to temp epub directory
-        copytree_hm(files(data).joinpath("template"), self.tmp_edp)
+        copytree_hm(Path(str(files(data).joinpath("template"))), self.tmp_edp)
         self.tmp_edp.chmod(0o0400 | 0o0200)
         # remove template file c1.xhtml in temp epub directory
         (self.tmp_edp / "OEBPS" / "Text" / "c1.xhtml").unlink()
@@ -244,7 +244,7 @@ class EpubMaker:
             mime_path.unlink()
             for path in self.tmp_edp.rglob("*"):
                 f_zip.write(path, path.relative_to(self.tmp_edp))
-        copy(files(data).joinpath("template/mimetype"), self.tmp_edp)
+        copy(Path(str(files(data).joinpath("template/mimetype"))), self.tmp_edp)
         _logger.info("Done making epub. View result at: %s", str(self.rdp.resolve()))
 
 

@@ -36,7 +36,7 @@ class TruyenChuSpider(Spider):
         self.so = int(stop)
         self.c = "vi"  # language code
 
-    def parse(self, res: Response):
+    def parse(self, res: Response, *args, **kwargs):
         """Extract info and send request to the table of content.
 
         Parameters
@@ -103,6 +103,7 @@ class TruyenChuSpider(Spider):
         ------
         Chapter
             Chapter item.
+
         Request
             Request to the next chapter.
         """
@@ -149,8 +150,6 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    id: int
-        File name id.
     Returns
     -------
     Chapter

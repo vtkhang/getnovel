@@ -6,7 +6,6 @@ from pathlib import Path
 from shutil import rmtree
 
 import tldextract
-import validators
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 from scrapy.spiderloader import SpiderLoader
@@ -30,9 +29,6 @@ class NovelCrawler:
         url : str
             Url of the novel information page.
         """
-        if validators.url(url) is False:
-            _logger.error("The input url not valid!")
-            return
         self.u: str = url
         self.spn = tldextract.extract(self.u).domain  # spider name
 
@@ -59,6 +55,8 @@ class NovelCrawler:
             If specified, clean result files after crawling.
         result : PathStr, optional
             Path of result directory, by default None.
+        log_level: str
+            Debug, Info or error,...
 
         Raises
         ------

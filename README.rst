@@ -52,8 +52,8 @@ Build
     pip install build
     python -m build
 
-Ussage
-======
+Usage
+=====
 
 - Commands
 
@@ -69,7 +69,7 @@ Ussage
 
 - Examples:
 
-  - Create epub fron the input link:
+  - Create epub from the input link:
 
     .. code:: bash
 

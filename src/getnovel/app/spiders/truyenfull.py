@@ -36,12 +36,12 @@ class TruyenFullSpider(Spider):
         self.so = int(stop)
         self.c = "vi"  # language code
 
-    def parse(self, res: Response):
+    def parse(self, res: Response, *args, **kwargs):
         """Extract info and send request to the start chapter.
 
         Parameters
         ----------
-        response : Response
+        res : Response
             The response to parse.
 
         Yields
@@ -70,6 +70,7 @@ class TruyenFullSpider(Spider):
         ------
         Chapter
             Chapter item.
+
         Request
             Request to the next chapter.
         """
@@ -115,8 +116,6 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    id: int
-        File name id.
     Returns
     -------
     Chapter
