@@ -28,7 +28,7 @@ class NovelCrawler:
         Parameters
         ----------
         url : str
-            Url to start crawling.
+            Url of the novel information page.
         """
         if validators.url(url) is False:
             _logger.error("The input url not valid!")
@@ -39,8 +39,8 @@ class NovelCrawler:
     def crawl(
         self,
         rm: bool,
-        start_index: int,
-        num_chap: int,
+        start: int,
+        stop: int,
         clean: bool,
         result: PathStr = None,
         log_level: str = "INFO",
@@ -51,11 +51,10 @@ class NovelCrawler:
         ----------
         rm : bool
             If specified, remove all existing files in raw directory.
-        start_index : int
-            File name will increase from this value.
-        num_chap : int
-            Number of chapters to crawl, input -1 to crawl\
-            until the last chapter.
+        start : int
+            Start crawling from this chapter.
+        stop : int
+            Stop crawling after this chapter, input -1 to get all chapters.
         clean : bool
             If specified, clean result files after crawling.
         result : PathStr, optional
@@ -65,14 +64,20 @@ class NovelCrawler:
         ------
         CrawlNovelError
             Index of start chapter need to be greater than zero.
+        CrawlNovelError
+            Start chapter need to be lesser than stop chapter if stop chapter is not -1.
 
         Returns
         -------
         PathStr
             Path the raw directory.
         """
-        if start_index < 1:
+        if start < 1:
             raise CrawlNovelError("Index of start index need to be greater than zero")
+        if (start > stop) and (stop > -1):
+            raise CrawlNovelError(
+                "Start chapter need to be lesser than stop chapter if stop chapter is not -1."
+            )
         if result is None:
             rp = Path.cwd() / self.spn / time.strftime(r"%Y_%m_%d-%H_%M_%S") / "raw"
         else:
@@ -84,12 +89,14 @@ class NovelCrawler:
         rp.mkdir(exist_ok=True, parents=True)
         rp = rp.resolve()
         spider_class = self._get_spider()
-        process = CrawlerProcess(settings=scrapy_settings.get_settings(rp, log_level))
+        process = CrawlerProcess(
+            settings=scrapy_settings.get_settings(result=rp, log_level=log_level)
+        )
         process.crawl(
             spider_class,
             u=self.u,
-            s=start_index,
-            n=num_chap,
+            start=start,
+            stop=stop,
         )
         process.start()
         _logger.info("Done crawling. View result at: %s", str(rp))

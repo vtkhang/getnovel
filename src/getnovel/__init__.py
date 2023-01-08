@@ -55,8 +55,8 @@ def crawl_func(args):
     p = NovelCrawler(url=args.url)
     p.crawl(
         rm=args.rm,
-        start_index=args.start_index,
-        num_chap=args.num_chap,
+        start=args.start,
+        stop=args.stop,
         clean=args.clean,
         result=args.result,
     )
@@ -93,7 +93,7 @@ def dedup_func(args):
 def epub_from_url_func(args):
     """Make epub from url process."""
     e = EpubMaker()
-    e.from_url(args.url, args.dedup, args.start_index, args.num_chap)
+    e.from_url(args.url, args.dedup, args.start, args.stop)
 
 
 def epub_from_raw_func(args):
@@ -107,13 +107,13 @@ def _build_parser():
 
     Usage
     -----
-        getnovel crawl [-h] [--start_index] [--num_chap] [--rm] [--result] [--clean] url
+        getnovel crawl [-h] [--start] [--stop] [--rm] [--result] [--clean] url
 
         getnovel convert [-h] [--lang] [--dedup] [--rm] [--result] raw
 
         getnovel dedup [-h] [--result] raw
 
-        getnovel epub from_url [-h] [--dedup] [--start_index] [--num_chap] url
+        getnovel epub from_url [-h] [--dedup] [--start] [--stop] url
 
         getnovel epub from_raw [-h] [--dedup] [--lang] raw
 
@@ -131,18 +131,18 @@ def _build_parser():
     # crawl parser
     crawl = subparsers.add_parser("crawl", help="get novel content")
     crawl.add_argument(
-        "--start_index",
+        "--start",
         type=int,
         default=1,
-        help="file name will increase from this value (default:  %(default)s)",
+        help="start crawling from this chapter (default:  %(default)s)",
         metavar="",
     )
     crawl.add_argument(
-        "--num_chap",
+        "--stop",
         type=int,
         default=-1,
-        help="number of chapters to crawl, input -1 to crawl"
-        " until the last chapter (default:  %(default)s)",
+        help="stop crawling after this chapter,"
+        " input -1 to get all chapters (default:  %(default)s)",
         metavar="",
     )
     crawl.add_argument(
@@ -165,7 +165,7 @@ def _build_parser():
     crawl.add_argument(
         "url",
         type=str,
-        help="url to start crawling",
+        help="url of the novel information page",
     )
     crawl.set_defaults(func=crawl_func)
     # convert parser
@@ -226,24 +226,24 @@ def _build_parser():
         help="if specified, deduplicate chapter title (default:  %(default)s)",
     )
     from_url.add_argument(
-        "--start_index",
+        "--start",
         type=int,
         default=1,
-        help="file name will increase from this value (default:  %(default)s)",
+        help="start crawling from this chapter (default:  %(default)s)",
         metavar="",
     )
     from_url.add_argument(
-        "--num_chap",
+        "--stop",
         type=int,
         default=-1,
-        help="number of chapters to crawl, input -1 to crawl"
-        " until the last chapter (default:  %(default)s)",
+        help="Stop crawling after this chapter,"
+        " input -1 to get all chapters (default:  %(default)s)",
         metavar="",
     )
     from_url.add_argument(
         "url",
         type=str,
-        help="url to start crawling",
+        help="url of the novel information page",
     )
     from_url.set_defaults(func=epub_from_url_func)
     # epub from_raw parser

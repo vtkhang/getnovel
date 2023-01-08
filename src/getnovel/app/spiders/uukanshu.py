@@ -6,7 +6,7 @@
 """
 
 from scrapy import Spider
-from scrapy.http import Response, Request
+from scrapy.http import Response
 from scrapy.exceptions import CloseSpider
 
 from getnovel.app.items import Info, Chapter
@@ -18,41 +18,57 @@ class UukanshuSpider(Spider):
 
     name = "uukanshu"
 
-    def __init__(
-        self,
-        u: str,
-        n: int,
-        i: int = 1,
-        s: int = 1,
-        *args,
-        **kwargs,
-    ):
+    def __init__(self, u: str, start: int, stop: int, *args, **kwargs):
         """Initialize attributes.
 
         Parameters
         ----------
         u : str
-            Url of the start chapter.
-        n : int
-            Amount of chapters need to be crawled, input -1 to get all chapters.
-        i : int
-            Skip info page if value is 0.
-        s : int
-            Begin value for file name id.
+            Url of the novel information page.
+        start: int
+            Start crawling from this chapter.
+        stop : int
+            Stop crawling after this chapter, input -1 to get all chapters.
         """
         super().__init__(*args, **kwargs)
         self.start_urls = [u]
-        self.s = int(s)
-        self.n = int(n) + self.s
-        self.i = int(i)
+        self.sa = int(start)
+        self.so = int(stop)
+        self.c = "zh"  # language code
+        self.t = []  # table of content
+        self.n = 0  # total chapters
 
-    def parse(self, response: Response):
-        """Extract content, send request to next chapter.
-        Send request to info page.
+    def parse(self, res: Response):
+        """Extract info and send request to the start chapter.
 
         Parameters
         ----------
-        response : Response
+        res : Response
+            The response to parse.
+
+        Yields
+        ------
+        Info
+            Info item.
+        Request
+            Request to the start chapter.
+        """
+        yield get_info(res)
+        self.t.extend(res.xpath('//*[@id="chapterList"]/li/a/@href').getall())
+        self.t.reverse()
+        self.n = len(self.t)
+        yield res.follow(
+            url=self.t[self.sa - 1],
+            meta={"id": self.sa},
+            callback=self.parse_content,
+        )
+
+    def parse_content(self, res: Response):
+        """Extract content.
+
+        Parameters
+        ----------
+        res : Response
             The response to parse.
 
         Yields
@@ -61,44 +77,23 @@ class UukanshuSpider(Spider):
             Chapter item.
         Request
             Request to the next chapter.
-        Request
-            Request to the novel info page.
         """
-        yield get_content(response, self.s)
-        next_url = response.xpath('//*[@id="next"]/@href').get()
-        if ('html' not in next_url) or (self.s == self.n):
-            raise CloseSpider(reason="Done")
-        self.s += 1
-        yield response.follow(
-            url=next_url,
-            callback=self.parse,
+        yield get_content(res)
+        if (res.meta["id"] >= self.n) or (res.meta["id"] == self.so):
+            raise CloseSpider(reason="done")
+        yield res.follow(
+            url=self.t[res.meta["id"]],
+            meta={"id": res.meta["id"] + 1},
+            callback=self.parse_content,
         )
-        if self.i != 0:
-            self.i = 0
-            yield Request(url=f'{response.url.rsplit("/", 1)[0]}/', callback=self.parse_info)
-
-    def parse_info(self, response: Response):
-        """Extract info.
-
-        Parameters
-        ----------
-        response : Response
-            The response to parse.
-
-        Yields
-        ------
-        Info
-            Info item.
-        """
-        yield get_info(response)
 
 
-def get_info(response: Response):
+def get_info(res: Response) -> Info:
     """Get novel information.
 
     Parameters
     ----------
-    response : Response
+    res : Response
         The response to parse.
 
     Returns
@@ -107,27 +102,25 @@ def get_info(response: Response):
         Populated Info item.
     """
     title = (
-        response.xpath('//*[@class="jieshao_content"]/h1/a/@title')
-        .get()
-        .replace("最新章节", "")
+        res.xpath('//*[@class="jieshao_content"]/h1/a/@title').get().replace("最新章节", "")
     )
-    imghref = response.xpath('//*[@class="jieshao-img"]/a/img/@src').get()
-    r = InfoLoader(item=Info(), response=response)
+    imghref = res.xpath('//*[@class="jieshao-img"]/a/img/@src').get()
+    r = InfoLoader(item=Info(), response=res)
     r.add_value("title", title)
     r.add_xpath("author", '//*[@class="jieshao_content"]/h2/a/text()')
     r.add_value("types", "--")
     r.add_xpath("foreword", '//*[@class="jieshao_content"]/h3/text()')
-    r.add_value("image_urls", response.urljoin(imghref))
-    r.add_value("url", response.request.url)
+    r.add_value("image_urls", res.urljoin(imghref))
+    r.add_value("url", res.request.url)
     return r.load_item()
 
 
-def get_content(response: Response, id: int) -> Chapter:
+def get_content(res: Response) -> Chapter:
     """Get chapter content.
 
     Parameters
     ----------
-    response : Response
+    res : Response
         The response to parse.
 
     id: int
@@ -137,9 +130,9 @@ def get_content(response: Response, id: int) -> Chapter:
     Chapter
         Populated Chapter item.
     """
-    r = ChapterLoader(item=Chapter(), response=response)
-    r.add_value("id", str(id))
-    r.add_value("url", response.url)
+    r = ChapterLoader(item=Chapter(), response=res)
+    r.add_value("id", str(res.meta["id"]))
+    r.add_value("url", res.url)
     r.add_xpath("title", '//*[@id="timu"]/text()')
     r.add_xpath("content", '//*[@id="contentbox"]//text()[not(parent::script)]')
     return r.load_item()

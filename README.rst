@@ -101,7 +101,7 @@ Ussage
 
       from getnovel.utils.crawler import NovelCrawler
       p = NovelCrawler(url="https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa")
-      p.crawl(rm=True, start_index=3, num_chap=8)
+      p.crawl(rm=True, start=3, stop=8)
 
   - Convert txt to xhtml by FileConverter:
 
@@ -117,7 +117,7 @@ Ussage
 
       from getnovel.utils.epub import EpubMaker
       e = EpubMaker()
-      e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", dedup=False, start_index=1, num_chap=-1)
+      e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", dedup=False, start=1, stop=-1)
 
 Supported websites
 ==================
