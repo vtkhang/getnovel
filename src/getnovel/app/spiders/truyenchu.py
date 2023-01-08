@@ -6,11 +6,11 @@
 """
 
 from scrapy import Spider, Selector
-from scrapy.http import Response, FormRequest
 from scrapy.exceptions import CloseSpider
+from scrapy.http import Response, FormRequest
 
-from getnovel.app.items import Info, Chapter
 from getnovel.app.itemloaders import InfoLoader, ChapterLoader
+from getnovel.app.items import Info, Chapter
 
 
 class TruyenChuSpider(Spider):

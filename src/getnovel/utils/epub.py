@@ -1,9 +1,9 @@
 """Make EPUB module"""
-import sys
 import logging
-from uuid import uuid1
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+from uuid import uuid1
 
 if sys.version_info >= (3, 8):
     from importlib.resources import files
@@ -40,7 +40,7 @@ class EpubMaker:
         self.tmp_edp = Path()
 
     def from_url(
-        self, url: str, dedup: bool, start: int, stop: int
+            self, url: str, dedup: bool, start: int, stop: int
     ) -> None:
         """Get novel on website, zip them to epub.
 
@@ -73,7 +73,7 @@ class EpubMaker:
         self._make_epub(list(c.get_file_list("xhtml")), p.get_langcode())
 
     def from_raw(
-        self, raw: PathStr, dedup: bool, lang_code: str
+            self, raw: PathStr, dedup: bool, lang_code: str
     ) -> None:
         """Convert chapters from raw directory to xhtml and make epub.
 
@@ -232,10 +232,10 @@ class EpubMaker:
         )
         # zip files to epub
         with ZipFile(
-            self.rdp / f"{novel_title}.epub",
-            "w",
-            compression=ZIP_DEFLATED,
-            compresslevel=9,
+                self.rdp / f"{novel_title}.epub",
+                "w",
+                compression=ZIP_DEFLATED,
+                compresslevel=9,
         ) as f_zip:
             mime_path = self.tmp_edp / "mimetype"
             f_zip.write(

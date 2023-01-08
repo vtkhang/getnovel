@@ -6,11 +6,11 @@
 """
 
 from scrapy import Spider
-from scrapy.http import Response, Request
 from scrapy.exceptions import CloseSpider
+from scrapy.http import Response, Request
 
-from getnovel.app.items import Info, Chapter
 from getnovel.app.itemloaders import InfoLoader, ChapterLoader
+from getnovel.app.items import Info, Chapter
 
 
 class MeTruyenCVSpider(Spider):

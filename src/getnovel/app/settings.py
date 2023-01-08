@@ -12,7 +12,7 @@ lp.mkdir(parents=True, exist_ok=True)
 BOT_NAME = r"GetNovel"
 ROBOTSTXT_OBEY = False
 SPIDER_MODULES = ["getnovel.app.spiders"]
-USER_AGENT = r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "\
+USER_AGENT = r"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
              "(KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36 Edg/108.0.1462.54"
 ITEM_PIPELINES = {
     "getnovel.app.pipelines.AppPipeline": 300,

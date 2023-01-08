@@ -1,7 +1,7 @@
 """Define NovelCrawler class."""
 
-import time
 import logging
+import time
 from pathlib import Path
 from shutil import rmtree
 
@@ -33,13 +33,13 @@ class NovelCrawler:
         self.spn = tldextract.extract(self.u).domain  # spider name
 
     def crawl(
-        self,
-        rm: bool,
-        start: int,
-        stop: int,
-        clean: bool,
-        result: PathStr = None,
-        log_level: str = "INFO",
+            self,
+            rm: bool,
+            start: int,
+            stop: int,
+            clean: bool,
+            result: PathStr = None,
+            log_level: str = "INFO",
     ) -> PathStr:
         """Download novel and store it in the raw directory.
 

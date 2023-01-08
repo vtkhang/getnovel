@@ -8,9 +8,9 @@ Limitations
         line 4 is url, rest are foreword.
         - chapter: line 1 is chapter title, rest are content.
 """
-import sys
 import html
 import logging
+import sys
 from pathlib import Path
 from shutil import rmtree
 
@@ -257,11 +257,11 @@ def fix_bad_newline(lines: ListStr):
         last = result[-1][-1]
         first = flines[index][0]
         if (
-            (last == ",")
-            or (first.islower())
-            or (last.islower())
-            or (last == '"' and first.islower())
-            or (first == '"' and last.islower())
+                (last == ",")
+                or (first.islower())
+                or (last.islower())
+                or (last == '"' and first.islower())
+                or (first == '"' and last.islower())
         ):
             result[-1] = result[-1] + " " + flines[index]
         elif first in pa:
@@ -272,10 +272,10 @@ def fix_bad_newline(lines: ListStr):
 
 
 def dedup_title(
-    content_lines: ListStr,
-    chapter_path: Path,
-    identities: ListStr = ("Chương", "章"),
-    max_length: int = 100,
+        content_lines: ListStr,
+        chapter_path: Path,
+        identities: ListStr = ("Chương", "章"),
+        max_length: int = 100,
 ) -> ListStr:
     """Deduplicate chapter title.
 
@@ -313,13 +313,13 @@ def dedup_title(
 
 
 def process(
-    ip: Path,
-    t: str,
-    sp: Path,
-    m: str,
-    tp: Path = None,
-    lang: str = "vi",
-    dedup: bool = False,
+        ip: Path,
+        t: str,
+        sp: Path,
+        m: str,
+        tp: Path = None,
+        lang: str = "vi",
+        dedup: bool = False,
 ):
     """Clean file or convert file to xhtml.
 

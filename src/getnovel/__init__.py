@@ -4,9 +4,10 @@ GETNOVEL uses the Scrapy framework to download novel from a website
 and convert all chapters to XHTML, TXT, or to make EPUB.
 """
 
-import sys
 import argparse
+import sys
 import traceback
+
 from getnovel.utils.crawler import NovelCrawler
 from getnovel.utils.epub import EpubMaker
 from getnovel.utils.file import FileConverter
@@ -142,7 +143,7 @@ def _build_parser():
         type=int,
         default=-1,
         help="stop crawling after this chapter,"
-        " input -1 to get all chapters (default:  %(default)s)",
+             " input -1 to get all chapters (default:  %(default)s)",
         metavar="",
     )
     crawl.add_argument(
@@ -237,7 +238,7 @@ def _build_parser():
         type=int,
         default=-1,
         help="Stop crawling after this chapter,"
-        " input -1 to get all chapters (default:  %(default)s)",
+             " input -1 to get all chapters (default:  %(default)s)",
         metavar="",
     )
     from_url.add_argument(
