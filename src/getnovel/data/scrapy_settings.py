@@ -68,8 +68,6 @@ def get_settings(
         "DOWNLOAD_DELAY": 3,
         "AUTOTHROTTLE_MAX_DELAY": 60,
         "AUTOTHROTTLE_TARGET_CONCURRENCY": 0.5,
-        # COOKIE
-        "COOKIES_DEBUG": True,
         # SAVE PATH
         "RESULT": str(result),
     }
