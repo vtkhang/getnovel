@@ -65,7 +65,6 @@ class BachNgocSachSpider(Spider):
         Request
             Request to the table of content.
         """
-        super().parse(*args, **kwargs)
         yield get_info(res)
         yield Request(
             url=f"{res.url}/muc-luc?page=all",
