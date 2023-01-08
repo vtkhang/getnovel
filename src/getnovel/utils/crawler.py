@@ -1,6 +1,7 @@
 """Define NovelCrawler class."""
 
 import logging
+import json
 import time
 from pathlib import Path
 from shutil import rmtree
@@ -39,14 +40,14 @@ class NovelCrawler:
             stop: int,
             clean: bool,
             result: PathStr = None,
-            log_level: str = "INFO",
-    ) -> PathStr:
+            custom_settings: PathStr = None,
+    ) -> Path:
         """Download novel and store it in the raw directory.
 
         Parameters
         ----------
         rm : bool
-            If specified, remove all existing files in raw directory.
+            If specified, remove all existing files in result directory.
         start : int
             Start crawling from this chapter.
         stop : int
@@ -55,8 +56,8 @@ class NovelCrawler:
             If specified, clean result files after crawling.
         result : PathStr, optional
             Path of result directory, by default None.
-        log_level: str
-            Debug, Info or error,...
+        custom_settings: PathStr, optional
+            Path of custom settings file, by default None.
 
         Raises
         ------
@@ -67,7 +68,7 @@ class NovelCrawler:
 
         Returns
         -------
-        PathStr
+        Path
             Path the raw directory.
         """
         if start < 1:
@@ -87,9 +88,18 @@ class NovelCrawler:
         rp.mkdir(exist_ok=True, parents=True)
         rp = rp.resolve()
         spider_class = self._get_spider()
-        process = CrawlerProcess(
-            settings=scrapy_settings.get_settings(result=rp, log_level=log_level)
-        )
+        settings = scrapy_settings.get_settings(result=rp)
+        if custom_settings is not None:
+            with Path(custom_settings).open(mode="r", encoding="utf-8") as cs:
+                settings.update(json.load(cs))
+                cs.close()
+        cwd_settings = Path.cwd() / "settings.json"
+        if cwd_settings.exists():
+            with cwd_settings.open(mode="r", encoding="utf-8") as cws:
+                settings.update(json.load(cws))
+                cws.close()
+        print(f"> Please view log file at: {settings['LOG_FILE']}")
+        process = CrawlerProcess(settings=settings)
         process.crawl(
             spider_class,
             u=self.u,
@@ -97,7 +107,7 @@ class NovelCrawler:
             stop=stop,
         )
         process.start()
-        _logger.info("Done crawling. View result at: %s", str(rp))
+        _logger.info("Done crawling. View result at: %s", rp)
         if clean is True:
             _logger.info("Start cleaning")
             c = FileConverter(rp, rp)

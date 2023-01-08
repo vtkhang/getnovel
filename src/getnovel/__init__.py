@@ -60,6 +60,7 @@ def crawl_func(args):
         stop=args.stop,
         clean=args.clean,
         result=args.result,
+        custom_settings=args.settings,
     )
 
 
@@ -94,7 +95,7 @@ def dedup_func(args):
 def epub_from_url_func(args):
     """Make epub from url process."""
     e = EpubMaker()
-    e.from_url(args.url, args.dedup, args.start, args.stop)
+    e.from_url(args.url, args.dedup, args.start, args.stop, args.settings)
 
 
 def epub_from_raw_func(args):
@@ -162,6 +163,12 @@ def _build_parser():
         "--clean",
         action="store_false",
         help="if specified, clean result files after crawling (default:  %(default)s)",
+    )
+    crawl.add_argument(
+        "--settings",
+        type=str,
+        help="path of custom settings file (default: %(default)s)",
+        metavar="",
     )
     crawl.add_argument(
         "url",
@@ -239,6 +246,12 @@ def _build_parser():
         default=-1,
         help="Stop crawling after this chapter,"
              " input -1 to get all chapters (default:  %(default)s)",
+        metavar="",
+    )
+    from_url.add_argument(
+        "--settings",
+        type=str,
+        help="path of custom settings file (default: %(default)s)",
         metavar="",
     )
     from_url.add_argument(

@@ -6,18 +6,13 @@ import time
 from pathlib import Path
 
 
-def get_settings(
-        log_level: str,
-        result: Path = None,
-):
+def get_settings(result: Path) -> dict:
     """Generate project settings.
 
     Parameters
     ----------
-    result : Path, optional
-        Path of result directory, by default None
-    log_level : str, optional
-        Log level of logging, by default "INFO"
+    result : Path
+        Path of result directory.
 
     Returns
     -------
@@ -37,7 +32,6 @@ def get_settings(
     lp = hp / "GetNovel" / "logs"
     lp.mkdir(parents=True, exist_ok=True)
     lnp = lp / f'{time.strftime("%Y_%m_%d-%H_%M_%S")}.log'
-    print(f"> Please view log file at: {str(lnp)}")
     return {
         "BOT_NAME": "GetNovel",
         "ROBOTSTXT_OBEY": True,
@@ -59,7 +53,7 @@ def get_settings(
         "LOG_SHORT_NAMES": True,
         "LOG_FILE": str(lnp),
         "LOG_FILE_APPEND": False,
-        "LOG_LEVEL": log_level,
+        "LOG_LEVEL": "INFO",
         # AUTOTHROTTLE SETTINGS
         "AUTOTHROTTLE_ENABLED": True,
         "AUTOTHROTTLE_START_DELAY": 6,

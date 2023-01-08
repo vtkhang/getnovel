@@ -40,7 +40,7 @@ class EpubMaker:
         self.tmp_edp = Path()
 
     def from_url(
-            self, url: str, dedup: bool, start: int, stop: int
+            self, url: str, dedup: bool, start: int, stop: int, settings: PathStr
     ) -> None:
         """Get novel on website, zip them to epub.
 
@@ -54,10 +54,12 @@ class EpubMaker:
             Start crawling from this chapter.
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
+        settings: PathStr
+            Path of custom settings file
         """
         # Get novel on web site.
         p = NovelCrawler(url=url)
-        rdp = p.crawl(rm=True, start=start, stop=stop, clean=True)
+        rdp = p.crawl(rm=True, start=start, stop=stop, clean=True, custom_settings=settings)
         # convert to xhtml
         c = FileConverter(rdp)
         c.convert_to_xhtml(
