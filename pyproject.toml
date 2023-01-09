@@ -17,7 +17,10 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Operating System :: OS Independent"
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Framework :: Scrapy",
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "scrapy >= 2.7.1",
@@ -40,4 +43,6 @@ build = [
 
 [project.scripts]
 getnovel = "getnovel:run_main"
+
+[project.gui-scripts]
 getnovel_gui = "getnovel: run_main_gui"
