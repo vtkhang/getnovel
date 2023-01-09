@@ -8,9 +8,8 @@ import argparse
 import sys
 import traceback
 
-from getnovel.utils.crawler import NovelCrawler
-from getnovel.utils.epub import EpubMaker
-from getnovel.utils.file import FileConverter
+from getnovel.utils import arguments
+from getnovel.utils.gooey_gui import main_gui
 
 if sys.version_info >= (3, 8):
     from importlib import metadata
@@ -49,59 +48,6 @@ def main(argv) -> int:
         else:
             print(traceback.format_exc())
     return 0
-
-
-def crawl_func(args):
-    """Run crawling process."""
-    p = NovelCrawler(url=args.url)
-    p.crawl(
-        rm=args.rm,
-        start=args.start,
-        stop=args.stop,
-        clean=args.clean,
-        result=args.result,
-        custom_settings=args.settings,
-    )
-
-
-def convert_func(args):
-    """Convert process."""
-    c = FileConverter(
-        raw=args.raw,
-        result=args.result,
-    )
-    c.convert_to_xhtml(
-        lang_code=args.lang,
-        dedup=args.dedup,
-        rm_result=args.rm,
-    )
-
-
-def dedup_func(args):
-    """Deduplicate chapter title."""
-    if args.result is None:
-        c = FileConverter(
-            raw=args.raw,
-            result=args.raw,
-        )
-    else:
-        c = FileConverter(
-            raw=args.raw,
-            result=args.result,
-        )
-    c.clean(dedup=True, rm_result=False)
-
-
-def epub_from_url_func(args):
-    """Make epub from url process."""
-    e = EpubMaker()
-    e.from_url(args.url, args.dedup, args.start, args.stop, args.settings)
-
-
-def epub_from_raw_func(args):
-    """Make epub from raw process."""
-    e = EpubMaker()
-    e.from_raw(args.raw, args.dedup, args.lang)
 
 
 def _build_parser():
@@ -155,19 +101,18 @@ def _build_parser():
     crawl.add_argument(
         "--result",
         type=str,
-        default=None,
         help="path of the result directory (default:  %(default)s)",
         metavar="",
     )
     crawl.add_argument(
         "--clean",
-        action="store_false",
+        action="store_true",
         help="if specified, clean result files after crawling (default:  %(default)s)",
     )
     crawl.add_argument(
         "--settings",
         type=str,
-        help="path of custom settings file (default: %(default)s)",
+        help="path of custom settings file (default:  %(default)s)",
         metavar="",
     )
     crawl.add_argument(
@@ -175,13 +120,13 @@ def _build_parser():
         type=str,
         help="url of the novel information page",
     )
-    crawl.set_defaults(func=crawl_func)
+    crawl.set_defaults(func=arguments.crawl_func)
     # convert parser
     convert = subparsers.add_parser("convert", help="convert chapters to xhtml")
     convert.add_argument(
         "--lang",
         default="vi",
-        help="language code of the novel (default: %(default)s)",
+        help="language code of the novel (default:  %(default)s)",
         metavar="",
     )
     convert.add_argument(
@@ -197,7 +142,6 @@ def _build_parser():
     convert.add_argument(
         "--result",
         type=str,
-        default=None,
         help="path of result directory (default:  %(default)s)",
         metavar="",
     )
@@ -207,13 +151,12 @@ def _build_parser():
         help="path of raw directory",
         metavar="",
     )
-    convert.set_defaults(func=convert_func)
+    convert.set_defaults(func=arguments.convert_func)
     # deduplicate
     dedup = subparsers.add_parser("dedup", help="deduplicate chapter title")
     dedup.add_argument(
         "--result",
         type=str,
-        default=None,
         help="path of result directory (default:  %(default)s)",
         metavar="",
     )
@@ -222,7 +165,7 @@ def _build_parser():
         type=str,
         help="path of raw directory",
     )
-    dedup.set_defaults(func=dedup_func)
+    dedup.set_defaults(func=arguments.dedup_func)
     # epub parser
     epub = subparsers.add_parser("epub", help="make epub")
     subparsers_epub = epub.add_subparsers(title="modes", help="supported modes")
@@ -251,7 +194,7 @@ def _build_parser():
     from_url.add_argument(
         "--settings",
         type=str,
-        help="path of custom settings file (default: %(default)s)",
+        help="path of custom settings file (default:  %(default)s)",
         metavar="",
     )
     from_url.add_argument(
@@ -259,7 +202,7 @@ def _build_parser():
         type=str,
         help="url of the novel information page",
     )
-    from_url.set_defaults(func=epub_from_url_func)
+    from_url.set_defaults(func=arguments.epub_from_url_func)
     # epub from_raw parser
     from_raw = subparsers_epub.add_parser(
         "from_raw", help="make epub from raw directory"
@@ -272,7 +215,7 @@ def _build_parser():
     from_raw.add_argument(
         "--lang",
         default="vi",
-        help="language code of the novel (default: %(default)s)",
+        help="language code of the novel (default:  %(default)s)",
         metavar="",
     )
     from_raw.add_argument(
@@ -280,7 +223,7 @@ def _build_parser():
         type=str,
         help="path of raw directory",
     )
-    from_raw.set_defaults(func=epub_from_raw_func)
+    from_raw.set_defaults(func=arguments.epub_from_raw_func)
     return parser
 
 
@@ -297,6 +240,11 @@ def run_main():
     except GetnovelException as e:
         sys.stderr.write(f"getnovel:{str(e)}\n")
         sys.exit(1)
+
+
+def run_main_gui():
+    """Run main program."""
+    main_gui()
 
 
 if __name__ == "__main__":

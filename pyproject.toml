@@ -20,11 +20,12 @@ classifiers = [
     "Operating System :: OS Independent"
 ]
 dependencies = [
-    "Scrapy >= 2.7.1",
-    "Pillow >= 9.4.0",
+    "scrapy >= 2.7.1",
+    "pillow >= 9.4.0",
     "tldextract >= 3.4.0",
     "importlib-metadata >= 4.2.0; python_version<'3.8'",
-    "importlib-resources >= 5.10.2; python_version<'3.9'"
+    "importlib-resources >= 5.10.2; python_version<'3.9'",
+    "gooey >= 1.0.8.1"
 ]
 
 [project.optional-dependencies]
@@ -39,3 +40,4 @@ build = [
 
 [project.scripts]
 getnovel = "getnovel:run_main"
+getnovel_gui = "getnovel: run_main_gui"
