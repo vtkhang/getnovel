@@ -139,3 +139,10 @@ Frameworks, packages and IDEs
 =============================
 
 - `Scrapy <https://scrapy.org>`_
+- `Pillow <https://python-pillow.org/>`_
+- `tldextract <https://github.com/john-kurkowski/tldextract>`_
+- `importlib-metadata <https://github.com/python/importlib_metadata>`_
+- `importlib-resources <https://github.com/python/importlib_resources>`_
+- `black <https://github.com/psf/black>`_
+- `ipython <https://ipython.org/>`_
+- `flake8 <https://github.com/pycqa/flake8>`_
