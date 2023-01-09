@@ -57,7 +57,7 @@ class FileConverter:
         if not self.y.exists():
             self.y.mkdir(parents=True)
             _logger.info(
-                f"Result directory not found, auto created at: {self.y.resolve()}"
+                "Result directory not found, auto created at: %s" % self.y.resolve()
             )
         self.txt: DictPath = {}  # use to track txt files in result directory
         self.xhtml: DictPath = {}  # use to track xhtml files in result directory
@@ -79,7 +79,7 @@ class FileConverter:
         """
         # remove old files in result directory
         if rm_result is True:
-            _logger.info(f"Remove existing files in: {self.y.resolve()}")
+            _logger.info("Remove existing files in: %s" % self.y.resolve())
             self._rm_result()
         # copy cover image to result directory
         cop = self.x / "cover.jpg"
@@ -99,7 +99,7 @@ class FileConverter:
             cpn = self.y / cp.name
             process(cp, "chapter", cpn, "clean", dedup=dedup)
             self.txt[int(cp.stem)] = cpn
-        _logger.info(f"Done cleaning. View result at: {self.y.resolve()}")
+        _logger.info("Done cleaning. View result at: %s" % self.y.resolve())
 
     def convert_to_xhtml(self, dedup: bool, rm_result: bool, lang_code: str):
         """Clean files and convert to XHTML.
@@ -137,7 +137,7 @@ class FileConverter:
             raise FileConverterError(f"Foreword template not found: {ctp}")
         # remove old files in result directory
         if rm_result is True:
-            _logger.info(f"Remove existing files in: {self.y.resolve()}")
+            _logger.info("Remove existing files in: %s" % self.y.resolve())
             self._rm_result()
         # copy cover image to result dir
         cop = self.x / "cover.jpg"
@@ -300,7 +300,7 @@ def dedup_title(
         s = len(identities)
         for k in identities:
             if k in line and len(line) < max_length:
-                _logger.debug(msg=f"Removed: {content_lines[index]}")
+                _logger.debug(msg="Removed: %s" % content_lines[index])
                 index += 1
                 break
             else:
@@ -308,7 +308,7 @@ def dedup_title(
         if s == 0:
             break
     if index != 0:
-        _logger.debug(msg=f"Path: {chapter_path}")
+        _logger.debug(msg="Path: %s" % chapter_path)
     return content_lines[index:]
 
 

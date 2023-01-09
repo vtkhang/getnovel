@@ -247,7 +247,7 @@ class EpubMaker:
             for path in self.tmp_edp.rglob("*"):
                 f_zip.write(path, path.relative_to(self.tmp_edp))
         copy(Path(str(files(data).joinpath("template/mimetype"))), self.tmp_edp)
-        _logger.info("Done making epub. View result at: %s", str(self.rdp.resolve()))
+        _logger.info("Done making epub. View result at: %s", self.rdp.resolve())
 
 
 class EpubMakerError(Exception):
