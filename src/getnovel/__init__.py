@@ -16,7 +16,7 @@ if sys.version_info >= (3, 8):
     from importlib import metadata
 else:
     import importlib_metadata as metadata
-__version__ = metadata.version(__name__)
+__version__ = metadata.version("getnovel")
 
 
 def main(argv) -> int:
