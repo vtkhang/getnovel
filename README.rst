@@ -21,39 +21,43 @@ Description
 Installation
 ============
 
-1. Download or clone this project.
-2. Make sure Python 3.7 or above is installed.
-3. Go to root folder of this project, using pip to install:
+- This package can be installed via github:
 
   .. code:: bash
 
-    pip install -e .
+    pip install git+https://github.com/vtkhang/getnovel.git
 
-Development
-===========
+Supported websites
+==================
 
-1. Download or clone this project.
-2. Go to to root folder of this project.
-3. Using pip to install this project in development mode (better with virtual env like conda):
+1. `https://bachngocsach.com/reader/ <https://bachngocsach.com/reader>`_
+2. `https://dtruyen.com/ <https://dtruyen.com/>`_
+3. `https://metruyencv.com/ <https://metruyencv.com>`_
+4. `https://www.ptwxz.com/ <https://www.ptwxz.com>`_
+5. `https://www.69shu.com/ <https://www.69shu.com>`_
+6. `https://sstruyen.com/ <https://sstruyen.com>`_
+7. `https://truyen.tangthuvien.vn/ <https://truyen.tangthuvien.vn/>`_
+8. `https://truyenchu.vn/ <https://truyenchu.vn/>`_
+9.  `https://truyenfull.vn/ <https://truyenfull.vn>`_
+10. `https://truyenyy.vip/ <https://truyenyy.vip/>`_
+11. `https://www.uukanshu.com/ <https://www.uukanshu.com>`_
+
+GUI Mode
+========
+
+- Start command:
 
   .. code:: bash
 
-    pip install -e .[dev]
+    getnovel_gui
 
-Build
-=====
+- Image
 
-1. Download or clone this project.
-2. Go to to root folder of this project.
-3. Install and build this project with package "build":
+  .. image:: src/getnovel/data/example.png
+      :alt: Example GUI Picture
 
-  .. code:: bash
-
-    pip install build
-    python -m build
-
-Usage
-=====
+Command line mode
+=================
 
 - Commands
 
@@ -119,22 +123,6 @@ Usage
       e = EpubMaker()
       e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", dedup=False, start=1, stop=-1)
 
-Supported websites
-==================
-
-1. `https://bachngocsach.com/reader/ <https://bachngocsach.com/reader>`_
-2. `https://dtruyen.com/ <https://dtruyen.com/>`_
-3. `https://metruyencv.com/ <https://metruyencv.com>`_
-4. `https://www.ptwxz.com/ <https://www.ptwxz.com>`_
-5. `https://www.69shu.com/ <https://www.69shu.com>`_
-6. `https://sstruyen.com/ <https://sstruyen.com>`_
-7. `https://truyen.tangthuvien.vn/ <https://truyen.tangthuvien.vn/>`_
-8. `https://truyenchu.vn/ <https://truyenchu.vn/>`_
-9.  `https://truyenfull.vn/ <https://truyenfull.vn>`_
-10. `https://truyenyy.vip/ <https://truyenyy.vip/>`_
-11. `https://www.uukanshu.com/ <https://www.uukanshu.com>`_
-
-
 Frameworks, packages and IDEs
 =============================
 
@@ -146,3 +134,27 @@ Frameworks, packages and IDEs
 - `black <https://github.com/psf/black>`_
 - `ipython <https://ipython.org/>`_
 - `flake8 <https://github.com/pycqa/flake8>`_
+
+
+Development
+===========
+
+1. Download or clone this project.
+2. Go to to root folder of this project.
+3. Using pip to install this project in development mode (better with virtual env like conda):
+
+  .. code:: bash
+
+    pip install -e .[dev]
+
+Build
+=====
+
+1. Download or clone this project.
+2. Go to to root folder of this project.
+3. Install and build this project with package "build":
+
+  .. code:: bash
+
+    pip install build
+    python -m build
