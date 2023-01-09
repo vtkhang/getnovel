@@ -51,11 +51,6 @@ GUI Mode
 
     getnovel_gui
 
-- Image
-
-  .. image:: src/getnovel/data/example.png
-      :alt: Example GUI Picture
-
 Command line mode
 =================
 
@@ -134,6 +129,7 @@ Frameworks, packages and IDEs
 - `black <https://github.com/psf/black>`_
 - `ipython <https://ipython.org/>`_
 - `flake8 <https://github.com/pycqa/flake8>`_
+- `gooey <https://github.com/chriskiehl/Gooey>`_
 
 
 Development
@@ -158,3 +154,14 @@ Build
 
     pip install build
     python -m build
+
+Upload to PYPI
+==============
+
+1. Make sure .pypirc is configured.
+2. Build project with `build`.
+3. Use `twine` to upload:
+
+  .. code:: bash
+
+    python -m twine upload --repository pypi dist/*
