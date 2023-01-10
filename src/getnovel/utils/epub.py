@@ -34,11 +34,11 @@ class EpubMaker:
             Path of the result directory.
         """
         self.rp = result
-        if not self.rp.exists():
-            self.rp.mkdir(parents=True)
         self.raw = self.rp / 'raw'
         self.xhtml = self.rp / 'xhtml'
+        self.xhtml.mkdir(exist_ok=True, parents=True)
         self.epub = self.rp / 'epub'
+        self.epub.mkdir(exist_ok=True, parents=True)
 
     def from_url(
             self,
@@ -46,7 +46,6 @@ class EpubMaker:
             dedup: bool,
             start: int,
             stop: int,
-            settings: Path,
     ) -> None:
         """Get novel on website, zip them to epub.
 
@@ -60,8 +59,6 @@ class EpubMaker:
             Start crawling from this chapter.
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
-        settings: Path
-            Path of custom settings file
         """
         # Get novel on web site.
         p = NovelCrawler(url=url)
@@ -70,14 +67,13 @@ class EpubMaker:
             start=start,
             stop=stop,
             clean=True,
-            custom_settings=settings,
             result=self.raw,
         )
         # convert to xhtml
         c = FileConverter(self.raw, self.xhtml)
         c.convert_to_xhtml(
             dedup=dedup,
-            rm_result=True,
+            rm=True,
             lang_code=p.get_langcode(),
         )
         # copy epub template and then copy all files converted to epub directory
@@ -103,7 +99,7 @@ class EpubMaker:
         c = FileConverter(raw, self.xhtml)
         c.convert_to_xhtml(
             dedup=dedup,
-            rm_result=True,
+            rm=True,
             lang_code=lang_code,
         )
         # copy epub template and then copy all files converted to epub directory
@@ -112,7 +108,6 @@ class EpubMaker:
         self._make_epub(list(c.get_file_list('xhtml')), lang_code)
 
     def _copy_to_epub(self):
-        self.epub.mkdir(parents=True)
         # copy template epub to temp epub directory
         copytree_hm(Path(str(files(data).joinpath('template'))), self.epub)
         self.epub.chmod(0o0400 | 0o0200)

@@ -85,7 +85,8 @@ def main_gui():
     convert.add_argument(
         "--result",
         type=str,
-        help="path of result directory (default: None)",
+        default=str(Path.cwd() / "converted"),
+        help="path of result directory",
         metavar="",
         widget="DirChooser",
     )
@@ -102,7 +103,8 @@ def main_gui():
     dedup.add_argument(
         "--result",
         type=str,
-        help="path of result directory (default: None)",
+        default=str(Path.cwd() / "cleaned"),
+        help="path of result directory",
         metavar="",
         widget="DirChooser",
     )

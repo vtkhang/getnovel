@@ -139,7 +139,8 @@ def _build_parser():
     convert.add_argument(
         "--result",
         type=str,
-        help="path of result directory (default:  %(default)s)",
+        default=str(Path.cwd() / "converted"),
+        help="path of result directory",
         metavar="",
     )
     convert.add_argument(
@@ -154,7 +155,8 @@ def _build_parser():
     dedup.add_argument(
         "--result",
         type=str,
-        help="path of result directory (default:  %(default)s)",
+        default=str(Path.cwd() / "cleaned"),
+        help="path of result directory",
         metavar="",
     )
     dedup.add_argument(

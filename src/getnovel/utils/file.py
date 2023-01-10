@@ -20,7 +20,7 @@ else:
     from importlib_resources import files
 
 from getnovel import data
-from getnovel.utils.typehint import PathStr, DictPath, ListStr
+from getnovel.utils.typehint import DictPath, ListStr
 
 _logger = logging.getLogger(__name__)
 
@@ -28,48 +28,36 @@ _logger = logging.getLogger(__name__)
 class FileConverter:
     """This class define clean method and convert to xhtml method."""
 
-    def __init__(self, raw: PathStr, result: PathStr = None):
+    def __init__(self, raw: Path, result: Path):
         """Init path of raw directory and result directory.
 
         Parameters
         ----------
-        raw : PathStr
+        raw : Path
             Path of raw directory.
-        result : PathStr, optional
-            Path of result directory, by default None.
+        result : Path
+            Path of result directory.
 
         Raises
         ------
         FileConverterError
             Raw directory not found.
-        FileConverterError
-            Raw directory is empty.
         """
-        self.x = Path(raw)
-        if not self.x.exists():
-            raise FileConverterError(f"Raw directory not found: {self.x}")
-        if not any(self.x.iterdir()):
-            raise FileConverterError("Raw directory is empty.")
-        if result is None:
-            self.y = self.x.parent / "result_dir"
-        else:
-            self.y = Path(result)
-        if not self.y.exists():
-            self.y.mkdir(parents=True)
-            _logger.info(
-                "Result directory not found, auto created at: %s" % self.y.resolve()
-            )
+        if not raw.exists():
+            raise FileConverterError(f"Raw directory not found: {raw}")
+        self.x = raw
+        self.y = result
         self.txt: DictPath = {}  # use to track txt files in result directory
         self.xhtml: DictPath = {}  # use to track xhtml files in result directory
 
-    def clean(self, dedup: bool, rm_result: bool):
+    def clean(self, dedup: bool, rm: bool):
         """Clean raw files in raw directory.
 
         Parameters
         ----------
         dedup : bool
             If specified, deduplicate chapter title.
-        rm_result : bool
+        rm : bool
             If specified, remove all old files in result directory.
 
         Returns
@@ -78,7 +66,7 @@ class FileConverter:
             Value -1 if raw directory empty
         """
         # remove old files in result directory
-        if rm_result is True:
+        if rm is True:
             _logger.info("Remove existing files in: %s" % self.y.resolve())
             self._rm_result()
         # copy cover image to result directory
@@ -101,14 +89,14 @@ class FileConverter:
             self.txt[int(cp.stem)] = cpn
         _logger.info("Done cleaning. View result at: %s" % self.y.resolve())
 
-    def convert_to_xhtml(self, dedup: bool, rm_result: bool, lang_code: str):
+    def convert_to_xhtml(self, dedup: bool, rm: bool, lang_code: str):
         """Clean files and convert to XHTML.
 
         Parameters
         ----------
         dedup : bool
             If specified, deduplicate chapter title.
-        rm_result : bool
+        rm : bool
             If specified, remove all old files in result directory.
         lang_code : str
             Language code of the novel.
@@ -136,7 +124,7 @@ class FileConverter:
         if fwtp.exists() is False or fwtp.is_dir():
             raise FileConverterError(f"Foreword template not found: {ctp}")
         # remove old files in result directory
-        if rm_result is True:
+        if rm is True:
             _logger.info("Remove existing files in: %s" % self.y.resolve())
             self._rm_result()
         # copy cover image to result dir
@@ -166,7 +154,6 @@ class FileConverter:
             int: -1 if result directory is raw directory
         """
         if self.x == self.y:
-            # TODO: create temporary directory to store old files to process.
             return -1
         rmtree(self.y)
         self.y.mkdir()

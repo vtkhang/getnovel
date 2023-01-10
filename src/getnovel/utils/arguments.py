@@ -14,7 +14,7 @@ def crawl_func(args):
         start=args.start,
         stop=args.stop,
         clean=args.clean,
-        result=args.result,
+        result=Path(args.result),
         custom_settings=args.settings,
     )
 
@@ -22,29 +22,23 @@ def crawl_func(args):
 def convert_func(args):
     """Convert process."""
     c = FileConverter(
-        raw=args.raw,
-        result=args.result,
+        raw=Path(args.raw),
+        result=Path(args.result),
     )
     c.convert_to_xhtml(
         lang_code=args.lang,
         dedup=args.dedup,
-        rm_result=args.rm,
+        rm=args.rm,
     )
 
 
 def dedup_func(args):
     """Deduplicate chapter title."""
-    if args.result is None:
-        c = FileConverter(
-            raw=args.raw,
-            result=args.raw,
-        )
-    else:
-        c = FileConverter(
-            raw=args.raw,
-            result=args.result,
-        )
-    c.clean(dedup=True, rm_result=False)
+    c = FileConverter(
+        raw=Path(args.raw),
+        result=Path(args.result),
+    )
+    c.clean(dedup=True, rm=False)
 
 
 def epub_from_url_func(args):
@@ -55,7 +49,6 @@ def epub_from_url_func(args):
         dedup=args.dedup,
         start=args.start,
         stop=args.stop,
-        settings=args.settings,
     )
 
 

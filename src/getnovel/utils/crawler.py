@@ -112,7 +112,7 @@ class NovelCrawler:
         if clean is True:
             _logger.info("Start cleaning")
             c = FileConverter(rp, rp)
-            c.clean(dedup=False, rm_result=False)
+            c.clean(dedup=False, rm=False)
         return rp
 
     def _get_spider(self):
