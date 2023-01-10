@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from uuid import uuid1
 
-if sys.version_info >= (3, 8):
+if sys.version_info > (3, 8):
     from importlib.resources import files
 else:
     from importlib_resources import files

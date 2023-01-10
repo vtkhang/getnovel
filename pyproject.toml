@@ -3,7 +3,7 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "getnovel_khangit"
+name = "getnovel"
 description = "Tool based on Scrapy framework to Get novel on websites"
 authors = [
   { name="Vũ Thừa Khang", email="vuthuakhangit@gmail.com" },
