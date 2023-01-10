@@ -1,5 +1,6 @@
 """Process arguments."""
 
+from pathlib import Path
 from getnovel.utils.crawler import NovelCrawler
 from getnovel.utils.epub import EpubMaker
 from getnovel.utils.file import FileConverter
@@ -48,11 +49,21 @@ def dedup_func(args):
 
 def epub_from_url_func(args):
     """Make epub from url process."""
-    e = EpubMaker()
-    e.from_url(args.url, args.dedup, args.start, args.stop, args.settings)
+    e = EpubMaker(result=Path(args.result))
+    e.from_url(
+        url=args.url,
+        dedup=args.dedup,
+        start=args.start,
+        stop=args.stop,
+        settings=args.settings,
+    )
 
 
 def epub_from_raw_func(args):
     """Make epub from raw process."""
-    e = EpubMaker(args.result)
-    e.from_raw(args.raw, args.dedup, args.lang)
+    e = EpubMaker(result=Path(args.result))
+    e.from_raw(
+        raw=Path(args.raw),
+        dedup=args.dedup,
+        lang_code=args.lang,
+    )

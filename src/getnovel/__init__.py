@@ -169,6 +169,18 @@ def _build_parser():
     # epub from_url parser
     from_url = subparsers_epub.add_parser("from_url", help="make epub from web site")
     from_url.add_argument(
+        "--result",
+        type=str,
+        default=str(Path.cwd().resolve()),
+        help="path of result directory (default: current working directory)",
+        metavar="",
+    )
+    from_url.add_argument(
+        "url",
+        type=str,
+        help="url of the novel information page",
+    )
+    from_url.add_argument(
         "--dedup",
         action="store_true",
         help="if specified, deduplicate chapter title (default:  %(default)s)",
@@ -194,15 +206,23 @@ def _build_parser():
         help="path of custom settings file (default:  %(default)s)",
         metavar="",
     )
-    from_url.add_argument(
-        "url",
-        type=str,
-        help="url of the novel information page",
-    )
     from_url.set_defaults(func=arguments.epub_from_url_func)
     # epub from_raw parser
     from_raw = subparsers_epub.add_parser(
         "from_raw", help="make epub from raw directory"
+    )
+    from_raw.add_argument(
+        "--result",
+        type=str,
+        default=str(Path.cwd().resolve()),
+        help="path of result directory (default: current working directory)",
+        metavar="",
+    )
+
+    from_raw.add_argument(
+        "raw",
+        type=str,
+        help="path of raw directory",
     )
     from_raw.add_argument(
         "--dedup",
@@ -215,18 +235,7 @@ def _build_parser():
         help="language code of the novel (default:  %(default)s)",
         metavar="",
     )
-    from_raw.add_argument(
-        "raw",
-        type=str,
-        help="path of raw directory",
-    )
-    from_raw.add_argument(
-        "--result",
-        type=str,
-        default=str(str(Path.cwd().resolve())),
-        help="path of result directory (default: current working directory)",
-        widget="DirChooser",
-    )
+
     from_raw.set_defaults(func=arguments.epub_from_raw_func)
     return parser
 

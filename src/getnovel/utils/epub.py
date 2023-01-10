@@ -9,7 +9,7 @@ if sys.version_info >= (3, 8):
     from importlib.resources import files
 else:
     from importlib_resources import files
-from shutil import move, rmtree, copy
+from shutil import move, copy
 from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
 from PIL import Image
@@ -17,7 +17,7 @@ from PIL import Image
 from getnovel import data
 from getnovel.utils.crawler import NovelCrawler
 from getnovel.utils.file import FileConverter
-from getnovel.utils.typehint import PathStr, ListPath
+from getnovel.utils.typehint import ListPath
 
 _logger = logging.getLogger(__name__)
 
@@ -25,22 +25,28 @@ _logger = logging.getLogger(__name__)
 class EpubMaker:
     """Support making epub from input url or from a raw directory path"""
 
-    def __init__(self, result: PathStr = None):
+    def __init__(self, result: Path):
         """Assign path for the result directory.
 
         Parameters
         ----------
-        result : PathStr, optional
-            Path of the result directory, by default None.
+        result : Path
+            Path of the result directory.
         """
-        if result is None:
-            self.rdp = Path.cwd()
-        else:
-            self.rdp = Path(result)
-        self.tmp_edp = Path()
+        self.rp = result
+        if not self.rp.exists():
+            self.rp.mkdir(parents=True)
+        self.raw = self.rp / 'raw'
+        self.xhtml = self.rp / 'xhtml'
+        self.epub = self.rp / 'epub'
 
     def from_url(
-            self, url: str, dedup: bool, start: int, stop: int, settings: PathStr
+            self,
+            url: str,
+            dedup: bool,
+            start: int,
+            stop: int,
+            settings: Path,
     ) -> None:
         """Get novel on website, zip them to epub.
 
@@ -49,116 +55,111 @@ class EpubMaker:
         url : str
             Url of the novel information page.
         dedup : bool
-            If specified, remove duplicate chapter title.
+            If specified, deduplicate chapter title.
         start : int
             Start crawling from this chapter.
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
-        settings: PathStr
+        settings: Path
             Path of custom settings file
         """
         # Get novel on web site.
         p = NovelCrawler(url=url)
-        rdp = p.crawl(rm=True, start=start, stop=stop, clean=True, custom_settings=settings)
+        p.crawl(
+            rm=True,
+            start=start,
+            stop=stop,
+            clean=True,
+            custom_settings=settings,
+            result=self.raw,
+        )
         # convert to xhtml
-        c = FileConverter(rdp)
+        c = FileConverter(self.raw, self.xhtml)
         c.convert_to_xhtml(
             dedup=dedup,
             rm_result=True,
             lang_code=p.get_langcode(),
         )
-        self.tmp_edp = rdp.parent / "epub"
-        self.tmp_edp.mkdir(exist_ok=True)
         # copy epub template and then copy all files converted to epub directory
-        self._copy_to_epub(c.get_result_dir())
+        self._copy_to_epub()
         # make epub
-        self._make_epub(list(c.get_file_list("xhtml")), p.get_langcode())
+        self._make_epub(list(c.get_file_list('xhtml')), p.get_langcode())
 
     def from_raw(
-            self, raw: PathStr, dedup: bool, lang_code: str
+            self, raw: Path, dedup: bool, lang_code: str
     ) -> None:
-        """Convert chapters from raw directory to xhtml and make epub.
+        """Convert chapters from raw directory to xhtml then make epub.
 
-        Args:
-          raw: path to raw directory
-          dedup: if specified, remove duplicate chapter title
-          lang_code: language code of the novel
-
-        Returns:
-            None
+        Parameters
+        ----------
+        raw : Path
+            Path of the raw directory.
+        dedup : bool
+            If specified, deduplicate chapter title.
+        lang_code : str
+            Language code of the novel.
         """
-        # validate raw directory path input
-        if raw is None:
-            raise EpubMakerError("Raw directory path is None")
-        elif isinstance(raw, str):
-            raw = Path(raw)
-        elif not isinstance(raw, Path):
-            raise EpubMakerError("raw type must be str or Path")
-        # convert raw files to xhtml
-        c = FileConverter(raw)
+        self.raw = raw
+        c = FileConverter(raw, self.xhtml)
         c.convert_to_xhtml(
-            dedup=dedup, rm_result=True, lang_code=lang_code
+            dedup=dedup,
+            rm_result=True,
+            lang_code=lang_code,
         )
-        # create temp epub directory
-        self.tmp_edp = raw.parent / "epub"
-        self.tmp_edp.mkdir(exist_ok=True)
         # copy epub template and then copy all files converted to epub directory
-        self._copy_to_epub(c.get_result_dir())
+        self._copy_to_epub()
         # make epub2
-        self._make_epub(list(c.get_file_list("xhtml")), lang_code)
+        self._make_epub(list(c.get_file_list('xhtml')), lang_code)
 
-    def _copy_to_epub(self, xhtml_dir: Path) -> None:
-        # remove old files in temp epub directory
-        if self.tmp_edp.exists():
-            rmtree(self.tmp_edp)
-            self.tmp_edp.mkdir()
+    def _copy_to_epub(self):
+        self.epub.mkdir(parents=True)
         # copy template epub to temp epub directory
-        copytree_hm(Path(str(files(data).joinpath("template"))), self.tmp_edp)
-        self.tmp_edp.chmod(0o0400 | 0o0200)
+        copytree_hm(Path(str(files(data).joinpath('template'))), self.epub)
+        self.epub.chmod(0o0400 | 0o0200)
         # remove template file c1.xhtml in temp epub directory
-        (self.tmp_edp / "OEBPS" / "Text" / "c1.xhtml").unlink()
+        (self.epub / 'OEBPS' / 'Text' / 'c1.xhtml').unlink()
         # copy files from xhtml directory to temp epub directory
-        copytree_hm(xhtml_dir, self.tmp_edp / "OEBPS" / "Text")
+        copytree_hm(self.xhtml, self.epub / 'OEBPS' / 'Text')
         # move cover image from ./OEBPS/Text to ./OEBPS/Images
-        (self.tmp_edp / "OEBPS" / "Images" / "cover.jpg").unlink()
+        (self.epub / 'OEBPS' / 'Images' / 'cover.jpg').unlink()
         move(
-            str(self.tmp_edp / "OEBPS" / "Text" / "cover.jpg"),
-            self.tmp_edp / "OEBPS" / "Images",
+            str(self.epub / 'OEBPS' / 'Text' / 'cover.jpg'),
+            self.epub / 'OEBPS' / 'Images',
         )
 
     def _make_epub(self, xhtml_files: ListPath, lang_code: str):
-        tp = self.tmp_edp / "OEBPS" / "Text"
+        tp = self.epub / 'OEBPS' / 'Text'
         # Shared variable
-        fw_lines = (tp / "foreword.xhtml").read_text(encoding="utf-8").splitlines()
+        fw_lines = (tp / 'foreword.xhtml').read_text(encoding='utf-8').splitlines()
         novel_title = fw_lines[12][6:-5]  # content.opf, toc.ncx, zip
         novel_uuid = uuid1()  # content.opf, toc.ncx
-        publisher_name = "hacde"  # content.opf
-        cover_title = "Ảnh bìa"  # cover.xhtml, toc.ncx
-        nav_title = "Mục lục"  # nav.xhtml
-        foreword_title = "Lời tựa"  # nav.xhtml, toc.ncx
-        if lang_code == "zh":
-            cover_title = "封面"
-            nav_title = "目录"
-            foreword_title = "前言"
+        publisher_name = 'hacde'  # content.opf
+        cover_title = 'Ảnh bìa'  # cover.xhtml, toc.ncx
+        nav_title = 'Mục lục'  # nav.xhtml
+        foreword_title = 'Lời tựa'  # nav.xhtml, toc.ncx
+        if lang_code == 'zh':
+            cover_title = '封面'
+            nav_title = '目录'
+            foreword_title = '前言'
         # edit cover.xhtml
-        cp = tp / "cover.xhtml"  # cover path
-        cip = tp.parent / "Images" / "cover.jpg"  # cover image path
+        cp = tp / 'cover.xhtml'  # cover path
+        cip = tp.parent / 'Images' / 'cover.jpg'  # cover image path
         ci = Image.open(str(cip))  # cover image
         ext = ci.format.lower()  # extension of cover image
         width, height = ci.size  # get width and height
         ci.close()
         cip.rename(cip.with_suffix(f".{ext}"))  # rename cover image extension
         cp.write_text(
-            cp.read_text(encoding="utf-8").format(
+            cp.read_text(encoding='utf-8').format(
                 cover_title=cover_title, width=width, height=height, ext=ext
             ),
-            encoding="utf-8",
+            encoding='utf-8',
         )
         # edit nav.xhtml, toc.ncx and content.opf
         # define paths
-        np = tp / "nav.xhtml"  # nav.xhtml path
-        op = tp.parent / "content.opf"  # content.opf path
-        ncxp = tp.parent / "ncx" / "toc.ncx"  # toc.ncx path
+        np = tp / 'nav.xhtml'  # nav.xhtml path
+        op = tp.parent / 'content.opf'  # content.opf path
+        ncxp = tp.parent / 'ncx' / 'toc.ncx'  # toc.ncx path
         # create tag list
         nav_li_tag_list = list()
         opf_item_tag_list = list()
@@ -180,7 +181,7 @@ class EpubMaker:
         )
         index = 2
         for item in xhtml_files[2:]:
-            chapter_title = item.read_text(encoding="utf-8").splitlines()[5][9:-8]
+            chapter_title = item.read_text(encoding='utf-8').splitlines()[5][9:-8]
             chapter_name = item.name
             navpoint_tag_list.append(
                 navpoint.format(
@@ -197,57 +198,57 @@ class EpubMaker:
             index = index + 1
         # write to nav.xhtml
         np.write_text(
-            np.read_text(encoding="utf-8").format(
+            np.read_text(encoding='utf-8').format(
                 language_code=lang_code,
                 nav_title=nav_title,
                 foreword_title=foreword_title,
                 cover_title=cover_title,
-                nav_li_tag_list="\n".join(nav_li_tag_list),
+                nav_li_tag_list='\n'.join(nav_li_tag_list),
             ),
-            encoding="utf-8",
+            encoding='utf-8',
         )
         # write to content.opf
         op.write_text(
-            op.read_text(encoding="utf-8").format(
+            op.read_text(encoding='utf-8').format(
                 novel_title=novel_title,
                 author_name=fw_lines[14][5:-4],
                 language_code=lang_code,
                 publisher_name=publisher_name,
-                date_created=datetime.now().strftime("%Y-%m-%d"),
-                date_modified=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+                date_created=datetime.now().strftime('%Y-%m-%d'),
+                date_modified=datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
                 novel_uuid=novel_uuid,
                 ext=ext,
-                opf_item_tag_list="\n    ".join(opf_item_tag_list),
-                opf_itemref_tag_list="\n    ".join(opf_itemref_tag_list),
+                opf_item_tag_list='\n    '.join(opf_item_tag_list),
+                opf_itemref_tag_list='\n    '.join(opf_itemref_tag_list),
             ),
-            encoding="utf-8",
+            encoding='utf-8',
         )
         # write to toc.ncx
         ncxp.write_text(
-            ncxp.read_text(encoding="utf-8").format(
+            ncxp.read_text(encoding='utf-8').format(
                 novel_uuid=novel_uuid,
                 novel_title=novel_title,
                 foreword_title=foreword_title,
-                navpoint_tag_list="\n".join(navpoint_tag_list),
+                navpoint_tag_list='\n'.join(navpoint_tag_list),
             ),
-            encoding="utf-8",
+            encoding='utf-8',
         )
         # zip files to epub
         with ZipFile(
-                self.rdp / f"{novel_title}.epub",
-                "w",
+                self.rp / f'{novel_title}.epub',
+                'w',
                 compression=ZIP_DEFLATED,
                 compresslevel=9,
         ) as f_zip:
-            mime_path = self.tmp_edp / "mimetype"
+            mime_path = self.epub / 'mimetype'
             f_zip.write(
-                mime_path, mime_path.relative_to(self.tmp_edp), compress_type=ZIP_STORED
+                mime_path, mime_path.relative_to(self.epub), compress_type=ZIP_STORED
             )
             mime_path.unlink()
-            for path in self.tmp_edp.rglob("*"):
-                f_zip.write(path, path.relative_to(self.tmp_edp))
-        copy(Path(str(files(data).joinpath("template/mimetype"))), self.tmp_edp)
-        _logger.info("Done making epub. View result at: %s", self.rdp.resolve())
+            for path in self.epub.rglob('*'):
+                f_zip.write(path, path.relative_to(self.epub))
+        copy(str(files(data).joinpath('template/mimetype')), self.epub)
+        _logger.info('Done making epub. View result at: %s', self.rp.resolve())
 
 
 class EpubMakerError(Exception):

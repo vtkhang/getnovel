@@ -25,7 +25,6 @@ def main_gui():
         default=1,
         help="start crawling from this chapter (default: 1)",
         metavar="",
-        widget="IntegerField",
     )
     crawl.add_argument(
         "--stop",
@@ -117,6 +116,19 @@ def main_gui():
     # epub from url parser
     epub_from_url = subparsers.add_parser("epub_from_url", help="make epub from web site")
     epub_from_url.add_argument(
+        "--result",
+        type=str,
+        default=str(Path.cwd().resolve()),
+        help="path of result directory (default: current working directory)",
+        metavar="",
+        widget="DirChooser",
+    )
+    epub_from_url.add_argument(
+        "url",
+        type=str,
+        help="url of the novel information page",
+    )
+    epub_from_url.add_argument(
         "--dedup",
         action="store_true",
         help="if specified, deduplicate chapter title (default: False)",
@@ -127,7 +139,6 @@ def main_gui():
         default=1,
         help="start crawling from this chapter (default: 1)",
         metavar="",
-        widget="IntegerField",
     )
     epub_from_url.add_argument(
         "--stop",
@@ -144,15 +155,24 @@ def main_gui():
         metavar="",
         widget="FileChooser",
     )
-    epub_from_url.add_argument(
-        "url",
-        type=str,
-        help="url of the novel information page",
-    )
     epub_from_url.set_defaults(func=arguments.epub_from_url_func)
     # epub from raw parser
     epub_from_raw = subparsers.add_parser(
         "epub_from_raw", help="make epub from raw directory"
+    )
+    epub_from_raw.add_argument(
+        "--result",
+        type=str,
+        default=str(Path.cwd().resolve()),
+        help="path of result directory (default: current working directory)",
+        metavar="",
+        widget="DirChooser",
+    )
+    epub_from_raw.add_argument(
+        "raw",
+        type=str,
+        help="path of raw directory",
+        widget="DirChooser",
     )
     epub_from_raw.add_argument(
         "--dedup",
@@ -164,19 +184,6 @@ def main_gui():
         default="vi",
         help="language code of the novel (default: vi)",
         metavar="",
-    )
-    epub_from_raw.add_argument(
-        "raw",
-        type=str,
-        help="path of raw directory",
-        widget="DirChooser",
-    )
-    epub_from_raw.add_argument(
-        "--result",
-        type=str,
-        default=str(Path.cwd().resolve()),
-        help="path of result directory (default: current working directory)",
-        widget="DirChooser",
     )
     epub_from_raw.set_defaults(func=arguments.epub_from_raw_func)
 
