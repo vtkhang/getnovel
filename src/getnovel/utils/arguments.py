@@ -54,5 +54,5 @@ def epub_from_url_func(args):
 
 def epub_from_raw_func(args):
     """Make epub from raw process."""
-    e = EpubMaker()
+    e = EpubMaker(args.result)
     e.from_raw(args.raw, args.dedup, args.lang)

@@ -1,5 +1,7 @@
 """Build GUI for GETNOVEL."""
 
+from pathlib import Path
+
 from gooey import Gooey, GooeyParser
 from getnovel.utils import arguments
 
@@ -167,6 +169,13 @@ def main_gui():
         "raw",
         type=str,
         help="path of raw directory",
+        widget="DirChooser",
+    )
+    epub_from_raw.add_argument(
+        "--result",
+        type=str,
+        default=str(Path.cwd().resolve()),
+        help="path of result directory (default: current working directory)",
         widget="DirChooser",
     )
     epub_from_raw.set_defaults(func=arguments.epub_from_raw_func)

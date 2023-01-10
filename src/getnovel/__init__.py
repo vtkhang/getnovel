@@ -7,11 +7,12 @@ and convert all chapters to XHTML, TXT, or to make EPUB.
 import argparse
 import sys
 import traceback
+from pathlib import Path
 
 from getnovel.utils import arguments
 from getnovel.utils.gooey_gui import main_gui
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 
 def main(argv) -> int:
@@ -218,6 +219,13 @@ def _build_parser():
         "raw",
         type=str,
         help="path of raw directory",
+    )
+    from_raw.add_argument(
+        "--result",
+        type=str,
+        default=str(str(Path.cwd().resolve())),
+        help="path of result directory (default: current working directory)",
+        widget="DirChooser",
     )
     from_raw.set_defaults(func=arguments.epub_from_raw_func)
     return parser
