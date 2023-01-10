@@ -1,5 +1,7 @@
 """Build GUI for GETNOVEL."""
 
+from pathlib import Path
+
 from gooey import Gooey, GooeyParser
 from getnovel.utils import arguments
 
@@ -13,6 +15,7 @@ def main_gui():
     int
         Zero on successful program termination, non-zero otherwise.
     """
+    cwd = Path.cwd().resolve()
     parser = GooeyParser(prog="getnovel", allow_abbrev=False, description="Get novel from websites")
     subparsers = parser.add_subparsers(title="modes", help="supported modes")
     # crawl parser
@@ -167,6 +170,13 @@ def main_gui():
         "raw",
         type=str,
         help="path of raw directory",
+        widget="DirChooser",
+    )
+    epub_from_raw.add_argument(
+        "--result",
+        type=str,
+        default=str(cwd),
+        help="path of result directory",
         widget="DirChooser",
     )
     epub_from_raw.set_defaults(func=arguments.epub_from_raw_func)

@@ -11,7 +11,7 @@ import traceback
 from getnovel.utils import arguments
 from getnovel.utils.gooey_gui import main_gui
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 
 def main(argv) -> int:
