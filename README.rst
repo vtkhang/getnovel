@@ -118,6 +118,21 @@ Command line mode
       e = EpubMaker()
       e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", dedup=False, start=1, stop=-1)
 
+Custom settings file
+====================
+
+- Getnovel can be configured by a json file
+- Example
+
+    .. code-block:: json
+
+        {
+            "LOG_FILE": null,
+            "LOG_LEVEL": "INFO",
+        }
+
+- More setting options can be found at: `Scrapy Settings <https://docs.scrapy.org/en/latest/topics/settings.html#built-in-settings-reference>`_
+
 Frameworks, packages and IDEs
 =============================
 
