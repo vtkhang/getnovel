@@ -12,7 +12,7 @@ readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["crawler", "scrapy"]
 license = { text = "MIT" }
-version = "1.4.0"
+dynamic = ["version"]
 classifiers = [
     "Framework :: Scrapy",
     "Programming Language :: Python :: 3.7",
@@ -33,6 +33,8 @@ dependencies = [
     "importlib-resources >= 5.10.2; python_version<'3.9'",
     "gooey >= 1.0.8.1"
 ]
+[tool.setuptools.dynamic]
+version = {attr = "getnovel.__version__"}
 
 [project.urls]
 "Homepage" = "https://github.com/vtkhang/getnovel"

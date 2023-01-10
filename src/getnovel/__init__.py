@@ -11,11 +11,7 @@ import traceback
 from getnovel.utils import arguments
 from getnovel.utils.gooey_gui import main_gui
 
-if sys.version_info >= (3, 8):
-    from importlib import metadata
-else:
-    import importlib_metadata as metadata
-__version__ = metadata.version(__name__)
+__version__ = "1.4.0"
 
 
 def main(argv) -> int:
