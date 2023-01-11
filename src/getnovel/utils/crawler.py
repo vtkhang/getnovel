@@ -40,7 +40,6 @@ class NovelCrawler:
             stop: int,
             clean: bool,
             result: Path,
-            custom_settings: PathStr = None,
     ) -> Path:
         """Download novel and store it in the raw directory.
 
@@ -56,8 +55,6 @@ class NovelCrawler:
             If specified, clean result files after crawling.
         result : Path
             Path of result directory.
-        custom_settings: PathStr, optional
-            Path of custom settings file, by default None.
 
         Raises
         ------
@@ -86,10 +83,6 @@ class NovelCrawler:
         rp = rp.resolve()
         spider_class = self._get_spider()
         settings = scrapy_settings.get_settings(result=rp)
-        if custom_settings is not None:
-            with Path(custom_settings).open(mode="r", encoding="utf-8") as cs:
-                settings.update(json.load(cs))
-                cs.close()
         cwd_settings = Path.cwd() / "settings.json"
         if cwd_settings.exists():
             with cwd_settings.open(mode="r", encoding="utf-8") as cws:

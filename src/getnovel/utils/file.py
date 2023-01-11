@@ -22,6 +22,10 @@ else:
 from getnovel import data
 from getnovel.utils.typehint import DictPath, ListStr
 
+logging.basicConfig(
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+    level="INFO"
+)
 _logger = logging.getLogger(__name__)
 
 

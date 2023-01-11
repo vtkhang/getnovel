@@ -53,13 +53,6 @@ def main_gui():
         help="if specified, clean result files after crawling (default: False)",
     )
     crawl.add_argument(
-        "--settings",
-        type=str,
-        help="path of custom settings file (default:None)",
-        metavar="",
-        widget="FileChooser",
-    )
-    crawl.add_argument(
         "url",
         type=str,
         help="url of the novel information page",
@@ -150,13 +143,6 @@ def main_gui():
         help="stop crawling after this chapter,"
              " input -1 to get all chapters (default: -1)",
         metavar="",
-    )
-    epub_from_url.add_argument(
-        "--settings",
-        type=str,
-        help="path of custom settings file (default: None)",
-        metavar="",
-        widget="FileChooser",
     )
     epub_from_url.set_defaults(func=arguments.epub_from_url_func)
     # epub from raw parser

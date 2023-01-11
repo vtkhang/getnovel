@@ -19,6 +19,10 @@ from getnovel.utils.crawler import NovelCrawler
 from getnovel.utils.file import FileConverter
 from getnovel.utils.typehint import ListPath
 
+logging.basicConfig(
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+    level="INFO"
+)
 _logger = logging.getLogger(__name__)
 
 

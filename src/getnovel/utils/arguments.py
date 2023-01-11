@@ -11,11 +11,10 @@ def crawl_func(args):
     p = NovelCrawler(url=args.url)
     p.crawl(
         rm=args.rm,
-        start=args.start,
-        stop=args.stop,
+        start=int(args.start),
+        stop=int(args.stop),
         clean=args.clean,
         result=Path(args.result),
-        custom_settings=args.settings,
     )
 
 
@@ -47,8 +46,8 @@ def epub_from_url_func(args):
     e.from_url(
         url=args.url,
         dedup=args.dedup,
-        start=args.start,
-        stop=args.stop,
+        start=int(args.start),
+        stop=int(args.stop),
     )
 
 

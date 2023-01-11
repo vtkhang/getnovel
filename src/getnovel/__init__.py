@@ -108,12 +108,6 @@ def _build_parser():
         help="if specified, clean result files after crawling (default:  %(default)s)",
     )
     crawl.add_argument(
-        "--settings",
-        type=str,
-        help="path of custom settings file (default:  %(default)s)",
-        metavar="",
-    )
-    crawl.add_argument(
         "url",
         type=str,
         help="url of the novel information page",
@@ -203,12 +197,6 @@ def _build_parser():
              " input -1 to get all chapters (default:  %(default)s)",
         metavar="",
     )
-    from_url.add_argument(
-        "--settings",
-        type=str,
-        help="path of custom settings file (default:  %(default)s)",
-        metavar="",
-    )
     from_url.set_defaults(func=arguments.epub_from_url_func)
     # epub from_raw parser
     from_raw = subparsers_epub.add_parser(
@@ -221,7 +209,6 @@ def _build_parser():
         help="path of result directory (default: current working directory)",
         metavar="",
     )
-
     from_raw.add_argument(
         "raw",
         type=str,
