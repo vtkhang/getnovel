@@ -156,7 +156,7 @@ class FileConverter:
         if self.x == self.y:
             return -1
         rmtree(self.y)
-        self.y.mkdir()
+        self.y.mkdir(parents=True)
         self.txt = {}
         self.xhtml = {}
 

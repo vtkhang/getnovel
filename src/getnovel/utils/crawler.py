@@ -39,7 +39,7 @@ class NovelCrawler:
             start: int,
             stop: int,
             clean: bool,
-            result: PathStr = None,
+            result: Path,
             custom_settings: PathStr = None,
     ) -> Path:
         """Download novel and store it in the raw directory.
@@ -54,8 +54,8 @@ class NovelCrawler:
             Stop crawling after this chapter, input -1 to get all chapters.
         clean : bool
             If specified, clean result files after crawling.
-        result : PathStr, optional
-            Path of result directory, by default None.
+        result : Path
+            Path of result directory.
         custom_settings: PathStr, optional
             Path of custom settings file, by default None.
 
@@ -77,15 +77,12 @@ class NovelCrawler:
             raise CrawlNovelError(
                 "Start chapter need to be lesser than stop chapter if stop chapter is not -1."
             )
-        if result is None:
-            rp = Path.cwd() / self.spn / time.strftime(r"%Y_%m_%d-%H_%M_%S") / "raw"
-        else:
-            rp = Path(result)
+        rp = Path(result)
         if rm is True:
             _logger.info("Remove existing files in: %s", rp.resolve())
             if rp.exists():
                 rmtree(rp)
-        rp.mkdir(exist_ok=True, parents=True)
+            rp.mkdir(parents=True)
         rp = rp.resolve()
         spider_class = self._get_spider()
         settings = scrapy_settings.get_settings(result=rp)

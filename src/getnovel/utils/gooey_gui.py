@@ -42,6 +42,7 @@ def main_gui():
     crawl.add_argument(
         "--result",
         type=str,
+        default=str(Path.cwd() / "raw"),
         help="path of the result directory (default: None)",
         metavar="",
         widget="DirChooser",
@@ -103,7 +104,7 @@ def main_gui():
     dedup.add_argument(
         "--result",
         type=str,
-        default=str(Path.cwd() / "cleaned"),
+        default=str(Path.cwd() / "deduplicated"),
         help="path of result directory",
         metavar="",
         widget="DirChooser",

@@ -98,7 +98,8 @@ def _build_parser():
     crawl.add_argument(
         "--result",
         type=str,
-        help="path of the result directory (default:  %(default)s)",
+        default=str(Path.cwd() / "raw"),
+        help="path of the result directory (default: current working directory)",
         metavar="",
     )
     crawl.add_argument(
@@ -140,7 +141,7 @@ def _build_parser():
         "--result",
         type=str,
         default=str(Path.cwd() / "converted"),
-        help="path of result directory",
+        help="path of result directory (default: current working directory)",
         metavar="",
     )
     convert.add_argument(
@@ -155,8 +156,8 @@ def _build_parser():
     dedup.add_argument(
         "--result",
         type=str,
-        default=str(Path.cwd() / "cleaned"),
-        help="path of result directory",
+        default=str(Path.cwd() / "deduplicated"),
+        help="path of result directory (default: current working directory)",
         metavar="",
     )
     dedup.add_argument(
