@@ -50,7 +50,6 @@ class UukanshuSpider(Spider):
         self.so = int(stop)
         self.c = "zh"  # language code
         self.t = []  # table of content
-        self.n = 0  # total chapters
 
     def parse(self, res: Response, *args, **kwargs):
         """Extract info and send request to the start chapter.
@@ -70,7 +69,6 @@ class UukanshuSpider(Spider):
         yield get_info(res)
         self.t.extend(res.xpath('//*[@id="chapterList"]/li/a/@href').getall())
         self.t.reverse()
-        self.n = len(self.t)
         yield res.follow(
             url=self.t[self.sa - 1],
             meta={"id": self.sa},
@@ -94,7 +92,7 @@ class UukanshuSpider(Spider):
             Request to the next chapter.
         """
         yield get_content(res)
-        if (res.meta["id"] >= self.n) or (res.meta["id"] == self.so):
+        if (res.meta["id"] >= len(self.t)) or (res.meta["id"] == self.so):
             raise CloseSpider(reason="done")
         yield res.follow(
             url=self.t[res.meta["id"]],

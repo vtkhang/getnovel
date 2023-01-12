@@ -2,7 +2,6 @@
 
 import logging
 import json
-import time
 from pathlib import Path
 from shutil import rmtree
 
@@ -13,7 +12,6 @@ from scrapy.spiderloader import SpiderLoader
 
 from getnovel.data import scrapy_settings
 from getnovel.utils.file import FileConverter
-from getnovel.utils.typehint import PathStr
 
 _logger = logging.getLogger(__name__)
 
