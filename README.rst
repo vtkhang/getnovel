@@ -162,7 +162,7 @@ Build
 =====
 
 1. Download or clone this project.
-2. Go to to root folder of this project.
+2. Go to root folder of this project.
 3. Install and build this project with package "build":
 
   .. code:: bash
