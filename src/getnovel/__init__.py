@@ -10,7 +10,6 @@ import traceback
 from pathlib import Path
 
 from getnovel.utils import arguments
-from getnovel.utils.gooey_gui import main_gui
 
 __version__ = "1.4.1"
 
@@ -243,11 +242,6 @@ def run_main():
     except GetnovelException as e:
         sys.stderr.write(f"getnovel:{str(e)}\n")
         sys.exit(1)
-
-
-def run_main_gui():
-    """Run main program."""
-    main_gui()
 
 
 if __name__ == "__main__":
