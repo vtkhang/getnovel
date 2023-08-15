@@ -20,17 +20,19 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = ["scrapy >= 2.10.0", "pillow >= 10.0.0", "tldextract >= 3.4.4"]
-[tool.setuptools.dynamic]
-version = { attr = "getnovel.__version__" }
+
+[project.optional-dependencies]
+dev = ["ipython >= 8.14.0", "build >= 0.10.0"]
 
 [project.urls]
 "Homepage" = "https://github.com/vtkhang/getnovel"
 "Bug Tracker" = "https://github.com/vtkhang/getnovel/issues"
 
-[project.optional-dependencies]
-dev = ["ipython >= 8.14.0"]
-
-build = ["build >= 0.10.0"]
-
 [project.scripts]
 getnovel = "getnovel:run_main"
+
+[tool.setuptools.dynamic]
+version = { attr = "getnovel.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
