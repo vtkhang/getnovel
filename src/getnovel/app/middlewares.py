@@ -63,7 +63,7 @@ class AppSpiderMiddleware:
     def spider_opened(self, spider):
         """Log spider information"""
         _ = self
-        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info("Spider opened: %s" % spider.name)
 
 
 class AppDownloaderMiddleware:
@@ -89,7 +89,7 @@ class AppDownloaderMiddleware:
         - or return a Request object
         - or raise IgnoreRequest: process_exception() methods of
           installed downloader middleware will be called
-          """
+        """
         _ = (self, request, spider)
         return None
 
@@ -118,8 +118,4 @@ class AppDownloaderMiddleware:
     def spider_opened(self, spider):
         """Log spider information"""
         _ = self
-        spider.logger.info('Spider opened: %s' % spider.name)
-
-
-def mpprint(d: dict):
-    return f'\n\n{pformat(d, indent=4, width=200)}\n'
+        spider.logger.info("Spider opened: %s" % spider.name)

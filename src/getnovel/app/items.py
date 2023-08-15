@@ -22,6 +22,7 @@ class Info(Item):
 
 class Chapter(Item):
     """Store chapter"""
+
     id = Field()
     url = Field()
     title = Field()

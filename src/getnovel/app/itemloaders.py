@@ -50,6 +50,7 @@ class ChapterLoader(ItemLoader):
         "content": "XpathResult1\\nXpathResult2\\n..."
     }
     """
+
     default_input_processor = MapCompose(str.strip, filter_blank)
     default_output_processor = Join()
     content_out = Join("\n")

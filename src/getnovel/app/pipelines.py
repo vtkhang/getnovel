@@ -60,7 +60,9 @@ class AppPipeline:
             elif isinstance(item, Chapter):
                 r.append(item["title"])
                 r.append(item["content"])
-                (sp / f"{item['id']}.txt").write_text(data="\n".join(r), encoding="utf-8")
+                (sp / f"{item['id']}.txt").write_text(
+                    data="\n".join(r), encoding="utf-8"
+                )
             else:
                 raise DropItem("Invalid item detected!")
         except KeyError as key:
