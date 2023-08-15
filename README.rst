@@ -42,15 +42,6 @@ Supported websites
 10. `https://truyenyy.vip/ <https://truyenyy.vip/>`_
 11. `https://www.uukanshu.com/ <https://www.uukanshu.com>`_
 
-GUI Mode
-========
-
-- Start command:
-
-  .. code:: bash
-
-    getnovel_gui
-
 Command line mode
 =================
 
@@ -144,8 +135,6 @@ Frameworks, packages and IDEs
 - `black <https://github.com/psf/black>`_
 - `ipython <https://ipython.org/>`_
 - `flake8 <https://github.com/pycqa/flake8>`_
-- `gooey <https://github.com/chriskiehl/Gooey>`_
-
 
 Development
 ===========
@@ -156,7 +145,7 @@ Development
 
   .. code:: bash
 
-    pip install -e .[dev]
+    pip install -e ".[dev]"
 
 Build
 =====

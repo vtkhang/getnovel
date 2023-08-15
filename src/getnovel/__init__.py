@@ -10,9 +10,8 @@ import traceback
 from pathlib import Path
 
 from getnovel.utils import arguments
-from getnovel.utils.gooey_gui import main_gui
 
-__version__ = "1.4.1"
+__version__ = "1.5.0"
 
 
 def main(argv) -> int:
@@ -87,7 +86,7 @@ def _build_parser():
         type=int,
         default=-1,
         help="stop crawling after this chapter,"
-             " input -1 to get all chapters (default:  %(default)s)",
+        " input -1 to get all chapters (default:  %(default)s)",
         metavar="",
     )
     crawl.add_argument(
@@ -194,7 +193,7 @@ def _build_parser():
         type=int,
         default=-1,
         help="Stop crawling after this chapter,"
-             " input -1 to get all chapters (default:  %(default)s)",
+        " input -1 to get all chapters (default:  %(default)s)",
         metavar="",
     )
     from_url.set_defaults(func=arguments.epub_from_url_func)
@@ -243,11 +242,6 @@ def run_main():
     except GetnovelException as e:
         sys.stderr.write(f"getnovel:{str(e)}\n")
         sys.exit(1)
-
-
-def run_main_gui():
-    """Run main program."""
-    main_gui()
 
 
 if __name__ == "__main__":
