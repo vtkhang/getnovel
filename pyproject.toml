@@ -19,7 +19,12 @@ classifiers = [
     "Framework :: Scrapy",
     "Operating System :: OS Independent",
 ]
-dependencies = ["scrapy >= 2.10.0", "pillow >= 10.0.0", "tldextract >= 3.4.4"]
+dependencies = [
+    "scrapy >= 2.10.0",
+    "pillow >= 10.0.0",
+    "tldextract >= 3.4.4",
+    "python-slugify >= 8.0.1",
+]
 
 [project.optional-dependencies]
 dev = ["ipython >= 8.14.0", "build >= 0.10.0"]
