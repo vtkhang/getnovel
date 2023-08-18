@@ -4,8 +4,6 @@
    https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 """
 
-from pprint import pformat
-
 from scrapy import signals
 
 
@@ -24,7 +22,8 @@ class AppSpiderMiddleware:
         return s
 
     def process_spider_input(self, response, spider):
-        """Called for each response that goes through the spider middleware and into the spider.
+        """Called for each response that goes
+        through the spider middleware and into the spider.
 
         Should return None or raise an exception.
         """

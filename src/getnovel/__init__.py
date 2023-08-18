@@ -20,7 +20,8 @@ def main(argv) -> int:
     Parameters
     ----------
     argv : Any
-        Command-line arguments, such as sys.argv (including the program name in argv[0])
+        Command-line arguments, such as sys.argv
+        (including the program name in argv[0])
 
     Returns
     -------
@@ -92,7 +93,8 @@ def _build_parser():
     crawl.add_argument(
         "--rm",
         action="store_true",
-        help="if specified, remove old files in the result directory (default:  %(default)s)",
+        help="if specified, remove old files"
+        "in the result directory (default:  %(default)s)",
     )
     crawl.add_argument(
         "--result",
@@ -128,7 +130,8 @@ def _build_parser():
     convert.add_argument(
         "--rm",
         action="store_true",
-        help="if specified, remove old files in result directory (default:  %(default)s)",
+        help="if specified, remove old files in"
+        "result directory (default:  %(default)s)",
     )
     convert.add_argument(
         "--result",

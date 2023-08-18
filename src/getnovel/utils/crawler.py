@@ -2,7 +2,6 @@
 
 import logging
 import json
-import time
 from pathlib import Path
 from shutil import rmtree
 
@@ -13,7 +12,6 @@ from scrapy.spiderloader import SpiderLoader
 
 from getnovel.data import scrapy_settings
 from getnovel.utils.file import FileConverter
-from getnovel.utils.typehint import PathStr
 
 _logger = logging.getLogger(__name__)
 
@@ -34,12 +32,12 @@ class NovelCrawler:
         self.spn = tldextract.extract(self.u).domain  # spider name
 
     def crawl(
-            self,
-            rm: bool,
-            start: int,
-            stop: int,
-            clean: bool,
-            result: Path,
+        self,
+        rm: bool,
+        start: int,
+        stop: int,
+        clean: bool,
+        result: Path,
     ) -> Path:
         """Download novel and store it in the raw directory.
 
@@ -72,7 +70,8 @@ class NovelCrawler:
             raise CrawlNovelError("Index of start index need to be greater than zero")
         if (start > stop) and (stop > -1):
             raise CrawlNovelError(
-                "Start chapter need to be lesser than stop chapter if stop chapter is not -1."
+                "Start chapter need to be lesser than"
+                "stop chapter if stop chapter is not -1."
             )
         rp = Path(result)
         if rm is True:
@@ -88,7 +87,7 @@ class NovelCrawler:
             with cwd_settings.open(mode="r", encoding="utf-8") as cws:
                 settings.update(json.load(cws))
                 cws.close()
-        if settings['LOG_FILE'] is not None:
+        if settings["LOG_FILE"] is not None:
             print(f"> Please view log file at: {Path(settings['LOG_FILE']).resolve()}")
         process = CrawlerProcess(settings=settings)
         process.crawl(

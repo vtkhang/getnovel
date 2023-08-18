@@ -2,7 +2,8 @@
 
 Limitations
 -----------
-    1. Can only work with exact structure and file name: cover.jpg, foreword.txt, 1.txt,...
+    1. Can only work with exact structure and file name:
+        cover.jpg, foreword.txt, 1.txt,...
     2. Can only work with exact file structure:
         - foreword: line 1 is title, line 2 is author, line 3 is types,
         line 4 is url, rest are foreword.
@@ -23,8 +24,7 @@ from getnovel import data
 from getnovel.utils.typehint import DictPath, ListStr
 
 logging.basicConfig(
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
-    level="INFO"
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s", level="INFO"
 )
 _logger = logging.getLogger(__name__)
 
@@ -248,11 +248,11 @@ def fix_bad_newline(lines: ListStr):
         last = result[-1][-1]
         first = flines[index][0]
         if (
-                (last == ",")
-                or (first.islower())
-                or (last.islower())
-                or (last == '"' and first.islower())
-                or (first == '"' and last.islower())
+            (last == ",")
+            or (first.islower())
+            or (last.islower())
+            or (last == '"' and first.islower())
+            or (first == '"' and last.islower())
         ):
             result[-1] = result[-1] + " " + flines[index]
         elif first in pa:
@@ -263,10 +263,10 @@ def fix_bad_newline(lines: ListStr):
 
 
 def dedup_title(
-        content_lines: ListStr,
-        chapter_path: Path,
-        identities: ListStr = ("Chương", "章"),
-        max_length: int = 100,
+    content_lines: ListStr,
+    chapter_path: Path,
+    identities: ListStr = ("Chương", "章"),
+    max_length: int = 100,
 ) -> ListStr:
     """Deduplicate chapter title.
 
@@ -304,13 +304,13 @@ def dedup_title(
 
 
 def process(
-        ip: Path,
-        t: str,
-        sp: Path,
-        m: str,
-        tp: Path = None,
-        lang: str = "vi",
-        dedup: bool = False,
+    ip: Path,
+    t: str,
+    sp: Path,
+    m: str,
+    tp: Path = None,
+    lang: str = "vi",
+    dedup: bool = False,
 ):
     """Clean file or convert file to xhtml.
 
