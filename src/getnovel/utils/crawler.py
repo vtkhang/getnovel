@@ -17,10 +17,12 @@ _logger = logging.getLogger(__name__)
 
 
 class NovelCrawler:
-    """Download novel from website"""
+    """Download novel from website."""
 
     def __init__(self, url: str):
-        """Initialize NovelCrawler with url, and assign path of raw
+        """Initialize NovelCrawler.
+
+        Initialize NovelCrawler with url, and assign path of raw
         directory.
 
         Parameters
@@ -54,14 +56,14 @@ class NovelCrawler:
         result : Path
             Path of result directory.
 
-        Raises
+        Raises:
         ------
         CrawlNovelError
             Index of start chapter need to be greater than zero.
         CrawlNovelError
             Start chapter need to be lesser than stop chapter if stop chapter is not -1.
 
-        Returns
+        Returns:
         -------
         Path
             Path the raw directory.
@@ -107,12 +109,12 @@ class NovelCrawler:
     def _get_spider(self):
         """Get spider class based on the url domain.
 
-        Returns
+        Returns:
         -------
         object
             The spider class object.
 
-        Raises
+        Raises:
         ------
         CrawlNovelError
             Spider not found.
@@ -125,7 +127,7 @@ class NovelCrawler:
         return loader.load(self.spn)
 
     def get_langcode(self) -> str:
-        """Return language code of novel"""
+        """Return language code of novel."""
         if self.spn in ("ptwxz", "uukanshu", "69shu"):
             return "zh"
         else:
@@ -133,4 +135,4 @@ class NovelCrawler:
 
 
 class CrawlNovelError(Exception):
-    """Handle NovelCrawler Exception"""
+    """Handle NovelCrawler Exception."""

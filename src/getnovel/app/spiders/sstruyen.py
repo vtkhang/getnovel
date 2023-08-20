@@ -16,7 +16,7 @@ from getnovel.app.items import Info, Chapter
 class SSTruyenSpider(Spider):
     """Define spider for domain: sstruyen.
 
-    Attributes
+    Attributes:
     ----------
     name : str
         Name of the spider.
@@ -58,7 +58,7 @@ class SSTruyenSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Info
             Info item.
@@ -80,7 +80,7 @@ class SSTruyenSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Chapter
             Chapter item.
@@ -109,7 +109,7 @@ def get_info(res: Response) -> Info:
     res : Response
         The response to parse.
 
-    Returns
+    Returns:
     -------
     Info
         Populated Info item.
@@ -132,7 +132,7 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    Returns
+    Returns:
     -------
     Chapter
         Populated Chapter item.

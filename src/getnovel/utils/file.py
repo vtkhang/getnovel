@@ -11,14 +11,10 @@ Limitations
 """
 import html
 import logging
-import sys
 from pathlib import Path
 from shutil import rmtree
 
-if sys.version_info > (3, 8):
-    from importlib.resources import files
-else:
-    from importlib_resources import files
+from importlib.resources import files
 
 from getnovel import data
 from getnovel.utils.typehint import DictPath, ListStr
@@ -42,7 +38,7 @@ class FileConverter:
         result : Path
             Path of result directory.
 
-        Raises
+        Raises:
         ------
         FileConverterError
             Raw directory not found.
@@ -64,7 +60,7 @@ class FileConverter:
         rm : bool
             If specified, remove all old files in result directory.
 
-        Returns
+        Returns:
         -------
         int
             Value -1 if raw directory empty
@@ -105,12 +101,12 @@ class FileConverter:
         lang_code : str
             Language code of the novel.
 
-        Returns
+        Returns:
         -------
         int
             Value -1 if raw directory empty
 
-        Raises
+        Raises:
         ------
         FileConverterError
             Chapter template not found.
@@ -207,16 +203,18 @@ class FileConverter:
 
 
 class FileConverterError(Exception):
-    """File converter exception"""
+    """File converter exception."""
 
     pass
 
 
 def fix_bad_newline(lines: ListStr):
-    """Filtered blank lines. Concatenate lines that
+    """Tidy the result.
+
+    Filtered blank lines. Concatenate lines that
     likely to be in the same setence.
 
-    Examples
+    Examples:
     --------
     >>> fix_bad_newline(["A and", "b"])
     >>> ["A and b"]
@@ -226,7 +224,7 @@ def fix_bad_newline(lines: ListStr):
     lines : List
         Input lines.
 
-    Returns
+    Returns:
     -------
     List
         Fixed lines.
@@ -281,7 +279,7 @@ def dedup_title(
     max_length : int, optional
         Max length of chapter title, by default 100
 
-    Returns
+    Returns:
     -------
     ListStr
         Deduplicated chapter title.

@@ -27,7 +27,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ipython >= 8.14.0", "build >= 0.10.0"]
+dev = [
+    "ipython >= 8.14.0",
+    "black >= 23.7.0",
+    "flake8 >= 6.1.0",
+    "mypy >= 1.5.1",
+    "build >= 0.10.0",
+]
 
 [project.urls]
 "Homepage" = "https://github.com/vtkhang/getnovel"
@@ -41,3 +47,9 @@ version = { attr = "getnovel.__version__" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.ruff]
+select = ["E", "F", "UP", "D"]
+
+[tool.ruff.pydocstyle]
+convention = "google"

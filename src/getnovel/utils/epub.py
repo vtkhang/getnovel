@@ -1,14 +1,10 @@
-"""Make EPUB module"""
+"""Make EPUB module."""
 import logging
-import sys
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid1
 
-if sys.version_info > (3, 8):
-    from importlib.resources import files
-else:
-    from importlib_resources import files
+from importlib.resources import files
 from shutil import move, copy
 from zipfile import ZipFile, ZIP_DEFLATED, ZIP_STORED
 
@@ -27,7 +23,7 @@ _logger = logging.getLogger(__name__)
 
 
 class EpubMaker:
-    """Support making epub from input url or from a raw directory path"""
+    """Support making epub from input url or from a raw directory path."""
 
     def __init__(self, result: Path):
         """Assign path for the result directory.
@@ -251,7 +247,7 @@ class EpubMaker:
 
 
 class EpubMakerError(Exception):
-    """Handle EpubMaker exception"""
+    """Handle EpubMaker exception."""
 
     pass
 

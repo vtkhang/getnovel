@@ -23,7 +23,7 @@ def main(argv) -> int:
         Command-line arguments, such as sys.argv
         (including the program name in argv[0])
 
-    Returns
+    Returns:
     -------
     int
         Zero on successful program termination, non-zero otherwise.
@@ -62,7 +62,7 @@ def _build_parser():
 
         getnovel epub from_raw [-h] [--dedup] [--lang] raw
 
-    Returns
+    Returns:
     -------
     int
         An ArgumentParser instance for the CLI.

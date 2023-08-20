@@ -16,7 +16,7 @@ from getnovel.app.items import Info, Chapter
 class UukanshuSpider(Spider):
     """Define spider for domain: uukanshu.
 
-    Attributes
+    Attributes:
     ----------
     name : str
         Name of the spider.
@@ -60,7 +60,7 @@ class UukanshuSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Info
             Info item.
@@ -85,7 +85,7 @@ class UukanshuSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Chapter
             Chapter item.
@@ -111,14 +111,17 @@ def get_info(res: Response) -> Info:
     res : Response
         The response to parse.
 
-    Returns
+    Returns:
     -------
     Info
         Populated Info item.
     """
     title = (
-        res.xpath('//*[@class="jieshao_content"]/h1/a/@title').get().replace("最新章节", "")
+        res.xpath('//*[@class="jieshao_content"]' "/h1/a/@title")
+        .get()
+        .replace("最新章节", "")
     )
+
     imghref = res.xpath('//*[@class="jieshao-img"]/a/img/@src').get()
     r = InfoLoader(item=Info(), response=res)
     r.add_value("title", title)
@@ -138,7 +141,7 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    Returns
+    Returns:
     -------
     Chapter
         Populated Chapter item.

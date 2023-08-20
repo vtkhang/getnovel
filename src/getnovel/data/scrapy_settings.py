@@ -14,7 +14,7 @@ def get_settings(result: Path) -> dict:
     result : Path
         Path of result directory.
 
-    Returns
+    Returns:
     -------
     dict
         Settings.
@@ -71,11 +71,11 @@ def mk_settings(sp: Path, sc: dict):
     r = list()
     r.append("# flake8: noqa")
     for k in sc:
-        if type(sc[k]) == str:
+        if isinstance(sc[k], str):
             t = f'r"{str(sc[k])}"'
-        elif type(sc[k]) == dict:
+        elif isinstance(sc[k], dict):
             t = json.dumps(sc[k], indent=4)
-        elif type(sc[k]) == list:
+        elif isinstance(sc[k], list):
             t = f"{pprint.pformat(sc[k], indent=4)}"
         else:
             t = str(sc[k])

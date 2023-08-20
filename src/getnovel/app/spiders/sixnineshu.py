@@ -19,7 +19,7 @@ from getnovel.app.items import Info, Chapter
 class SixNineShuSpider(Spider):
     """Define spider for domain: 69shu.
 
-    Attributes
+    Attributes:
     ----------
     name : str
         Name of the spider.
@@ -61,7 +61,7 @@ class SixNineShuSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Info
             Info item.
@@ -82,7 +82,7 @@ class SixNineShuSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Request
             Request to the start chapter.
@@ -107,7 +107,7 @@ class SixNineShuSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Chapter
             Chapter item.
@@ -134,7 +134,7 @@ def get_info(res: Response) -> Info:
     res : Response
         The response to parse.
 
-    Returns
+    Returns:
     -------
     Info
         Populated Info item.
@@ -157,7 +157,7 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    Returns
+    Returns:
     -------
     Chapter
         Populated Chapter item.

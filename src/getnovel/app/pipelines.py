@@ -1,9 +1,9 @@
-"""Define your item pipelines here
+"""Define your item pipelines here.
 
-   Don't forget to add your pipeline to the ITEM_PIPELINES setting
-   See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+Don't forget to add your pipeline to the ITEM_PIPELINES setting
+See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
-   useful for handling different item types with a single interface
+useful for handling different item types with a single interface
 """
 
 import logging
@@ -18,7 +18,7 @@ _logger = logging.getLogger(__name__)
 
 
 class AppPipeline:
-    """Define App pipeline"""
+    """Define App pipeline."""
 
     def process_item(self, item, spider):
         """Store items to files.
@@ -30,12 +30,12 @@ class AppPipeline:
         spider : Spider
             The spider that scraped input item.
 
-        Returns
+        Returns:
         -------
         Item
             Return item for another pipelines.
 
-        Raises
+        Raises:
         ------
         DropItem
             If item contains empty fields.
@@ -72,7 +72,7 @@ class AppPipeline:
 
 
 class CoverImagesPipeline(ImagesPipeline):
-    """Define Image Pipeline"""
+    """Define Image Pipeline."""
 
     def file_path(self, request, response=None, info=None, *, item=None):
         """Customize save path for cover image."""

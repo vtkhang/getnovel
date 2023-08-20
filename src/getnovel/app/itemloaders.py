@@ -1,4 +1,4 @@
-"""Define item loaders
+"""Define item loaders.
 
 .. _See documentation in:
    https://docs.scrapy.org/en/latest/topics/loaders.html
@@ -10,14 +10,15 @@ from scrapy.loader import ItemLoader
 
 
 def filter_blank(v):
+    """Remove blank lines."""
     if v:
         return v
 
 
 class InfoLoader(ItemLoader):
-    """Process info data
+    r"""Process info data.
 
-    Examples
+    Examples:
     --------
     >>> after_process = {
         "title": "XpathResult1 XpathResult2 ...",
@@ -39,9 +40,9 @@ class InfoLoader(ItemLoader):
 
 
 class ChapterLoader(ItemLoader):
-    """Process chapter data
+    r"""Process chapter data.
 
-    Examples
+    Examples:
     --------
     >>> after_process = {
         "id": "1",

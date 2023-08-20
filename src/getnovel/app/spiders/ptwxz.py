@@ -16,7 +16,7 @@ from getnovel.app.items import Info, Chapter
 class PtwxzSpider(Spider):
     """Define spider for domain: ptwxz.
 
-    Attributes
+    Attributes:
     ----------
     name : str
         Name of the spider.
@@ -58,7 +58,7 @@ class PtwxzSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Info
             Info item.
@@ -79,7 +79,7 @@ class PtwxzSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Request
             Request to the start chapter.
@@ -98,7 +98,7 @@ class PtwxzSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields
+        Yields:
         ------
         Chapter
             Chapter item.
@@ -125,7 +125,7 @@ def get_info(res: Response) -> Info:
     res : Response
         The response to parse.
 
-    Returns
+    Returns:
     -------
     Info
         Populated Info item.
@@ -149,7 +149,7 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    Returns
+    Returns:
     -------
     Chapter
         Populated Chapter item.
