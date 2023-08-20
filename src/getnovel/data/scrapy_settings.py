@@ -20,16 +20,17 @@ def get_settings(result: Path) -> dict:
         Settings.
     """
     hp = Path.home()
+    gnp = hp / "GetNovel"
     # Default image path for imagepipeline
-    imgp = hp / "GetNovel" / "images"
+    imgp = gnp / "images"
     imgp.mkdir(parents=True, exist_ok=True)
     # Result directory
     if result is None:
-        result = hp / "GetNovel" / "crawled"
+        result = gnp / "crawled"
     result = Path(result)
     result.mkdir(parents=True, exist_ok=True)
     # Log
-    lp = hp / "GetNovel" / "logs"
+    lp = gnp / "logs"
     lp.mkdir(parents=True, exist_ok=True)
     lnp = lp / f'{time.strftime("%Y_%m_%d-%H_%M_%S")}.log'
     return {
@@ -61,6 +62,9 @@ def get_settings(result: Path) -> dict:
         "DOWNLOAD_DELAY": 3,
         "AUTOTHROTTLE_MAX_DELAY": 60,
         "AUTOTHROTTLE_TARGET_CONCURRENCY": 0.5,
+        # CACHE
+        "HTTPCACHE_ENABLED": True,
+        "HTTPCACHE_DIR": str(gnp / "cache"),
         # SAVE PATH
         "RESULT": str(result),
     }
