@@ -9,8 +9,8 @@ from scrapy import Spider
 from scrapy.exceptions import CloseSpider
 from scrapy.http import Response
 
-from getnovel.app.itemloaders import InfoLoader, ChapterLoader
-from getnovel.app.items import Info, Chapter
+from getnovel.app.itemloaders import ChapterLoader, InfoLoader
+from getnovel.app.items import Chapter, Info
 
 
 class UukanshuSpider(Spider):
@@ -52,7 +52,7 @@ class UukanshuSpider(Spider):
         self.t = []  # table of content
         self.n = 0  # total chapters
 
-    def parse(self, res: Response, *args, **kwargs):
+    def parse(self, res: Response):
         """Extract info and send request to the start chapter.
 
         Parameters
@@ -116,12 +116,8 @@ def get_info(res: Response) -> Info:
     Info
         Populated Info item.
     """
-    title = (
-        res.xpath('//*[@class="jieshao_content"]' "/h1/a/@title")
-        .get()
-        .replace("最新章节", "")
-    )
-
+    title = res.xpath('//*[@class="jieshao_content"]/h1/a/@title').get()
+    title = title.replace("最新章节", "")
     imghref = res.xpath('//*[@class="jieshao-img"]/a/img/@src').get()
     r = InfoLoader(item=Info(), response=res)
     r.add_value("title", title)

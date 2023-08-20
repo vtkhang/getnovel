@@ -12,8 +12,8 @@ from scrapy import Spider
 from scrapy.exceptions import CloseSpider
 from scrapy.http import Response
 
-from getnovel.app.itemloaders import InfoLoader, ChapterLoader
-from getnovel.app.items import Info, Chapter
+from getnovel.app.itemloaders import ChapterLoader, InfoLoader
+from getnovel.app.items import Chapter, Info
 
 
 class SixNineShuSpider(Spider):
@@ -53,7 +53,7 @@ class SixNineShuSpider(Spider):
         self.so = int(stop)
         self.c = "zh"  # language code
 
-    def parse(self, res: Response, *args, **kwargs):
+    def parse(self, res: Response):
         """Extract info and send request to the table of content.
 
         Parameters
@@ -87,9 +87,7 @@ class SixNineShuSpider(Spider):
         Request
             Request to the start chapter.
         """
-        su = res.xpath(
-            f'(//*[@id="catalog"]//a/@href)[{self.sa}]'
-        ).get()
+        su = res.xpath(f'(//*[@id="catalog"]//a/@href)[{self.sa}]').get()
         if su is None:
             self.logger.error(msg="Start chapter is greater than total chapter")
             raise CloseSpider(reason="cancelled")

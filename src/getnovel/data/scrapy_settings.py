@@ -68,7 +68,7 @@ def get_settings(result: Path) -> dict:
 
 def mk_settings(sp: Path, sc: dict):
     """Create setting file for scrapy project from dict."""
-    r = list()
+    r = []
     r.append("# flake8: noqa")
     for k in sc:
         if isinstance(sc[k], str):
@@ -86,4 +86,3 @@ def mk_settings(sp: Path, sc: dict):
 
 if __name__ == "__main__":
     """Workplace."""
-    pass

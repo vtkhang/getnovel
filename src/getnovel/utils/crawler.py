@@ -1,7 +1,7 @@
 """Define NovelCrawler class."""
 
-import logging
 import json
+import logging
 from pathlib import Path
 from shutil import rmtree
 
@@ -73,7 +73,7 @@ class NovelCrawler:
         if (start > stop) and (stop > -1):
             raise CrawlNovelError(
                 "Start chapter need to be lesser than"
-                "stop chapter if stop chapter is not -1."
+                "stop chapter if stop chapter is not -1.",
             )
         rp = Path(result)
         if rm is True:
@@ -120,7 +120,7 @@ class NovelCrawler:
             Spider not found.
         """
         loader = SpiderLoader.from_settings(
-            Settings({"SPIDER_MODULES": ["getnovel.app.spiders"]})
+            Settings({"SPIDER_MODULES": ["getnovel.app.spiders"]}),
         )
         if self.spn not in loader.list():
             raise CrawlNovelError(f"Spider {self.spn} not found!")
@@ -130,8 +130,7 @@ class NovelCrawler:
         """Return language code of novel."""
         if self.spn in ("ptwxz", "uukanshu", "69shu"):
             return "zh"
-        else:
-            return "vi"
+        return "vi"
 
 
 class CrawlNovelError(Exception):

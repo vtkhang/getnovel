@@ -30,7 +30,6 @@ class AppSpiderMiddleware:
         Should return None or raise an exception.
         """
         _ = (self, response, spider)
-        return None
 
     def process_spider_output(self, response, result, spider):
         """Proccess spider input.
@@ -51,7 +50,6 @@ class AppSpiderMiddleware:
 
         Should return either None or an iterable of Request or item objects.
         """
-        pass
 
     def process_start_requests(self, start_requests, spider):
         """Process start requests.
@@ -68,7 +66,7 @@ class AppSpiderMiddleware:
     def spider_opened(self, spider):
         """Log spider information."""
         _ = self
-        spider.logger.info("Spider opened: %s" % spider.name)
+        spider.logger.info("Spider opened: %s", spider.name)
 
 
 class AppDownloaderMiddleware:
@@ -100,7 +98,6 @@ class AppDownloaderMiddleware:
           installed downloader middleware will be called
         """
         _ = (self, request, spider)
-        return None
 
     def process_response(self, request, response, spider):
         """Called with the response returned from the downloader.
@@ -124,9 +121,8 @@ class AppDownloaderMiddleware:
         - return a Response object: stops process_exception() chain
         - return a Request object: stops process_exception() chain
         """
-        pass
 
     def spider_opened(self, spider):
         """Log spider information."""
         _ = self
-        spider.logger.info("Spider opened: %s" % spider.name)
+        spider.logger.info("Spider opened: %s", spider.name)

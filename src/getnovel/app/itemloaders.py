@@ -5,14 +5,13 @@
 
 """
 
-from itemloaders.processors import MapCompose, Join, Identity
+from itemloaders.processors import Identity, Join, MapCompose
 from scrapy.loader import ItemLoader
 
 
 def filter_blank(v):
     """Remove blank lines."""
-    if v:
-        return v
+    return v
 
 
 class InfoLoader(ItemLoader):

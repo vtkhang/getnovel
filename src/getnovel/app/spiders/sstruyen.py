@@ -9,8 +9,8 @@ from scrapy import Spider
 from scrapy.exceptions import CloseSpider
 from scrapy.http import Response
 
-from getnovel.app.itemloaders import InfoLoader, ChapterLoader
-from getnovel.app.items import Info, Chapter
+from getnovel.app.itemloaders import ChapterLoader, InfoLoader
+from getnovel.app.items import Chapter, Info
 
 
 class SSTruyenSpider(Spider):
@@ -50,7 +50,7 @@ class SSTruyenSpider(Spider):
         self.so = int(stop)
         self.c = "vi"  # language code
 
-    def parse(self, res: Response, *args, **kwargs):
+    def parse(self, res: Response):
         """Extract info and send request to the start chapter.
 
         Parameters
@@ -89,9 +89,7 @@ class SSTruyenSpider(Spider):
             Request to the next chapter.
         """
         yield get_content(res)
-        neu = res.xpath(
-            '//*[@id="j_content"]/div[3]//li[@class="next"]/a/@href'
-        ).get()
+        neu = res.xpath('//*[@id="j_content"]/div[3]//li[@class="next"]/a/@href').get()
         if (neu is None) or (res.meta["id"] == self.so):
             raise CloseSpider(reason="done")
         yield res.follow(

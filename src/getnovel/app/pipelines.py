@@ -12,7 +12,7 @@ from pathlib import Path
 from scrapy.exceptions import DropItem
 from scrapy.pipelines.images import ImagesPipeline
 
-from getnovel.app.items import Info, Chapter
+from getnovel.app.items import Chapter, Info
 
 _logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class AppPipeline:
         """
         sp = Path(spider.settings["RESULT"])
         r = []
-        for k in item.keys():
+        for k in item:
             if item.get(k) == "" or item.get(k) is None:
                 raise DropItem(f"Field {k} is empty!")
         try:
@@ -61,19 +61,19 @@ class AppPipeline:
                 r.append(item["title"])
                 r.append(item["content"])
                 (sp / f"{item['id']}.txt").write_text(
-                    data="\n".join(r), encoding="utf-8"
+                    data="\n".join(r), encoding="utf-8",
                 )
             else:
                 raise DropItem("Invalid item detected!")
         except KeyError as key:
-            _logger.warning(f"Error url: {item.get('url', 'Field url is not exist!')}")
-            raise DropItem(f"Field {key} is not exist!")
+            _logger.warning("Error url: %s", item.get("url", "Field url is not exist!"))
+            raise DropItem(f"Field {key} is not exist!") from None
         return item
 
 
 class CoverImagesPipeline(ImagesPipeline):
     """Define Image Pipeline."""
 
-    def file_path(self, request, response=None, info=None, *, item=None):
+    def file_path(self, info=None):
         """Customize save path for cover image."""
         return str(Path(info.spider.settings["RESULT"]) / "cover.jpg")

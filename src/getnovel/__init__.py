@@ -42,8 +42,7 @@ def main(argv) -> int:
         if argv[1] == "epub":
             print("Missing sub command: from_url, from_raw")
             return 1
-        else:
-            print(traceback.format_exc())
+        print(traceback.format_exc())
     return 0
 
 
@@ -70,7 +69,7 @@ def _build_parser():
     # parser
     parser = argparse.ArgumentParser(prog="getnovel", allow_abbrev=False)
     parser.add_argument(
-        "-v", "--version", action="store_true", help="show version number and exit"
+        "-v", "--version", action="store_true", help="show version number and exit",
     )
     subparsers = parser.add_subparsers(title="modes", help="supported modes")
     # crawl parser
@@ -202,7 +201,7 @@ def _build_parser():
     from_url.set_defaults(func=arguments.epub_from_url_func)
     # epub from_raw parser
     from_raw = subparsers_epub.add_parser(
-        "from_raw", help="make epub from raw directory"
+        "from_raw", help="make epub from raw directory",
     )
     from_raw.add_argument(
         "--result",
@@ -235,7 +234,6 @@ def _build_parser():
 class GetnovelException(BaseException):
     """General exception for getnovel."""
 
-    pass
 
 
 def run_main():

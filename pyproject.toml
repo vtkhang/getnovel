@@ -49,7 +49,46 @@ version = { attr = "getnovel.__version__" }
 where = ["src"]
 
 [tool.ruff]
-select = ["E", "F", "UP", "D"]
+select = [
+    "E",
+    "F",
+    "UP",
+    "D",
+    "C90",
+    "I",
+    "N",
+    "B",
+    "S",
+    "PERF",
+    "FLY",
+    "PTH",
+    "ARG",
+    "INT",
+    "TCH",
+    "TID",
+    "SIM",
+    "SLOT",
+    "SLF",
+    "RSE",
+    "Q",
+    "PT",
+    "PYI",
+    "PIE",
+    "INP",
+    "G",
+    "ICN",
+    "ISC",
+    "FA",
+    "EXE",
+    "DJ",
+    "T10",
+    "C4",
+    "CPY",
+    "COM",
+    "BLE",
+    "ASYNC",
+    "YTT",
+] # "ANN", "TRY", "PL", "RET", "EM", "DTZ", "A", "FBT",
 
 [tool.ruff.pydocstyle]
 convention = "google"

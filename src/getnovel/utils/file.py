@@ -11,16 +11,15 @@ Limitations
 """
 import html
 import logging
+from importlib.resources import files
 from pathlib import Path
 from shutil import rmtree
-
-from importlib.resources import files
 
 from getnovel import data
 from getnovel.utils.typehint import DictPath, ListStr
 
 logging.basicConfig(
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s", level="INFO"
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s", level="INFO",
 )
 _logger = logging.getLogger(__name__)
 
@@ -28,7 +27,7 @@ _logger = logging.getLogger(__name__)
 class FileConverter:
     """This class define clean method and convert to xhtml method."""
 
-    def __init__(self, raw: Path, result: Path):
+    def __init__(self: "FileConverter", raw: Path, result: Path) -> None:
         """Init path of raw directory and result directory.
 
         Parameters
@@ -50,7 +49,7 @@ class FileConverter:
         self.txt: DictPath = {}  # use to track txt files in result directory
         self.xhtml: DictPath = {}  # use to track xhtml files in result directory
 
-    def clean(self, dedup: bool, rm: bool):
+    def clean(self: "FileConverter", dedup: bool, rm: bool) -> None:
         """Clean raw files in raw directory.
 
         Parameters
@@ -67,7 +66,7 @@ class FileConverter:
         """
         # remove old files in result directory
         if rm is True:
-            _logger.info("Remove existing files in: %s" % self.y.resolve())
+            _logger.info("Remove existing files in: %s", self.y.resolve())
             self._rm_result()
         # copy cover image to result directory
         cop = self.x / "cover.jpg"
@@ -82,14 +81,16 @@ class FileConverter:
             process(fwp, "info", fwpn, "clean")
             self.txt[0] = fwpn
         # clean chapter.txt
-        f_list = [item for item in self.x.glob("*[0-9].txt")]
+        f_list = list(self.x.glob("*[0-9].txt"))
         for cp in f_list:
             cpn = self.y / cp.name
             process(cp, "chapter", cpn, "clean", dedup=dedup)
             self.txt[int(cp.stem)] = cpn
-        _logger.info("Done cleaning. View result at: %s" % self.y.resolve())
+        _logger.info("Done cleaning. View result at: %s", self.y.resolve())
 
-    def convert_to_xhtml(self, dedup: bool, rm: bool, lang_code: str):
+    def convert_to_xhtml(
+        self: "FileConverter", dedup: bool, rm: bool, lang_code: str,
+    ) -> None:
         """Clean files and convert to XHTML.
 
         Parameters
@@ -125,7 +126,7 @@ class FileConverter:
             raise FileConverterError(f"Foreword template not found: {ctp}")
         # remove old files in result directory
         if rm is True:
-            _logger.info("Remove existing files in: %s" % self.y.resolve())
+            _logger.info("Remove existing files in: %s", self.y.resolve())
             self._rm_result()
         # copy cover image to result dir
         cop = self.x / "cover.jpg"
@@ -140,14 +141,14 @@ class FileConverter:
             process(fwp, "info", fwpn, "convert", fwtp, lang_code)
             self.xhtml[0] = fwpn
         # clean chapter.txt
-        f_list = [item for item in self.x.glob("*[0-9].txt")]
+        f_list = list(self.x.glob("*[0-9].txt"))
         for cp in f_list:
             cpn = self.y / f"c{cp.stem}.xhtml"
             process(cp, "chapter", cpn, "convert", ctp, dedup=dedup)
             self.xhtml[int(cp.stem)] = cpn
         _logger.info("Done converting. View result at: %s", self.y.resolve())
 
-    def _rm_result(self) -> int:
+    def _rm_result(self: "FileConverter") -> int:
         """Remove all files in result directory.
 
         Returns:
@@ -159,8 +160,9 @@ class FileConverter:
         self.y.mkdir(parents=True)
         self.txt = {}
         self.xhtml = {}
+        return 0
 
-    def _update_file_list(self, ext: str) -> None:
+    def _update_file_list(self: "FileConverter", ext: str) -> None:
         """Remove all files not existing.
 
         Returns:
@@ -175,7 +177,7 @@ class FileConverter:
             if not t[key].exists():
                 del t[key]
 
-    def get_result_dir(self) -> Path:
+    def get_result_dir(self: "FileConverter") -> Path:
         """Return path of result directory.
 
         Returns:
@@ -183,7 +185,7 @@ class FileConverter:
         """
         return self.y
 
-    def get_file_list(self, ext: str) -> tuple:
+    def get_file_list(self: "FileConverter", ext: str) -> tuple:
         """Return result file paths list.
 
         Args:
@@ -205,10 +207,8 @@ class FileConverter:
 class FileConverterError(Exception):
     """File converter exception."""
 
-    pass
 
-
-def fix_bad_newline(lines: ListStr):
+def fix_bad_newline(lines: ListStr) -> list:
     """Tidy the result.
 
     Filtered blank lines. Concatenate lines that
@@ -289,7 +289,7 @@ def dedup_title(
         s = len(identities)
         for k in identities:
             if k in line and len(line) < max_length:
-                _logger.debug(msg="Removed: %s" % content_lines[index])
+                _logger.debug("Removed: %s", content_lines[index])
                 index += 1
                 break
             else:
@@ -297,7 +297,7 @@ def dedup_title(
         if s == 0:
             break
     if index != 0:
-        _logger.debug(msg="Path: %s" % chapter_path)
+        _logger.debug("Path: %s", chapter_path)
     return content_lines[index:]
 
 
@@ -309,7 +309,7 @@ def process(
     tp: Path = None,
     lang: str = "vi",
     dedup: bool = False,
-):
+) -> None:
     """Clean file or convert file to xhtml.
 
     Parameters
