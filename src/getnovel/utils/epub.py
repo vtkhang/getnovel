@@ -15,7 +15,8 @@ from getnovel.utils.file import FileConverter
 from getnovel.utils.typehint import ListPath
 
 logging.basicConfig(
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s", level="INFO",
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+    level="INFO",
 )
 _logger = logging.getLogger(__name__)
 
@@ -142,7 +143,10 @@ class EpubMaker:
         cip.rename(cip.with_suffix(f".{ext}"))  # rename cover image extension
         cp.write_text(
             cp.read_text(encoding="utf-8").format(
-                cover_title=cover_title, width=width, height=height, ext=ext,
+                cover_title=cover_title,
+                width=width,
+                height=height,
+                ext=ext,
             ),
             encoding="utf-8",
         )
@@ -233,7 +237,9 @@ class EpubMaker:
         ) as f_zip:
             mime_path = self.epub / "mimetype"
             f_zip.write(
-                mime_path, mime_path.relative_to(self.epub), compress_type=ZIP_STORED,
+                mime_path,
+                mime_path.relative_to(self.epub),
+                compress_type=ZIP_STORED,
             )
             mime_path.unlink()
             for path in self.epub.rglob("*"):

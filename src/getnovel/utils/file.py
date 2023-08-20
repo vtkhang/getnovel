@@ -19,7 +19,8 @@ from getnovel import data
 from getnovel.utils.typehint import DictPath, ListStr
 
 logging.basicConfig(
-    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s", level="INFO",
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+    level="INFO",
 )
 _logger = logging.getLogger(__name__)
 
@@ -89,7 +90,10 @@ class FileConverter:
         _logger.info("Done cleaning. View result at: %s", self.y.resolve())
 
     def convert_to_xhtml(
-        self: "FileConverter", dedup: bool, rm: bool, lang_code: str,
+        self: "FileConverter",
+        dedup: bool,
+        rm: bool,
+        lang_code: str,
     ) -> None:
         """Clean files and convert to XHTML.
 
