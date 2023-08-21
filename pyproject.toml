@@ -30,9 +30,10 @@ dependencies = [
 dev = [
     "ipython >= 8.14.0",
     "black >= 23.7.0",
-    "flake8 >= 6.1.0",
+    "ruff >= 0.0.285",
     "mypy >= 1.5.1",
     "build >= 0.10.0",
+    "prospector >= 1.10.2",
 ]
 
 [project.urls]
@@ -88,7 +89,15 @@ select = [
     "BLE",
     "ASYNC",
     "YTT",
-] # "ANN", "TRY", "PL", "RET", "EM", "DTZ", "A", "FBT",
+    "ANN",
+    "TRY",
+    "PL",
+    "RET",
+    "EM",
+    "DTZ",
+    "A",
+    "FBT",
+]
 
 [tool.ruff.pydocstyle]
-convention = "google"
+convention = "numpy"
