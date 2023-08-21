@@ -50,6 +50,7 @@ class MeTruyenCVSpider(Spider):
         self.start = int(start)
         self.stop = int(stop)
         self.lang = "vi"
+        self.title_pos = -1
         self.total = 0
 
     def parse(self: "MeTruyenCVSpider", res: Response) -> None:

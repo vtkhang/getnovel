@@ -1,13 +1,11 @@
 """Define NovelCrawler class."""
 
-import json
 import logging
 from pathlib import Path
 from shutil import rmtree
 
 import tldextract
 from scrapy.crawler import CrawlerProcess
-from scrapy.settings import Settings
 from scrapy.spiderloader import SpiderLoader
 
 from getnovel.data import scrapy_settings
@@ -16,123 +14,91 @@ from getnovel.utils.file import FileConverter
 _logger = logging.getLogger(__name__)
 
 
+SPIDER_LOADER = SpiderLoader.from_settings(
+    {"SPIDER_MODULES": ["getnovel.app.spiders"]},
+)
+
+
 class NovelCrawler:
     """Download novel from website."""
 
     def __init__(self: "NovelCrawler", url: str) -> None:
-        """Initialize NovelCrawler.
-
-        Initialize NovelCrawler with url, and assign path of raw
-        directory.
-
-        Parameters
-        ----------
-        url : str
-            Url of the novel information page.
-        spn: str
-            Spider name.
-        """
+        """Initialize NovelCrawler."""
         self.url = url
-        self.spn = tldextract.extract(self.url).domain
+        self.spider = None
+        self.result = None
 
     def crawl(
         self: "NovelCrawler",
-        rm: bool,
+        url: str,
         start: int,
         stop: int,
-        clean: bool,
-        result: Path,
-    ) -> Path:
+        **options: dict,
+    ) -> None:
         """Download novel and store it in the raw directory.
 
         Parameters
         ----------
-        rm : bool
-            If specified, remove all existing files in result directory.
+        url: str
+            Url of the novel information page.
         start : int
             Start crawling from this chapter.
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
-        clean : bool
-            If specified, clean result files after crawling.
-        result : Path
-            Path of result directory.
+        options: dict
+            result:
+                Path of result directory.
+            rm:
+                If specified, remove all existing files in result directory.
+            clean:
+                If specified, clean result files after crawling.
 
-        Raises:
+        Raises
         ------
         CrawlNovelError
             Index of start chapter need to be greater than zero.
         CrawlNovelError
             Start chapter need to be lesser than stop chapter if stop chapter is not -1.
-
-        Returns:
-        -------
-        Path
-            Path the raw directory.
         """
         if start < 1:
-            raise CrawlNovelError("Index of start index need to be greater than zero")
+            msg = "Index of start index need to be greater than zero"
+            raise CrawlNovelError(msg)
         if (start > stop) and (stop > -1):
-            raise CrawlNovelError(
-                "Start chapter need to be lesser than"
-                "stop chapter if stop chapter is not -1.",
-            )
-        rp = Path(result)
-        if rm is True:
-            _logger.info("Remove existing files in: %s", rp.resolve())
-            if rp.exists():
-                rmtree(rp)
-            rp.mkdir(parents=True)
-        rp = rp.resolve()
-        spider_class = self._get_spider()
-        settings = scrapy_settings.get_settings(result=rp)
-        cwd_settings = Path.cwd() / "settings.json"
-        if cwd_settings.exists():
-            with cwd_settings.open(mode="r", encoding="utf-8") as cws:
-                settings.update(json.load(cws))
-                cws.close()
-        if settings["LOG_FILE"] is not None:
-            print(f"> Please view log file at: {Path(settings['LOG_FILE']).resolve()}")
-        process = CrawlerProcess(settings=settings)
-        process.crawl(
-            spider_class,
-            url=self.url,
-            start=start,
-            stop=stop,
-        )
+            msg = "Start chapter need to be lesser than stop chapter"
+            " if stop chapter is not -1."
+            raise CrawlNovelError(msg)
+        # Load spider
+        spider_name = tldextract.extract(url).domain
+        self.spider = SPIDER_LOADER.load(spider_name)
+        # Resolve result directory
+        self.result = self.__resolve_result(options.get("result", None))
+        # remove existing files
+        if options.get("rm", False) and self.result.exists():
+            rmtree(self.result)
+        self.result.mkdir(parents=True, exist_ok=True)
+        # start crawling
+        settings = scrapy_settings(self.result)
+        process = CrawlerProcess(settings)
+        process.crawl(self.spider, url=url, start=start, stop=stop)
         process.start()
-        _logger.info("Done crawling. View result at: %s", rp)
-        if clean is True:
+        _logger.info("Done crawling. View result at: %s", self.result)
+        # clean result
+        if options.get("clean", False) is True:
             _logger.info("Start cleaning")
-            c = FileConverter(rp, rp)
+            c = FileConverter(self.result, self.result)
             c.clean(dedup=False, rm=False)
-        return rp
 
-    def _get_spider(self):
-        """Get spider class based on the url domain.
-
-        Returns:
-        -------
-        object
-            The spider class object.
-
-        Raises:
-        ------
-        CrawlNovelError
-            Spider not found.
-        """
-        loader = SpiderLoader.from_settings(
-            Settings({"SPIDER_MODULES": ["getnovel.app.spiders"]}),
-        )
-        if self.spn not in loader.list():
-            raise CrawlNovelError(f"Spider {self.spn} not found!")
-        return loader.load(self.spn)
-
-    def get_langcode(self) -> str:
-        """Return language code of novel."""
-        if self.spn in ("ptwxz", "uukanshu", "69shu"):
-            return "zh"
-        return "vi"
+    def __resolve_result(self: "NovelCrawler", result: Path | None) -> Path:
+        """Resolve result directory."""
+        if result is None:
+            result = Path.cwd()
+            title_pos = self.spider.title_pos
+            splitted_url = self.url.split("/")
+            if title_pos:
+                result = result / splitted_url[title_pos]
+            else:
+                result = result / f"{self.spider.name}-{splitted_url[-1]}"
+        return result.resolve()
 
 
 class CrawlNovelError(Exception):
