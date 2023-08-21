@@ -5,6 +5,7 @@ from pathlib import Path
 from shutil import rmtree
 
 import tldextract
+from scrapy import Spider
 from scrapy.crawler import CrawlerProcess
 from scrapy.spiderloader import SpiderLoader
 
@@ -20,13 +21,26 @@ SPIDER_LOADER = SpiderLoader.from_settings(
 
 
 class NovelCrawler:
-    """Download novel from website."""
+    """Download novel from website.
 
-    def __init__(self: "NovelCrawler", url: str) -> None:
+    Attributes
+    ----------
+    url : str
+        Url of the novel information page.
+    spider : Spider
+        Spider object.
+    result : Path
+        Path of result directory.
+    settings: dict
+        Settings.
+    """
+
+    def __init__(self: "NovelCrawler", url: str, result: Path | None) -> None:
         """Initialize NovelCrawler."""
         self.url = url
-        self.spider = None
-        self.result = None
+        self.spider = self.__get_spider(url)
+        self.result = self.__resolve_result(result)
+        self.settings = scrapy_settings(self.result)
 
     def crawl(
         self: "NovelCrawler",
@@ -67,18 +81,12 @@ class NovelCrawler:
             msg = "Start chapter need to be lesser than stop chapter"
             " if stop chapter is not -1."
             raise CrawlNovelError(msg)
-        # Load spider
-        spider_name = tldextract.extract(url).domain
-        self.spider = SPIDER_LOADER.load(spider_name)
-        # Resolve result directory
-        self.result = self.__resolve_result(options.get("result", None))
         # remove existing files
         if options.get("rm", False) and self.result.exists():
             rmtree(self.result)
         self.result.mkdir(parents=True, exist_ok=True)
         # start crawling
-        settings = scrapy_settings(self.result)
-        process = CrawlerProcess(settings)
+        process = CrawlerProcess(self.settings)
         process.crawl(self.spider, url=url, start=start, stop=stop)
         process.start()
         _logger.info("Done crawling. View result at: %s", self.result)
@@ -87,6 +95,11 @@ class NovelCrawler:
             _logger.info("Start cleaning")
             c = FileConverter(self.result, self.result)
             c.clean(dedup=False, rm=False)
+
+    def __get_spider(self: "NovelCrawler", url: str) -> Spider:
+        """Get spider from url."""
+        spider_name = tldextract.extract(url).domain
+        return SPIDER_LOADER.load(spider_name)
 
     def __resolve_result(self: "NovelCrawler", result: Path | None) -> Path:
         """Resolve result directory."""
