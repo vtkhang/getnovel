@@ -1,5 +1,15 @@
 {
   "[python]": {
     "editor.defaultFormatter": "ms-python.black-formatter"
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    ".mypy_cache": true,
+    ".ruff_cache": true
   }
 }
