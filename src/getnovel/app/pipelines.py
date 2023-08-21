@@ -9,7 +9,9 @@ useful for handling different item types with a single interface
 import logging
 from pathlib import Path
 
+from scrapy import Item, Spider
 from scrapy.exceptions import DropItem
+from scrapy.http import Request, Response
 from scrapy.pipelines.images import ImagesPipeline
 
 from getnovel.app.items import Chapter, Info
@@ -20,7 +22,7 @@ _logger = logging.getLogger(__name__)
 class AppPipeline:
     """Define App pipeline."""
 
-    def process_item(self, item, spider):
+    def process_item(self: "AppPipeline", item: Item, spider: Spider) -> Item:
         """Store items to files.
 
         Parameters
@@ -30,12 +32,12 @@ class AppPipeline:
         spider : Spider
             The spider that scraped input item.
 
-        Returns:
+        Returns
         -------
         Item
             Return item for another pipelines.
 
-        Raises:
+        Raises
         ------
         DropItem
             If item contains empty fields.
@@ -48,7 +50,8 @@ class AppPipeline:
         r = []
         for k in item:
             if item.get(k) == "" or item.get(k) is None:
-                raise DropItem(f"Field {k} is empty!")
+                msg = f"Field {k} is empty!"
+                raise DropItem(msg)
         try:
             if isinstance(item, Info):
                 r.append(item["title"])
@@ -65,16 +68,26 @@ class AppPipeline:
                     encoding="utf-8",
                 )
             else:
-                raise DropItem("Invalid item detected!")
+                msg = "Invalid item detected!"
+                raise DropItem(msg)
         except KeyError as key:
             _logger.warning("Error url: %s", item.get("url", "Field url is not exist!"))
-            raise DropItem(f"Field {key} is not exist!") from None
+            msg = f"Field {key} is not exist!"
+            raise DropItem(msg) from KeyError
         return item
 
 
 class CoverImagesPipeline(ImagesPipeline):
     """Define Image Pipeline."""
 
-    def file_path(self, info=None):
-        """Customize save path for cover image."""
-        return str(Path(info.spider.settings["RESULT"]) / "cover.jpg")
+    def file_path(
+        self: "CoverImagesPipeline",
+        request: Request,
+        response: Response = None,
+        info: ImagesPipeline.SpiderInfo = None,
+        *,
+        item: Item = None,
+    ) -> str:
+        """Customize file name."""
+        super().file_path(request, response, info, item=item)
+        return "cover.jpg"

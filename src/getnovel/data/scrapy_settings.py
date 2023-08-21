@@ -14,16 +14,13 @@ def get_settings(result: Path) -> dict:
     result : Path
         Path of result directory.
 
-    Returns:
+    Returns
     -------
     dict
         Settings.
     """
     hp = Path.home()
     gnp = hp / "GetNovel"
-    # Default image path for imagepipeline
-    imgp = gnp / "images"
-    imgp.mkdir(parents=True, exist_ok=True)
     # Result directory
     if result is None:
         result = gnp / "crawled"
@@ -45,7 +42,7 @@ def get_settings(result: Path) -> dict:
             "getnovel.app.pipelines.AppPipeline": 300,
             "getnovel.app.pipelines.CoverImagesPipeline": 200,
         },
-        "IMAGES_STORE": str(imgp),
+        "IMAGES_STORE": str(result),
         # DOWNLOADER_MIDDLEWARES
         "DOWNLOADER_MIDDLEWARES": {
             "getnovel.app.middlewares.AppDownloaderMiddleware": 500,
@@ -70,7 +67,7 @@ def get_settings(result: Path) -> dict:
     }
 
 
-def mk_settings(sp: Path, sc: dict):
+def mk_settings(sp: Path, sc: dict) -> None:
     """Create setting file for scrapy project from dict."""
     r = []
     r.append("# flake8: noqa")
