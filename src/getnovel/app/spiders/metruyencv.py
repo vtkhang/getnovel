@@ -1,7 +1,7 @@
 """Get novel on domain metruyencv.
 
 .. _Web site:
-   https://metruyencv.com
+   https://metruyencv.com/
 
 """
 
@@ -22,17 +22,19 @@ class MeTruyenCVSpider(Spider):
         Name of the spider.
     start_urls : list
         List of url to start crawling from.
-    sa : int
+    start : int
         The chapter index to start crawling.
-    so : int
+    stop : int
         The chapter index to stop crawling after that.
-    c : str
+    lang : str
         Language code of novel.
+    total : int
+        Total number of chapters.
     """
 
     name = "metruyencv"
 
-    def __init__(self: "MeTruyenCVSpider", u: str, start: int, stop: int) -> None:
+    def __init__(self: "MeTruyenCVSpider", url: str, start: int, stop: int) -> None:
         """Initialize attributes.
 
         Parameters
@@ -44,11 +46,11 @@ class MeTruyenCVSpider(Spider):
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
         """
-        self.start_urls = [u]
-        self.sa = int(start)
-        self.so = int(stop)
-        self.c = "vi"  # language code
-        self.n = 0  # total chapters
+        self.start_urls = [url]
+        self.start = int(start)
+        self.stop = int(stop)
+        self.lang = "vi"
+        self.total = 0
 
     def parse(self: "MeTruyenCVSpider", res: Response) -> None:
         """Extract info and send request to the start chapter.
@@ -66,10 +68,10 @@ class MeTruyenCVSpider(Spider):
             Request to the start chapter.
         """
         yield get_info(res)
-        self.n = int(res.xpath('//a[@id="nav-tab-chap"]/span[2]/text()').get())
+        self.total = int(res.xpath('//a[@id="nav-tab-chap"]/span[2]/text()').get())
         yield Request(
-            url=f"{res.url}/chuong-{self.sa}/",
-            meta={"id": self.sa},
+            url=f"{res.url}/chuong-{self.start}/",
+            meta={"id": self.start},
             callback=self.parse_content,
         )
 
@@ -90,7 +92,7 @@ class MeTruyenCVSpider(Spider):
             Request to the next chapter.
         """
         yield get_content(res)
-        if (res.meta["id"] >= self.n) or (res.meta["id"] == self.so):
+        if (res.meta["id"] >= self.total) or (res.meta["id"] == self.stop):
             raise CloseSpider(reason="done")
         neu = f'{res.url.rsplit("/", 2)[0]}/chuong-{str(res.meta["id"] + 1)}/'
         yield Request(

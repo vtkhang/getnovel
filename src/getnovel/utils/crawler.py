@@ -19,7 +19,7 @@ _logger = logging.getLogger(__name__)
 class NovelCrawler:
     """Download novel from website."""
 
-    def __init__(self, url: str):
+    def __init__(self: "NovelCrawler", url: str) -> None:
         """Initialize NovelCrawler.
 
         Initialize NovelCrawler with url, and assign path of raw
@@ -29,12 +29,14 @@ class NovelCrawler:
         ----------
         url : str
             Url of the novel information page.
+        spn: str
+            Spider name.
         """
-        self.u: str = url
-        self.spn = tldextract.extract(self.u).domain  # spider name
+        self.url = url
+        self.spn = tldextract.extract(self.url).domain
 
     def crawl(
-        self,
+        self: "NovelCrawler",
         rm: bool,
         start: int,
         stop: int,
@@ -94,7 +96,7 @@ class NovelCrawler:
         process = CrawlerProcess(settings=settings)
         process.crawl(
             spider_class,
-            u=self.u,
+            url=self.url,
             start=start,
             stop=stop,
         )
