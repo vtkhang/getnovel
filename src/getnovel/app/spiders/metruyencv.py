@@ -16,7 +16,7 @@ from getnovel.app.items import Chapter, Info
 class MeTruyenCVSpider(Spider):
     """Define spider for domain: metruyencv.
 
-    Attributes:
+    Attributes
     ----------
     name : str
         Name of the spider.
@@ -32,7 +32,7 @@ class MeTruyenCVSpider(Spider):
 
     name = "metruyencv"
 
-    def __init__(self, u: str, start: int, stop: int, *args, **kwargs):
+    def __init__(self: "MeTruyenCVSpider", u: str, start: int, stop: int) -> None:
         """Initialize attributes.
 
         Parameters
@@ -44,14 +44,13 @@ class MeTruyenCVSpider(Spider):
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
         """
-        super().__init__(*args, **kwargs)
         self.start_urls = [u]
         self.sa = int(start)
         self.so = int(stop)
         self.c = "vi"  # language code
         self.n = 0  # total chapters
 
-    def parse(self, res: Response):
+    def parse(self: "MeTruyenCVSpider", res: Response) -> None:
         """Extract info and send request to the start chapter.
 
         Parameters
@@ -59,7 +58,7 @@ class MeTruyenCVSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields:
+        Yields
         ------
         Info
             Info item.
@@ -74,7 +73,7 @@ class MeTruyenCVSpider(Spider):
             callback=self.parse_content,
         )
 
-    def parse_content(self, res: Response):
+    def parse_content(self: "MeTruyenCVSpider", res: Response) -> None:
         """Extract content.
 
         Parameters
@@ -82,7 +81,7 @@ class MeTruyenCVSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields:
+        Yields
         ------
         Chapter
             Chapter item.
@@ -109,7 +108,7 @@ def get_info(res: Response) -> Info:
     res : Response
         The response to parse.
 
-    Returns:
+    Returns
     -------
     Info
         Populated Info item.
@@ -132,7 +131,7 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    Returns:
+    Returns
     -------
     Chapter
         Populated Chapter item.
