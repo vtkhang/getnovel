@@ -11,5 +11,6 @@
     "**/Thumbs.db": true,
     ".mypy_cache": true,
     ".ruff_cache": true
-  }
+  },
+  "autoDocstring.docstringFormat": "numpy"
 }
