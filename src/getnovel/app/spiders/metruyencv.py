@@ -20,26 +20,22 @@ class MeTruyenCVSpider(Spider):
     ----------
     name : str
         Name of the spider.
-    start_urls : list
-        List of url to start crawling from.
-    start : int
-        The chapter index to start crawling.
-    stop : int
-        The chapter index to stop crawling after that.
+    title_pos : int
+        Position of the title in the novel url.
     lang : str
         Language code of novel.
-    total : int
-        Total number of chapters.
     """
 
     name = "metruyencv"
+    title_pos = -1
+    lang_code = "vi"
 
     def __init__(self: "MeTruyenCVSpider", url: str, start: int, stop: int) -> None:
         """Initialize attributes.
 
         Parameters
         ----------
-        u : str
+        url : str
             Url of the novel information page.
         start: int
             Start crawling from this chapter.
@@ -49,9 +45,7 @@ class MeTruyenCVSpider(Spider):
         self.start_urls = [url]
         self.start = int(start)
         self.stop = int(stop)
-        self.lang = "vi"
-        self.title_pos = -1
-        self.total = 0
+        self.total = 0 # total number of chapters.
 
     def parse(self: "MeTruyenCVSpider", res: Response) -> None:
         """Extract info and send request to the start chapter.

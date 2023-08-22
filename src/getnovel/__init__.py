@@ -101,8 +101,7 @@ def _build_parser():
     crawl.add_argument(
         "--result",
         type=str,
-        default=str(Path.cwd() / "raw"),
-        help="path of the result directory (default: current working directory)",
+        help="path of the result directory (default: auto generated)",
         metavar="",
     )
     crawl.add_argument(

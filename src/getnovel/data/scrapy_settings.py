@@ -6,13 +6,8 @@ import time
 from pathlib import Path
 
 
-def get_settings(result: Path) -> dict:
+def get_settings() -> dict:
     """Generate project settings.
-
-    Parameters
-    ----------
-    result : Path
-        Path of result directory.
 
     Returns
     -------
@@ -21,11 +16,6 @@ def get_settings(result: Path) -> dict:
     """
     hp = Path.home()
     gnp = hp / "GetNovel"
-    # Result directory
-    if result is None:
-        result = gnp / "crawled"
-    result = Path(result)
-    result.mkdir(parents=True, exist_ok=True)
     # Log
     lp = gnp / "logs"
     lp.mkdir(parents=True, exist_ok=True)
@@ -42,7 +32,7 @@ def get_settings(result: Path) -> dict:
             "getnovel.app.pipelines.AppPipeline": 300,
             "getnovel.app.pipelines.CoverImagesPipeline": 200,
         },
-        "IMAGES_STORE": str(result),
+        "IMAGES_STORE": str(gnp / "images"),
         # DOWNLOADER_MIDDLEWARES
         "DOWNLOADER_MIDDLEWARES": {
             "getnovel.app.middlewares.AppDownloaderMiddleware": 500,
@@ -63,7 +53,7 @@ def get_settings(result: Path) -> dict:
         "HTTPCACHE_ENABLED": True,
         "HTTPCACHE_DIR": str(gnp / "cache"),
         # SAVE PATH
-        "RESULT": str(result),
+        "RESULT": str(gnp / "raw"),
     }
 
 

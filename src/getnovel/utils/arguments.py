@@ -7,7 +7,7 @@ from getnovel.utils.epub import EpubMaker
 from getnovel.utils.file import FileConverter
 
 
-def crawl_func(args):
+def crawl_func(args: dict) -> None:
     """Run crawling process."""
     p = NovelCrawler(url=args.url)
     p.crawl(
@@ -15,11 +15,11 @@ def crawl_func(args):
         start=int(args.start),
         stop=int(args.stop),
         clean=args.clean,
-        result=Path(args.result),
+        result=args.result,
     )
 
 
-def convert_func(args):
+def convert_func(args: dict) -> None:
     """Convert process."""
     c = FileConverter(
         raw=Path(args.raw),
@@ -32,7 +32,7 @@ def convert_func(args):
     )
 
 
-def dedup_func(args):
+def dedup_func(args: dict) -> None:
     """Deduplicate chapter title."""
     c = FileConverter(
         raw=Path(args.raw),
@@ -41,7 +41,7 @@ def dedup_func(args):
     c.clean(dedup=True, rm=False)
 
 
-def epub_from_url_func(args):
+def epub_from_url_func(args: dict) -> None:
     """Make epub from url process."""
     e = EpubMaker(result=Path(args.result))
     e.from_url(
@@ -52,7 +52,7 @@ def epub_from_url_func(args):
     )
 
 
-def epub_from_raw_func(args):
+def epub_from_raw_func(args: dict) -> None:
     """Make epub from raw process."""
     e = EpubMaker(result=Path(args.result))
     e.from_raw(
