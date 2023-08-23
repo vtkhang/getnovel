@@ -7,17 +7,19 @@ from getnovel.utils.epub import EpubMaker
 from getnovel.utils.file import FileConverter
 
 
-def crawl_func(args: dict) -> None:
+def crawl_func(args: any) -> None:
     """Run crawling process."""
     p = NovelCrawler(url=args.url)
     p.crawl(
-        rm=args.rm,
         start=int(args.start),
         stop=int(args.stop),
-        clean=args.clean,
         result=args.result,
+        rm=args.rm,
     )
-
+    if args.clean:
+        result = p.settings["RESULT"]
+        cvt = FileConverter(result, result / "cleaned")
+        cvt.clean()
 
 def convert_func(args: dict) -> None:
     """Convert process."""
