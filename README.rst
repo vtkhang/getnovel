@@ -129,12 +129,14 @@ Frameworks, packages and IDEs
 
 - `Scrapy <https://scrapy.org>`_
 - `Pillow <https://python-pillow.org/>`_
-- `tldextract <https://github.com/john-kurkowski/tldextract>`_
-- `importlib-metadata <https://github.com/python/importlib_metadata>`_
-- `importlib-resources <https://github.com/python/importlib_resources>`_
-- `black <https://github.com/psf/black>`_
+- `tldextract <https://github.com/john-kurkowski/tldextract>`
 - `ipython <https://ipython.org/>`_
-- `flake8 <https://github.com/pycqa/flake8>`_
+- `black <https://github.com/psf/black>`_
+- `ruff <https://github.com/astral-sh/ruff>`_
+- `sphinx <https://www.sphinx-doc.org/en/master/>`_
+- `sphinx_rtd_theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`_
+- `numpydoc <https://numpydoc.readthedocs.io/en/latest/install.html>`_
+- `prospector <https://prospector.landscape.io/en/master/>`_
 
 Development
 ===========
@@ -146,26 +148,3 @@ Development
   .. code:: bash
 
     pip install -e ".[dev]"
-
-Build
-=====
-
-1. Download or clone this project.
-2. Go to to root folder of this project.
-3. Install and build this project with package "build":
-
-  .. code:: bash
-
-    pip install build
-    python -m build
-
-Upload to PYPI
-==============
-
-1. Make sure .pypirc is configured.
-2. Build project with `build`.
-3. Use `twine` to upload:
-
-  .. code:: bash
-
-    python -m twine upload --repository pypi dist/*

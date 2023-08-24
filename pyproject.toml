@@ -23,7 +23,6 @@ dependencies = [
     "scrapy >= 2.10.0",
     "pillow >= 10.0.0",
     "tldextract >= 3.4.4",
-    "python-slugify >= 8.0.1",
 ]
 
 [project.optional-dependencies]
@@ -31,11 +30,11 @@ dev = [
     "ipython >= 8.14.0",
     "black >= 23.7.0",
     "ruff >= 0.0.285",
+    "prospector >= 1.10.2",
     "sphinx >= 6.2.1",
     "sphinx_rtd_theme >= 1.2.2",
     "numpydoc >= 1.5.0",
     "build >= 0.10.0",
-    "prospector >= 1.10.2",
 ]
 
 [project.urls]
