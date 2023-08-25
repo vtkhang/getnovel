@@ -32,8 +32,8 @@ class NovelCrawler:
             Url of the novel information page.
         """
         self.url = url
-        self.spider = get_spider(url) # spider instance
-        self.settings = scrapy_settings.get_settings() # default setting
+        self.spider = get_spider(url)  # spider instance
+        self.settings = scrapy_settings.get_settings()  # default setting
 
     def crawl(self: "NovelCrawler", start: int, stop: int, **options: dict) -> None:
         """Download novel and store it in the raw directory.
@@ -99,23 +99,25 @@ class NovelCrawler:
                 result = result / splitted_url[self.spider.title_pos]
             else:
                 result = result / f"{self.spider.name}-{splitted_url[-1]}"
-        return (Path(result) / "raw").resolve()      
+        return (result / "raw").resolve()
+
 
 def get_spider(url: str) -> type[Spider]:
-        """Get the spider object associated with the given URL.
+    """Get the spider object associated with the given URL.
 
-        Parameters
-        ----------
-        url : str
-            The URL for which to get the spider object.
+    Parameters
+    ----------
+    url : str
+        The URL for which to get the spider object.
 
-        Returns
-        -------
-        Spider
-            The spider object associated with the given URL.
-        """
-        spider_name = tldextract.extract(url).domain
-        return SPIDER_LOADER.load(spider_name)
+    Returns
+    -------
+    Spider
+        The spider object associated with the given URL.
+    """
+    spider_name = tldextract.extract(url).domain
+    return SPIDER_LOADER.load(spider_name)
+
 
 class CrawlNovelError(Exception):
     """Handle NovelCrawler Exception."""
