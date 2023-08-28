@@ -1,22 +1,16 @@
-"""Define FileConverter class.
-
-Limitations
------------
-    1. Can only work with exact structure and file name:
-        cover.jpg, foreword.txt, 1.txt,...
-    2. Can only work with exact file structure:
-        - foreword: line 1 is title, line 2 is author, line 3 is types,
-        line 4 is url, rest are foreword.
-        - chapter: line 1 is chapter title, rest are content.
-"""
+"""Define FileConverter class."""
 import html
 import logging
 from importlib.resources import files
 from pathlib import Path
 from shutil import rmtree
 
-from getnovel import data
-from getnovel.utils.typehint import DictPath, ListStr
+from getnovel.data.template.OEBPS import Text
+
+TEMPLATE = files(Text)
+CHAPTER = TEMPLATE / "c1.xhtml"
+FOREWORD = TEMPLATE / "foreword.xhtml"
+PA = ".,:"
 
 logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
@@ -25,349 +19,225 @@ logging.basicConfig(
 _logger = logging.getLogger(__name__)
 
 
-class FileConverter:
-    """This class define clean method and convert to xhtml method."""
+class FileHandler:
+    """Handle files."""
 
-    def __init__(self: "FileConverter", raw: Path, result: Path) -> None:
-        """Init path of raw directory and result directory.
+    def __init__(self: "FileHandler", raw: Path) -> None:
+        """Init path of raw directory.
 
         Parameters
         ----------
         raw : Path
             Path of raw directory.
-        result : Path
-            Path of result directory.
-
-        Raises:
-        ------
-        FileConverterError
-            Raw directory not found.
         """
-        if not raw.exists():
-            raise FileConverterError(f"Raw directory not found: {raw}")
-        self.x = raw
-        self.y = result
-        self.txt: DictPath = {}  # use to track txt files in result directory
-        self.xhtml: DictPath = {}  # use to track xhtml files in result directory
+        self.raw = raw.resolve()
+        self.result: Path = None  # Path of result directory
+        self.raw_cover = self.raw / "cover.jpg"  # Path of the raw cover
+        self.raw_foreword = self.raw / "foreword.txt"  # Path of the raw foreword
 
-    def clean(self: "FileConverter", dedup: bool, rm: bool) -> None:
+    def process(
+        self: "FileHandler",
+        action: str,
+        **options: Path | bool | None,
+    ) -> None:
+        """Post proccess files.
+
+        Parameters
+        ----------
+        action : str
+                action of the process.
+        options:
+            result : Path | None
+                Path of result directory.
+            rm : bool
+                If specified, remove all old files in result directory.
+        """
+        result = options.get("result")
+        if not result:
+            result = self.raw / action
+        self.result = result.resolve()
+        if options.get("rm"):
+            rmtree(self.result)
+            _logger.info("Removed existing files in: %s", self.result)
+            self.result.mkdir(parents=True)
+        if self.raw_cover.exists():
+            dest_cover = self.result / self.raw_cover.name
+            dest_cover.write_bytes(self.raw_cover.read_bytes())
+
+
+class FileCleaner(FileHandler):
+    """Clean files."""
+
+    def process(self: "FileCleaner", **options: Path | bool | None) -> None:
         """Clean raw files in raw directory.
 
         Parameters
         ----------
-        dedup : bool
-            If specified, deduplicate chapter title.
-        rm : bool
-            If specified, remove all old files in result directory.
-
-        Returns:
-        -------
-        int
-            Value -1 if raw directory empty
+        options:
+            result : Path | None
+                Path of result directory.
+            rm : bool
+                If specified, remove all old files in result directory.
+            dedup : bool
+                If specified, deduplicate chapter title.
         """
-        # remove old files in result directory
-        if rm is True:
-            _logger.info("Remove existing files in: %s", self.y.resolve())
-            self._rm_result()
-        # copy cover image to result directory
-        cop = self.x / "cover.jpg"
-        if cop.exists():
-            copn = self.y / cop.name
-            copn.write_bytes(cop.read_bytes())
-            self.txt[-1] = copn
-        # clean foreword.txt
-        fwp = self.x / "foreword.txt"
-        if fwp.exists():
-            fwpn = self.y / fwp.name
-            process(fwp, "info", fwpn, "clean")
-            self.txt[0] = fwpn
-        # clean chapter.txt
-        f_list = list(self.x.glob("*[0-9].txt"))
-        for cp in f_list:
-            cpn = self.y / cp.name
-            process(cp, "chapter", cpn, "clean", dedup=dedup)
-            self.txt[int(cp.stem)] = cpn
-        _logger.info("Done cleaning. View result at: %s", self.y.resolve())
+        super().process("clean", options)
+        self.__clean_foreword()
+        self.__clean_chapter(dedup=options.get("dedup"))
+        _logger.info("Done cleaning. View result at: %s", self.result)
 
-    def convert_to_xhtml(
-        self: "FileConverter",
-        dedup: bool,
-        rm: bool,
-        lang_code: str,
+    def __clean_foreword(self: "FileCleaner") -> None:
+        if self.raw_foreword.exists():
+            lines = self.raw_foreword.read_text(encoding="utf-8").splitlines()
+            foreword = lines[:4]
+            foreword.extend(fix_bad_newline(lines[4:]))
+            (self.result / "foreword.txt").write_text(
+                "\n".join(foreword),
+                encoding="utf-8",
+            )
+
+    def __clean_chapter(self: "FileCleaner", *, dedup: bool) -> None:
+        for chapter_path in self.raw.glob("*[0-9].txt"):
+            lines = chapter_path.read_text(encoding="utf-8").splitlines()
+            chapter = lines[:1]
+            content = lines[1:]
+            if dedup:
+                content = dedup_title(content)
+            chapter.extend(fix_bad_newline(content))
+            (self.result / chapter_path.name).write_text(
+                "\n".join(chapter),
+                encoding="utf-8",
+            )
+
+
+class XhtmlFileConverter(FileHandler):
+    """Convert files."""
+
+    def process(
+        self: "XhtmlFileConverter",
+        **options: Path | bool | str | None,
     ) -> None:
-        """Clean files and convert to XHTML.
+        """Convert files in raw directory to XHTML.
 
         Parameters
         ----------
-        dedup : bool
-            If specified, deduplicate chapter title.
-        rm : bool
-            If specified, remove all old files in result directory.
-        lang_code : str
-            Language code of the novel.
-
-        Returns:
-        -------
-        int
-            Value -1 if raw directory empty
-
-        Raises:
-        ------
-        FileConverterError
-            Chapter template not found.
-        FileConverterError
-            Foreword template not found.
+        options:
+            result : Path | None
+                Path of result directory.
+            dedup : bool
+                If specified, deduplicate chapter title.
+            rm : bool
+                If specified, remove all old files in result directory.
+            lang_code : str
+                Language code of the novel.
         """
-        # Check default template, if not exist throw exception
-        # template of chapter
-        tp = Path(str(files(data).joinpath(r"template/OEBPS/Text")))
-        ctp = tp / "c1.xhtml"
-        if ctp.exists() is False or ctp.is_dir():
-            raise FileConverterError(f"Chapter template not found: {ctp}")
-        # template of foreword
-        fwtp = tp / "foreword.xhtml"
-        if fwtp.exists() is False or fwtp.is_dir():
-            raise FileConverterError(f"Foreword template not found: {ctp}")
-        # remove old files in result directory
-        if rm is True:
-            _logger.info("Remove existing files in: %s", self.y.resolve())
-            self._rm_result()
-        # copy cover image to result dir
-        cop = self.x / "cover.jpg"
-        if cop.exists():
-            copn = self.y / cop.name
-            copn.write_bytes(cop.read_bytes())
-            self.xhtml[-1] = copn
-        # convert foreword.txt
-        fwp = self.x / "foreword.txt"
-        if fwp.exists():
-            fwpn = self.y / (fwp.with_suffix(".xhtml")).name
-            process(fwp, "info", fwpn, "convert", fwtp, lang_code)
-            self.xhtml[0] = fwpn
-        # clean chapter.txt
-        f_list = list(self.x.glob("*[0-9].txt"))
-        for cp in f_list:
-            cpn = self.y / f"c{cp.stem}.xhtml"
-            process(cp, "chapter", cpn, "convert", ctp, dedup=dedup)
-            self.xhtml[int(cp.stem)] = cpn
-        _logger.info("Done converting. View result at: %s", self.y.resolve())
+        super().process("xhtml", **options)
+        self.__convert_foreword(options.get("lang_code"))
+        self.__convert_chapter(dedup=options.get("dedup"))
+        _logger.info("Done converting. View result at: %s", self.result.resolve())
 
-    def _rm_result(self: "FileConverter") -> int:
-        """Remove all files in result directory.
+    def __convert_foreword(self: "XhtmlFileConverter", lang_code: str) -> None:
+        if self.raw_foreword.exists():
+            lines = self.raw_foreword.read_text(encoding="utf-8").splitlines()
+            foreword = lines[:4]
+            foreword.extend(fix_bad_newline(lines[4:]))
+            foreword = [html.escape(line) for line in foreword]
+            p_tags = [f"<p>{line}</p>" for line in foreword[4:]]
+            foreword_title = "Lời tựa" if lang_code == "vi" else "内容简介"
+            (self.result / "foreword.xhtml").write_text(
+                FOREWORD.read_text(encoding="utf-8").format(
+                    foreword_title=foreword_title,
+                    novel_title=foreword[0],
+                    author_name=foreword[1],
+                    types=foreword[2],
+                    url=foreword[3],
+                    foreword_p_tag_list="\n".join(p_tags),
+                ),
+                encoding="utf-8",
+            )
 
-        Returns:
-            int: -1 if result directory is raw directory
-        """
-        if self.x == self.y:
-            return -1
-        rmtree(self.y)
-        self.y.mkdir(parents=True)
-        self.txt = {}
-        self.xhtml = {}
-        return 0
-
-    def _update_file_list(self: "FileConverter", ext: str) -> None:
-        """Remove all files not existing.
-
-        Returns:
-            None
-        """
-        t = {}
-        if ext == "txt":
-            t = self.txt
-        elif ext == "xhtml":
-            t = self.xhtml
-        for key in list(t):
-            if not t[key].exists():
-                del t[key]
-
-    def get_result_dir(self: "FileConverter") -> Path:
-        """Return path of result directory.
-
-        Returns:
-            Path: path of result directory
-        """
-        return self.y
-
-    def get_file_list(self: "FileConverter", ext: str) -> tuple:
-        """Return result file paths list.
-
-        Args:
-            ext: extension of files [txt, xhtml]
-
-        Returns:
-            tuple: file paths list
-        """
-        t = {}
-        if ext == "txt":
-            self._update_file_list(ext="txt")
-            t = self.txt
-        elif ext == "xhtml":
-            self._update_file_list(ext="xhtml")
-            t = self.xhtml
-        return tuple([value for key, value in sorted(t.items())])
+    def __convert_chapter(self: "XhtmlFileConverter", *, dedup: bool) -> None:
+        for chapter_path in self.raw.glob("*[0-9].txt"):
+            lines = chapter_path.read_text(encoding="utf-8").splitlines()
+            chapter = lines[:1]
+            content = lines[1:]
+            if dedup:
+                content = dedup_title(content)
+            chapter.extend(fix_bad_newline(content))
+            chapter = [html.escape(line) for line in chapter]
+            p_tags = [f"<p>{line}</p>" for line in chapter[1:]]
+            (self.result / chapter_path.name).write_text(
+                CHAPTER.read_text(encoding="utf-8").format(
+                    chapter_title=chapter[0],
+                    chapter_p_tag_list="\n\n  ".join(p_tags),
+                ),
+                encoding="utf-8",
+            )
 
 
-class FileConverterError(Exception):
-    """File converter exception."""
-
-
-def fix_bad_newline(lines: ListStr) -> list:
+def fix_bad_newline(lines: list[str]) -> list[str]:
     """Tidy the result.
 
     Filtered blank lines. Concatenate lines that
     likely to be in the same setence.
 
-    Examples:
+    Examples
     --------
     >>> fix_bad_newline(["A and", "b"])
     >>> ["A and b"]
 
     Parameters
     ----------
-    lines : List
+    lines : list[str]
         Input lines.
 
-    Returns:
+    Returns
     -------
-    List
+    list[str]
         Fixed lines.
     """
-    flines = []
-    result = []
-    pa = ".,:"
-    for line in lines:
-        t = line.strip()
-        if t:
-            flines.append(t)
-    if not flines:
-        _logger.error("Input data does not contain any valid line.")
-        return None
-    result.append(flines[0])
-    if len(flines) == 1:
-        return result
-    for index in range(1, len(flines)):
+    lines = lines.copy()
+    for index, line in enumerate(lines):
+        if not line.strip():
+            del lines[index]
+    result: list[str] = []
+    result.append(lines[0])
+    for line in lines[1:]:
         last = result[-1][-1]
-        first = flines[index][0]
-        if (
-            (last == ",")
-            or (first.islower())
-            or (last.islower())
-            or (last == '"' and first.islower())
-            or (first == '"' and last.islower())
-        ):
-            result[-1] = result[-1] + " " + flines[index]
-        elif first in pa:
-            result[-1] = result[-1] + flines[index]
+        first = line[0]
+        if last == "," or last.islower() or first.islower():
+            result[-1] += " " + line
+        elif first in PA:
+            result += line
         else:
-            result.append(flines[index])
+            result.append(line)
     return result
 
 
 def dedup_title(
-    content_lines: ListStr,
-    chapter_path: Path,
-    identities: ListStr = ("Chương", "章"),
+    lines: list[str],
+    identities: set = ("Chương", "章"),
     max_length: int = 100,
-) -> ListStr:
+) -> list[str]:
     """Deduplicate chapter title.
 
     Parameters
     ----------
-    content_lines : ListStr
-        Chapter content split into lines.
-    chapter_path: Path
-        Use chapter path to display debug messages.
-    identities : ListStr
-        Identify key, by default ["Chương", "章"]
+    lines : list[str]
+        Input lines.
+    identities : set, optional
+        Identify key, by default ("Chương", "章")
     max_length : int, optional
         Max length of chapter title, by default 100
 
-    Returns:
+    Returns
     -------
-    ListStr
+    list[str]
         Deduplicated chapter title.
     """
-    index = 0
-    for line in content_lines:
-        s = len(identities)
+    lines = lines.copy()
+    for index, line in lines:
         for k in identities:
             if k in line and len(line) < max_length:
-                _logger.debug("Removed: %s", content_lines[index])
-                index += 1
-                break
-            else:
-                s -= 1
-        if s == 0:
-            break
-    if index != 0:
-        _logger.debug("Path: %s", chapter_path)
-    return content_lines[index:]
-
-
-def process(
-    ip: Path,
-    t: str,
-    sp: Path,
-    m: str,
-    tp: Path = None,
-    lang: str = "vi",
-    dedup: bool = False,
-) -> None:
-    """Clean file or convert file to xhtml.
-
-    Parameters
-    ----------
-    ip : Path
-        Path of input file.
-    t : str
-        Type of the file (info or chapter).
-    sp : Path
-        Path of output file.
-    m : str
-        Mode (clean or xhtml).
-    tp : Path, optional
-        Path of template files to convert to xhtml, by default None
-    lang : str, optional
-        Language code for info xhtml page, by default "vi"
-    dedup : bool, optional
-        If specified, deduplicate chapter title, by default False
-    """
-    lines = ip.read_text(encoding="utf-8").splitlines()
-    index = 0
-    if t == "info":
-        index = 4
-    elif t == "chapter":
-        index = 1
-        if dedup:
-            lines[index:] = dedup_title(lines[index:], ip)
-    r = lines[:index]
-    r.extend(fix_bad_newline(lines[index:]))
-    if m == "clean":
-        sp.write_text("\n".join(r), encoding="utf-8")
-    elif m == "convert":
-        r = [html.escape(line) for line in r]
-        p_tags = [f"<p>{line}</p>" for line in r[index:]]
-        if t == "info":
-            foreword_title = "Lời tựa"
-            if lang == "zh":
-                foreword_title = "内容简介"
-            sp.write_text(
-                tp.read_text(encoding="utf-8").format(
-                    foreword_title=foreword_title,
-                    novel_title=r[0],
-                    author_name=r[1],
-                    types=r[2],
-                    url=r[3],
-                    foreword_p_tag_list="\n\n  ".join(p_tags),
-                ),
-                encoding="utf-8",
-            )
-        elif t == "chapter":
-            sp.write_text(
-                tp.read_text(encoding="utf-8").format(
-                    chapter_title=r[0],
-                    chapter_p_tag_list="\n\n  ".join(p_tags),
-                ),
-                encoding="utf-8",
-            )
+                del lines[index]
+    return lines
