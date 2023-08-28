@@ -78,13 +78,13 @@ class NovelCrawler:
         process.start()
         _logger.info("Done crawling. View result at: %s", result)
 
-    def __resolve_result(self: "NovelCrawler", result: Path | None) -> Path:
+    def __resolve_result(self: "NovelCrawler", result: Path | str | None) -> Path:
         """
         Resolve the result path.
 
         Parameters
         ----------
-        result : Path or None
+        result : Path or str or None
             The result path to resolve.
 
         Returns
@@ -99,7 +99,7 @@ class NovelCrawler:
                 result = result / splitted_url[self.spider.title_pos]
             else:
                 result = result / f"{self.spider.name}-{splitted_url[-1]}"
-        return (result / "raw").resolve()
+        return (Path(result) / "raw").resolve()
 
 
 def get_spider(url: str) -> type[Spider]:
