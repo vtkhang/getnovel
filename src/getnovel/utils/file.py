@@ -59,7 +59,7 @@ class FileHandler:
         if options.get("rm"):
             rmtree(self.result)
             _logger.info("Removed existing files in: %s", self.result)
-            self.result.mkdir(parents=True)
+        self.result.mkdir(parents=True, exist_ok=True)
         if self.raw_cover.exists():
             dest_cover = self.result / self.raw_cover.name
             dest_cover.write_bytes(self.raw_cover.read_bytes())
