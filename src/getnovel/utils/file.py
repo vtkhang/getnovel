@@ -38,7 +38,7 @@ class FileHandler:
     def process(
         self: "FileHandler",
         action: str,
-        **options: Path | bool | None,
+        **options: Path | str | bool | None,
     ) -> None:
         """Post proccess files.
 
@@ -47,7 +47,7 @@ class FileHandler:
         action : str
                 action of the process.
         options:
-            result : Path | None
+            result : Path | str | None
                 Path of result directory.
             rm : bool
                 If specified, remove all old files in result directory.
@@ -55,7 +55,7 @@ class FileHandler:
         result = options.get("result")
         if not result:
             result = self.raw / action
-        self.result = result.resolve()
+        self.result = Path(result).resolve()
         if options.get("rm"):
             rmtree(self.result)
             _logger.info("Removed existing files in: %s", self.result)
@@ -74,7 +74,7 @@ class FileCleaner(FileHandler):
         Parameters
         ----------
         options:
-            result : Path | None
+            result : Path | str | None
                 Path of result directory.
             rm : bool
                 If specified, remove all old files in result directory.
@@ -122,7 +122,7 @@ class XhtmlFileConverter(FileHandler):
         Parameters
         ----------
         options:
-            result : Path | None
+            result : Path | str | None
                 Path of result directory.
             dedup : bool
                 If specified, deduplicate chapter title.
