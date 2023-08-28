@@ -32,8 +32,9 @@ class NovelCrawler:
             Url of the novel information page.
         """
         self.url = url
-        self.spider = get_spider(url)  # spider instance
-        self.settings = scrapy_settings.get_settings()  # default setting
+        self.result: Path = None  # Path of result directory
+        self.spider = get_spider(url)  # Spider instance
+        self.settings = scrapy_settings.get_settings()  # Default setting
 
     def crawl(self: "NovelCrawler", start: int, stop: int, **options: dict) -> None:
         """Download novel and store it in the raw directory.
@@ -65,20 +66,18 @@ class NovelCrawler:
             " if stop chapter is not -1."
             raise CrawlNovelError(msg)
         # resolve result directory
-        result = self.__resolve_result(options.get("result"))
-        self.settings["RESULT"] = str(result)
-        self.settings["IMAGES_STORE"] = str(result)
+        self.result = self.__resolve_result(options.get("result"))
         # remove existing files
-        if options.get("rm") and result.exists():
-            rmtree(result)
-        result.mkdir(parents=True, exist_ok=True)
+        if options.get("rm") and self.result.exists():
+            rmtree(self.result)
+        self.result.mkdir(parents=True, exist_ok=True)
         # start crawling
         process = CrawlerProcess(self.settings)
         process.crawl(self.spider, self.url, start, stop)
         process.start()
-        _logger.info("Done crawling. View result at: %s", result)
+        _logger.info("Done crawling. View result at: %s", self.result)
 
-    def __resolve_result(self: "NovelCrawler", result: Path | str | None) -> Path:
+    def __resolve_result(self: "NovelCrawler", result: Path | str | None) -> None:
         """
         Resolve the result path.
 
@@ -86,11 +85,6 @@ class NovelCrawler:
         ----------
         result : Path or str or None
             The result path to resolve.
-
-        Returns
-        -------
-        Path
-            The resolved result path.
         """
         if result is None:
             result = Path.cwd()
@@ -99,7 +93,9 @@ class NovelCrawler:
                 result = result / splitted_url[self.spider.title_pos]
             else:
                 result = result / f"{self.spider.name}-{splitted_url[-1]}"
-        return (Path(result) / "raw").resolve()
+        self.result = (Path(result) / "raw").resolve()
+        self.settings["RESULT"] = str(self.result)
+        self.settings["IMAGES_STORE"] = str(self.result)
 
 
 def get_spider(url: str) -> type[Spider]:
