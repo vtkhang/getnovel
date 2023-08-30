@@ -9,9 +9,11 @@ from scrapy import Spider
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 from scrapy.spiderloader import SpiderLoader
+from scrapy.utils.log import configure_logging
 
 from getnovel.data import scrapy_settings
 
+configure_logging({"LOG_LEVEL": "INFO"}, install_root_handler=False)
 _logger = logging.getLogger(__name__)
 
 
@@ -66,7 +68,7 @@ class NovelCrawler:
             " if stop chapter is not -1."
             raise CrawlNovelError(msg)
         # resolve result directory
-        self.result = self.__resolve_result(options.get("result"))
+        self.__resolve_result(options.get("result"))
         # remove existing files
         if options.get("rm") and self.result.exists():
             rmtree(self.result)

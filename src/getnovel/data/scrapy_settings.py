@@ -42,7 +42,7 @@ def get_settings() -> dict:
         "LOG_SHORT_NAMES": True,
         "LOG_FILE": str(lnp),
         "LOG_FILE_APPEND": False,
-        "LOG_LEVEL": "INFO",
+        "LOG_LEVEL": "DEBUG",
         # AUTOTHROTTLE SETTINGS
         "AUTOTHROTTLE_ENABLED": True,
         "AUTOTHROTTLE_START_DELAY": 6,
@@ -54,6 +54,7 @@ def get_settings() -> dict:
         "HTTPCACHE_DIR": str(gnp / "cache"),
         # SAVE PATH
         "RESULT": str(gnp / "raw"),
+        "REQUEST_FINGERPRINTER_IMPLEMENTATION": "2.7",
     }
 
 

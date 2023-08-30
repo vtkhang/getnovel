@@ -23,6 +23,7 @@ dependencies = [
     "scrapy >= 2.10.0",
     "pillow >= 10.0.0",
     "tldextract >= 3.4.4",
+    "pytz >= 2023.3",
 ]
 
 [project.optional-dependencies]

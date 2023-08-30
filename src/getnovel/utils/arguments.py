@@ -3,8 +3,9 @@
 from pathlib import Path
 
 from getnovel.utils.crawler import NovelCrawler
-from getnovel.utils.epub import EpubMaker
-from getnovel.utils.file import FileConverter
+
+# from getnovel.utils.epub import EpubMaker
+from getnovel.utils.file import FileCleaner, XhtmlFileConverter
 
 
 def crawl_func(args: any) -> None:
@@ -17,48 +18,38 @@ def crawl_func(args: any) -> None:
         rm=args.rm,
     )
     if args.clean:
-        result = p.settings["RESULT"]
-        cvt = FileConverter(result, result / "cleaned")
-        cvt.clean()
+        cvt = FileCleaner(raw=p.result)
+        cvt.process(result=p.result.parent / "cleaned")
+
 
 def convert_func(args: dict) -> None:
     """Convert process."""
-    c = FileConverter(
-        raw=Path(args.raw),
-        result=Path(args.result),
-    )
-    c.convert_to_xhtml(
-        lang_code=args.lang,
-        dedup=args.dedup,
-        rm=args.rm,
-    )
+    cvt = XhtmlFileConverter(raw=Path(args.raw))
+    cvt.process(result=args.result, lang_code=args.lang, rm=args.rm)
 
 
 def dedup_func(args: dict) -> None:
     """Deduplicate chapter title."""
-    c = FileConverter(
-        raw=Path(args.raw),
-        result=Path(args.result),
-    )
-    c.clean(dedup=True, rm=False)
+    cvt = FileCleaner(raw=Path(args.raw))
+    cvt.process(result=args.result, rm=False, dedup=True)
 
 
 def epub_from_url_func(args: dict) -> None:
     """Make epub from url process."""
-    e = EpubMaker(result=Path(args.result))
-    e.from_url(
-        url=args.url,
-        dedup=args.dedup,
-        start=int(args.start),
-        stop=int(args.stop),
-    )
+    # e = EpubMaker(result=Path(args.result))
+    # e.from_url(
+    #     url=args.url,
+    #     dedup=args.dedup,
+    #     start=int(args.start),
+    #     stop=int(args.stop),
+    # )
 
 
 def epub_from_raw_func(args: dict) -> None:
     """Make epub from raw process."""
-    e = EpubMaker(result=Path(args.result))
-    e.from_raw(
-        raw=Path(args.raw),
-        dedup=args.dedup,
-        lang_code=args.lang,
-    )
+    # e = EpubMaker(result=Path(args.result))
+    # e.from_raw(
+    #     raw=Path(args.raw),
+    #     dedup=args.dedup,
+    #     lang_code=args.lang,
+    # )
