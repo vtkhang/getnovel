@@ -43,6 +43,7 @@ def get_settings() -> dict:
         "LOG_FILE": str(lnp),
         "LOG_FILE_APPEND": False,
         "LOG_LEVEL": "DEBUG",
+        "COOKIES_ENABLED": False,
         # AUTOTHROTTLE SETTINGS
         "AUTOTHROTTLE_ENABLED": True,
         "AUTOTHROTTLE_START_DELAY": 6,
