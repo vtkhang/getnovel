@@ -65,14 +65,14 @@ def mk_settings(sp: Path, sc: dict) -> None:
     r.append("# flake8: noqa")
     for k in sc:
         if isinstance(sc[k], str):
-            t = f'r"{str(sc[k])}"'
+            t = f'r"{sc[k]!s}"'
         elif isinstance(sc[k], dict):
             t = json.dumps(sc[k], indent=4)
         elif isinstance(sc[k], list):
             t = f"{pprint.pformat(sc[k], indent=4)}"
         else:
             t = str(sc[k])
-        r.append(f"{str(k)} = {t}")
+        r.append(f"{k!s} = {t}")
     r.append("")
     sp.absolute().write_text(encoding="utf-8", data="\n".join(r))
 
