@@ -11,10 +11,10 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 import pytz
 from PIL import Image
 
-from getnovel.data import template
+from getnovel import data
 from getnovel.utils.file import XhtmlFileConverter
 
-TEMPLATE = files(template)
+TEMPLATE = Path(files(data).joinpath("template"))
 
 logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
@@ -23,10 +23,10 @@ logging.basicConfig(
 _logger = logging.getLogger(__name__)
 
 
-class Temp:
+class EpubMaker:
     """Make epub from raw directory."""
 
-    def __init__(self: "Temp", raw: Path, lang_code: str) -> None:
+    def __init__(self: "EpubMaker", raw: Path, lang_code: str) -> None:
         """Assign raw directory.
 
         Parameters
@@ -34,37 +34,50 @@ class Temp:
         raw : Path
             Raw directory.
         """
-        self.raw = raw
-        self.raw_foreword = self.raw / "foreword.xhtml"
+        self.raw = raw.resolve()
+        self.raw_foreword = self.raw / "foreword.txt"
         self.epub = self.raw.parent / "epub"  # Epub directory
+        self.epub_file: Path = None  # Epub file
         self.oebps = self.epub / "OEBPS"  # OEBPS directory
         self.text = self.oebps / "Text"  # Text directory
         self.images = self.oebps / "Images"  # Images directory
         self.cover = self.images / "cover.jpg"  # cover.jpg
         self.xhtml_cover = self.text / "cover.xhtml"  # cover.xhtml
         self.xhtml_nav = self.text / "nav.xhtml"  # nav.xhtml
-        self.opf_content = self.text / "content.opf"  # content.opf
+        self.opf_content = self.oebps / "content.opf"  # content.opf
         self.ncx_toc = self.oebps / "ncx" / "toc.ncx"  # toc.ncx
-        self.lang_code: str = lang_code  # Language code
+        self.lang_code = lang_code  # Language code
 
-    def process(self: "Temp") -> None:
-        """Make epub."""
+    def process(self: "EpubMaker", **options: Path | str | bool | None) -> None:
+        """Make epub.
+
+        Parameters
+        ----------
+        options:
+            result: Path | str | None
+                Path of result directory.
+            dedup: bool
+                If specified, deduplicate chapter title.
+        """
+        self.epub_file = self.raw.parent
+        if options.get("result"):
+            self.epub = Path(options.get("result")).resolve()
         cvt = XhtmlFileConverter(raw=self.raw)
-        cvt.process(dedup=True, rm=True, lang_code=self.lang_code)
+        cvt.process(dedup=options.get("dedup"), rm=True, lang_code=self.lang_code)
         if self.epub.exists():
             rmtree(self.epub)
         self.epub.mkdir(parents=True)
         self.__copy_to_epub(cvt.result)
         self.__make_epub()
 
-    def __copy_to_epub(self: "Temp", xhtml: Path) -> None:
-        copytree(TEMPLATE, self.epub)
+    def __copy_to_epub(self: "EpubMaker", xhtml: Path) -> None:
+        copytree(TEMPLATE, self.epub, dirs_exist_ok=True)
         (self.text / "c1.xhtml").unlink()
         self.cover.unlink()
-        copytree(xhtml, self.text)
+        copytree(xhtml, self.text, dirs_exist_ok=True)
         move(self.text / "cover.jpg", self.images)
 
-    def __make_epub(self: "Temp") -> None:
+    def __make_epub(self: "EpubMaker") -> None:
         fw_lines = self.raw_foreword.read_text(encoding="utf-8").splitlines()
         novel_title = fw_lines[0]  # content.opf, toc.ncx, zip
         novel_uuid = uuid1()  # content.opf, toc.ncx
@@ -98,10 +111,10 @@ class Temp:
         navpoint_tag_list = []
         nav_li = '    <li><a href="{chapter_name}">{chapter_title}</a></li>'
         item_tag = (
-            '<item id="{chapter_name}" '
+            '<item id="{chapter_id}" '
             'href="Text/{chapter_name}" media-type="application/xhtml+xml"/>'
         )
-        itemref = '<itemref idref="{chapter_name}"/>'
+        itemref = '<itemref idref="{chapter_id}"/>'
         navpoint = (
             '  <navPoint id="navPoint{index}">\n'
             "      <navLabel>\n"
@@ -114,6 +127,7 @@ class Temp:
             title = chapter.read_text(encoding="utf-8").splitlines()[0]
             title = html.escape(title)
             name = chapter.with_suffix(".xhtml").name
+            chapter_id = f"ID{name}"
             navpoint_tag_list.append(
                 navpoint.format(
                     index=chapter.stem,
@@ -121,8 +135,10 @@ class Temp:
                     chapter_name=name,
                 ),
             )
-            opf_item_tag_list.append(item_tag.format(chapter_name=name))
-            opf_itemref_tag_list.append(itemref.format(chapter_name=name))
+            opf_item_tag_list.append(
+                item_tag.format(chapter_name=name, chapter_id=chapter_id),
+            )
+            opf_itemref_tag_list.append(itemref.format(chapter_id=chapter_id))
             nav_li_tag_list.append(
                 nav_li.format(chapter_name=name, chapter_title=title),
             )
@@ -141,7 +157,7 @@ class Temp:
         self.opf_content.write_text(
             self.opf_content.read_text(encoding="utf-8").format(
                 novel_title=novel_title,
-                author_name=fw_lines[14][5:-4],
+                author_name=fw_lines[1],
                 language_code=self.lang_code,
                 publisher_name=publisher_name,
                 date_created=datetime.now(pytz.UTC).strftime("%Y-%m-%d"),
@@ -165,7 +181,7 @@ class Temp:
         )
         # zip files to epub
         with ZipFile(
-            self.rp / f"{novel_title}.epub",
+            self.epub_file / f"{novel_title}.epub",
             "w",
             compression=ZIP_DEFLATED,
             compresslevel=9,
@@ -179,4 +195,4 @@ class Temp:
             mime_path.unlink()
             for path in self.epub.rglob("*"):
                 f_zip.write(path, path.relative_to(self.epub))
-        _logger.info("Done making epub. View result at: %s", self.rp.resolve())
+        _logger.info("Done making epub. View result at: %s", self.epub_file)

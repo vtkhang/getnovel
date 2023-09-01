@@ -54,7 +54,7 @@ class FileHandler:
         """
         result = options.get("result")
         if not result:
-            result = self.raw / action
+            result = self.raw.parent / action
         self.result = Path(result).resolve()
         if options.get("rm"):
             rmtree(self.result)
@@ -81,7 +81,7 @@ class FileCleaner(FileHandler):
             dedup : bool
                 If specified, deduplicate chapter title.
         """
-        super().process("clean", options)
+        super().process("cleaned", **options)
         self.__clean_foreword()
         self.__clean_chapter(dedup=options.get("dedup"))
         _logger.info("Done cleaning. View result at: %s", self.result)
@@ -131,10 +131,10 @@ class XhtmlFileConverter(FileHandler):
             lang_code : str
                 Language code of the novel.
         """
-        super().process("xhtml", **options)
+        super().process("converted", **options)
         self.__convert_foreword(options.get("lang_code"))
         self.__convert_chapter(dedup=options.get("dedup"))
-        _logger.info("Done converting. View result at: %s", self.result.resolve())
+        _logger.info("Done converting. View result at: %s", self.result)
 
     def __convert_foreword(self: "XhtmlFileConverter", lang_code: str) -> None:
         if self.raw_foreword.exists():
@@ -166,7 +166,7 @@ class XhtmlFileConverter(FileHandler):
             chapter.extend(fix_bad_newline(content))
             chapter = [html.escape(line) for line in chapter]
             p_tags = [f"<p>{line}</p>" for line in chapter[1:]]
-            (self.result / chapter_path.name).write_text(
+            (self.result / chapter_path.with_suffix(".xhtml").name).write_text(
                 CHAPTER.read_text(encoding="utf-8").format(
                     chapter_title=chapter[0],
                     chapter_p_tag_list="\n\n  ".join(p_tags),
@@ -236,7 +236,7 @@ def dedup_title(
         Deduplicated chapter title.
     """
     lines = lines.copy()
-    for index, line in lines:
+    for index, line in enumerate(lines):
         for k in identities:
             if k in line and len(line) < max_length:
                 del lines[index]

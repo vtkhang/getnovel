@@ -3,8 +3,7 @@
 from pathlib import Path
 
 from getnovel.utils.crawler import NovelCrawler
-
-# from getnovel.utils.epub import EpubMaker
+from getnovel.utils.epub import EpubMaker
 from getnovel.utils.file import FileCleaner, XhtmlFileConverter
 
 
@@ -30,8 +29,18 @@ def convert_func(args: dict) -> None:
 
 def dedup_func(args: dict) -> None:
     """Deduplicate chapter title."""
-    cvt = FileCleaner(raw=Path(args.raw))
-    cvt.process(result=args.result, rm=False, dedup=True)
+    raw = Path(args.raw)
+    result = raw.parent / "dedup"
+    if args.result:
+        result = Path(args.result)
+    cvt = FileCleaner(raw=raw)
+    cvt.process(result=result, rm=False, dedup=True)
+
+
+def epub_from_raw_func(args: dict) -> None:
+    """Make epub from raw process."""
+    maker = EpubMaker(raw=Path(args.raw), lang_code=args.lang)
+    maker.process(result=args.result, dedup=args.dedup)
 
 
 def epub_from_url_func(args: dict) -> None:
@@ -42,14 +51,4 @@ def epub_from_url_func(args: dict) -> None:
     #     dedup=args.dedup,
     #     start=int(args.start),
     #     stop=int(args.stop),
-    # )
-
-
-def epub_from_raw_func(args: dict) -> None:
-    """Make epub from raw process."""
-    # e = EpubMaker(result=Path(args.result))
-    # e.from_raw(
-    #     raw=Path(args.raw),
-    #     dedup=args.dedup,
-    #     lang_code=args.lang,
     # )

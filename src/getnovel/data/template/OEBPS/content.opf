@@ -25,7 +25,7 @@
   <spine toc="ncx">
     <itemref idref="cover.xhtml"/>
     <itemref idref="foreword.xhtml"/>
-    <itemref idref="nav.xhtml" linear="no"/>
+    <itemref idref="nav.xhtml"/>
     {opf_itemref_tag_list}
   </spine>
 </package>
