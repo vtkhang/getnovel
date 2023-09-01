@@ -1,6 +1,7 @@
 """Define NovelCrawler class."""
 
 import logging
+import sys
 from pathlib import Path
 from shutil import rmtree
 
@@ -9,11 +10,9 @@ from scrapy import Spider
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 from scrapy.spiderloader import SpiderLoader
-from scrapy.utils.log import configure_logging
 
 from getnovel.data import scrapy_settings
 
-configure_logging({"LOG_LEVEL": "INFO"}, install_root_handler=False)
 _logger = logging.getLogger(__name__)
 
 
@@ -75,6 +74,9 @@ class NovelCrawler:
         self.result.mkdir(parents=True, exist_ok=True)
         # start crawling
         process = CrawlerProcess(self.settings)
+        t: logging.StreamHandler = logging.root.handlers[0]
+        t.setStream(sys.stdout)
+        t.setLevel(logging.INFO)
         process.crawl(self.spider, self.url, start, stop)
         process.start()
         _logger.info("Done crawling. View result at: %s", self.result)
