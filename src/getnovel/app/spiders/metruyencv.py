@@ -1,6 +1,6 @@
 """Get novel on domain metruyencv.
 
-.. _Web site:
+.. _Website:
    https://metruyencv.com/
 
 """
@@ -45,7 +45,7 @@ class MeTruyenCVSpider(Spider):
         self.start_urls = [url]
         self.start = int(start)
         self.stop = int(stop)
-        self.total = 0 # total number of chapters.
+        self.total = 0  # total number of chapters.
 
     def parse(self: "MeTruyenCVSpider", res: Response) -> None:
         """Extract info and send request to the start chapter.
@@ -89,7 +89,7 @@ class MeTruyenCVSpider(Spider):
         yield get_content(res)
         if (res.meta["id"] >= self.total) or (res.meta["id"] == self.stop):
             raise CloseSpider(reason="done")
-        neu = f'{res.url.rsplit("/", 2)[0]}/chuong-{str(res.meta["id"] + 1)}/'
+        neu = f'{res.url.rsplit("/", 2)[0]}/chuong-{res.meta["id"] + 1!s}/'
         yield Request(
             url=neu,
             meta={"id": res.meta["id"] + 1},
