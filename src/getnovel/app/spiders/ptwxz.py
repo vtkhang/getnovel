@@ -1,7 +1,7 @@
-"""Get novel on domain ptwxz.
+"""Get novel on domain piaotian.
 
 .. _Website:
-   https://www.ptwxz.com
+   https://www.piaotian.com
 
 """
 
@@ -13,7 +13,7 @@ from getnovel.app.itemloaders import ChapterLoader, InfoLoader
 from getnovel.app.items import Chapter, Info
 
 
-class PtwxzSpider(Spider):
+class PiaotianSpider(Spider):
     """Define spider for domain: metruyencv.
 
     Attributes
@@ -30,7 +30,7 @@ class PtwxzSpider(Spider):
     title_pos = -1
     lang_code = "zh"
 
-    def __init__(self: "PtwxzSpider", u: str, start: int, stop: int) -> None:
+    def __init__(self: "PiaotianSpider", u: str, start: int, stop: int) -> None:
         """Initialize attributes.
 
         Parameters
@@ -46,7 +46,7 @@ class PtwxzSpider(Spider):
         self.sa = int(start)
         self.so = int(stop)
 
-    def parse(self: "PtwxzSpider", res: Response) -> None:
+    def parse(self: "PiaotianSpider", res: Response) -> None:
         """Extract info and send request to the table of content.
 
         Parameters
@@ -67,7 +67,7 @@ class PtwxzSpider(Spider):
             callback=self.parse_toc,
         )
 
-    def parse_toc(self: "PtwxzSpider", res: Response) -> None:
+    def parse_toc(self: "PiaotianSpider", res: Response) -> None:
         """Extract link of the start chapter.
 
         Parameters
@@ -86,7 +86,7 @@ class PtwxzSpider(Spider):
             callback=self.parse_content,
         )
 
-    def parse_content(self: "PtwxzSpider", res: Response) -> None:
+    def parse_content(self: "PiaotianSpider", res: Response) -> None:
         """Extract content.
 
         Parameters
