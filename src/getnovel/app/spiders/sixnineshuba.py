@@ -1,10 +1,10 @@
-"""Get novel on domain 69shu.
+"""Get novel on domain 69shuba.
 
    Note: Can't get all chapters if using start chapter,
    use -1 to get all chapters instead.
 
-.. _Web site:
-   https://www.69shu.com
+.. _Website:
+   https://www.69shuba.com
 
 """
 
@@ -16,44 +16,40 @@ from getnovel.app.itemloaders import ChapterLoader, InfoLoader
 from getnovel.app.items import Chapter, Info
 
 
-class SixNineShuSpider(Spider):
-    """Define spider for domain: 69shu.
+class SixNineShubaSpider(Spider):
+    """Define spider for domain: metruyencv.
 
-    Attributes:
+    Attributes
     ----------
     name : str
         Name of the spider.
-    start_urls : list
-        List of url to start crawling from.
-    sa : int
-        The chapter index to start crawling.
-    so : int
-        The chapter index to stop crawling after that.
-    c : str
+    title_pos : int
+        Position of the title in the novel url.
+    lang : str
         Language code of novel.
     """
 
-    name = "69shu"
+    name = "69shuba"
+    title_pos = -1
+    lang_code = "zh"
 
-    def __init__(self, u: str, start: int, stop: int, *args, **kwargs):
+    def __init__(self: "SixNineShubaSpider", url: str, start: int, stop: int) -> None:
         """Initialize attributes.
 
         Parameters
         ----------
-        u : str
+        url : str
             Url of the novel information page.
         start: int
             Start crawling from this chapter.
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
         """
-        super().__init__(*args, **kwargs)
-        self.start_urls = [u]
+        self.start_urls = [url]
         self.sa = int(start)
         self.so = int(stop)
-        self.c = "zh"  # language code
 
-    def parse(self, res: Response):
+    def parse(self: "SixNineShubaSpider", res: Response) -> None:
         """Extract info and send request to the table of content.
 
         Parameters
@@ -61,7 +57,7 @@ class SixNineShuSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields:
+        Yields
         ------
         Info
             Info item.
@@ -70,11 +66,13 @@ class SixNineShuSpider(Spider):
         """
         yield get_info(res)
         yield res.follow(
-            url=res.xpath("//div[3]//div[3]/a/@href").get(),
+            url=res.xpath(
+                "/html/body/div[2]/ul/li[1]/div[1]/div/div[3]/a[1]/@href",
+            ).get(),
             callback=self.parse_toc,
         )
 
-    def parse_toc(self, res: Response):
+    def parse_toc(self: "SixNineShubaSpider", res: Response) -> None:
         """Extract link of the start chapter.
 
         Parameters
@@ -82,7 +80,7 @@ class SixNineShuSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields:
+        Yields
         ------
         Request
             Request to the start chapter.
@@ -92,12 +90,12 @@ class SixNineShuSpider(Spider):
             self.logger.error(msg="Start chapter is greater than total chapter")
             raise CloseSpider(reason="cancelled")
         yield res.follow(
-            url=res.xpath(f'(//*[@id="catalog"]//a/@href)[{self.sa}]').get(),
+            url=su,
             meta={"id": self.sa},
             callback=self.parse_content,
         )
 
-    def parse_content(self, res: Response):
+    def parse_content(self: "SixNineShubaSpider", res: Response) -> None:
         """Extract content.
 
         Parameters
@@ -105,7 +103,7 @@ class SixNineShuSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields:
+        Yields
         ------
         Chapter
             Chapter item.
@@ -114,7 +112,7 @@ class SixNineShuSpider(Spider):
             Request to the next chapter.
         """
         yield get_content(res)
-        neu = res.xpath("//div[3]//a[4]/@href").get()
+        neu = res.xpath("/html/body/div[2]/div[1]/div[4]/a[4]/@href").get()
         if ("htm" in neu) or (res.meta["id"] == self.so):
             raise CloseSpider(reason="done")
         yield res.follow(
@@ -132,7 +130,7 @@ def get_info(res: Response) -> Info:
     res : Response
         The response to parse.
 
-    Returns:
+    Returns
     -------
     Info
         Populated Info item.
@@ -155,7 +153,7 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    Returns:
+    Returns
     -------
     Chapter
         Populated Chapter item.

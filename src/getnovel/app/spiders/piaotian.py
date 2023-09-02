@@ -30,19 +30,19 @@ class PiaotianSpider(Spider):
     title_pos = -1
     lang_code = "zh"
 
-    def __init__(self: "PiaotianSpider", u: str, start: int, stop: int) -> None:
+    def __init__(self: "PiaotianSpider", url: str, start: int, stop: int) -> None:
         """Initialize attributes.
 
         Parameters
         ----------
-        u : str
+        url : str
             Url of the novel information page.
         start: int
             Start crawling from this chapter.
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
         """
-        self.start_urls = [u]
+        self.start_urls = [url]
         self.sa = int(start)
         self.so = int(stop)
 

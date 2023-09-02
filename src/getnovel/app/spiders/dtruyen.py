@@ -35,7 +35,7 @@ class DTruyenSpider(Spider):
 
         Parameters
         ----------
-        u : str
+        url : str
             Url of the novel information page.
         start: int
             Start crawling from this chapter.
