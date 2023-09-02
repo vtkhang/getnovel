@@ -14,7 +14,7 @@ from getnovel.app.items import Chapter, Info
 
 
 class BachNgocSachSpider(Spider):
-    """Define spider for domain: metruyencv.
+    """Define spider for domain: bachngocsach.
 
     Attributes
     ----------
