@@ -187,12 +187,10 @@ def fix_bad_newline(lines: list[str]) -> list[str]:
         Fixed lines.
     """
     lines = lines.copy()
-    for index, line in enumerate(lines):
-        if not line.strip():
-            del lines[index]
+    s_lines: list[str] = [line.strip() for line in lines if line.strip()]
     result: list[str] = []
-    result.append(lines[0])
-    for line in lines[1:]:
+    result.append(s_lines[0])
+    for line in s_lines[1:]:
         last = result[-1][-1]
         first = line[0]
         if last == "," or last.islower() or first.islower():
