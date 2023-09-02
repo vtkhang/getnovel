@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from importlib.resources import files
 from pathlib import Path
-from shutil import copytree, move
+from shutil import copy, copytree, move
 from uuid import uuid1
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
@@ -193,4 +193,5 @@ class EpubMaker:
             mime_path.unlink()
             for path in self.epub.rglob("*"):
                 f_zip.write(path, path.relative_to(self.epub))
+            copy(TEMPLATE / "mimetype", self.epub)
         _logger.info("Done making epub. View result at: %s", self.epub_file)
