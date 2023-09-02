@@ -1,6 +1,6 @@
 """Get novel on domain tangthuvien.
 
-.. _Web site:
+.. _Website:
    https://truyen.tangthuvien.vn
 
 """
@@ -16,43 +16,39 @@ from getnovel.app.items import Chapter, Info
 class TangThuVienSpider(Spider):
     """Define spider for domain: tangthuvien.
 
-    Attributes:
+    Attributes
     ----------
     name : str
         Name of the spider.
-    start_urls : list
-        List of url to start crawling from.
-    sa : int
-        The chapter index to start crawling.
-    so : int
-        The chapter index to stop crawling after that.
-    c : str
+    title_pos : int
+        Position of the title in the novel url.
+    lang : str
         Language code of novel.
     """
 
     name = "tangthuvien"
+    title_pos = -1
+    lang_code = "vi"
 
-    def __init__(self, u: str, start: int, stop: int, *args, **kwargs):
+    def __init__(self: "TangThuVienSpider", url: str, start: int, stop: int) -> None:
         """Initialize attributes.
 
         Parameters
         ----------
-        u : str
+        url : str
             Url of the novel information page.
         start: int
             Start crawling from this chapter.
         stop : int
             Stop crawling after this chapter, input -1 to get all chapters.
         """
-        super().__init__(*args, **kwargs)
-        self.start_urls = [u]
+        self.start_urls = [url]
         self.sa = int(start)
         self.so = int(stop)
-        self.c = "vi"  # language code
         self.t = []  # table of content
         self.n = 0  # total chapters
 
-    def parse(self, res: Response):
+    def parse(self: "TangThuVienSpider", res: Response) -> None:
         """Extract info and send request to the table of content.
 
         Parameters
@@ -60,7 +56,7 @@ class TangThuVienSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields:
+        Yields
         ------
         Info
             Info item.
@@ -74,7 +70,7 @@ class TangThuVienSpider(Spider):
             callback=self.parse_toc,
         )
 
-    def parse_toc(self, res: Response):
+    def parse_toc(self: "TangThuVienSpider", res: Response) -> None:
         """Extract link of the start chapter.
 
         Parameters
@@ -82,7 +78,7 @@ class TangThuVienSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields:
+        Yields
         ------
         Request
             Request to the start chapter.
@@ -95,7 +91,7 @@ class TangThuVienSpider(Spider):
             callback=self.parse_content,
         )
 
-    def parse_content(self, res: Response):
+    def parse_content(self: "TangThuVienSpider", res: Response) -> None:
         """Extract content.
 
         Parameters
@@ -103,7 +99,7 @@ class TangThuVienSpider(Spider):
         res : Response
             The response to parse.
 
-        Yields:
+        Yields
         ------
         Chapter
             Chapter item.
@@ -129,7 +125,7 @@ def get_info(res: Response) -> Info:
     res : Response
         The response to parse.
 
-    Returns:
+    Returns
     -------
     Info
         Populated Info item.
@@ -152,7 +148,7 @@ def get_content(res: Response) -> Chapter:
     res : Response
         The response to parse.
 
-    Returns:
+    Returns
     -------
     Chapter
         Populated Chapter item.
