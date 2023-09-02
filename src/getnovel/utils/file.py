@@ -4,9 +4,9 @@ import logging
 from importlib.resources import files
 from pathlib import Path
 
-from getnovel.data.template.OEBPS import Text
+from getnovel import data
 
-TEMPLATE = files(Text)
+TEMPLATE = Path(files(data).joinpath("template/OEBPS/Text"))
 CHAPTER = TEMPLATE / "c1.xhtml"
 FOREWORD = TEMPLATE / "foreword.xhtml"
 PA = ".,:"
@@ -141,7 +141,7 @@ class XhtmlFileConverter(FileHandler):
                     author_name=foreword[1],
                     types=foreword[2],
                     url=foreword[3],
-                    foreword_p_tag_list="\n".join(p_tags),
+                    foreword_p_tag_list="\n\n  ".join(p_tags),
                 ),
                 encoding="utf-8",
             )
