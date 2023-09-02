@@ -14,7 +14,7 @@ from getnovel.app.items import Chapter, Info
 
 
 class PiaotianSpider(Spider):
-    """Define spider for domain: metruyencv.
+    """Define spider for domain: piaotian.
 
     Attributes
     ----------

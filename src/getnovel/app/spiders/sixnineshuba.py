@@ -17,7 +17,7 @@ from getnovel.app.items import Chapter, Info
 
 
 class SixNineShubaSpider(Spider):
-    """Define spider for domain: metruyencv.
+    """Define spider for domain: 69shuba.
 
     Attributes
     ----------
