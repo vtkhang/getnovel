@@ -9,7 +9,7 @@ from itemloaders.processors import Identity, Join, MapCompose
 from scrapy.loader import ItemLoader
 
 
-def filter_blank(v):
+def filter_blank(v: str | None) -> str | None:
     """Remove blank lines."""
     return v
 
@@ -17,7 +17,7 @@ def filter_blank(v):
 class InfoLoader(ItemLoader):
     r"""Process info data.
 
-    Examples:
+    Examples
     --------
     >>> after_process = {
         "title": "XpathResult1 XpathResult2 ...",
@@ -41,7 +41,7 @@ class InfoLoader(ItemLoader):
 class ChapterLoader(ItemLoader):
     r"""Process chapter data.
 
-    Examples:
+    Examples
     --------
     >>> after_process = {
         "id": "1",
