@@ -121,7 +121,8 @@ class EpubMaker:
             '      <content src="../Text/{chapter_name}" />\n'
             "  </navPoint>"
         )
-        for chapter in self.raw.glob("*[0-9].txt"):
+        chapter_list = sorted(self.raw.glob("*[0-9].txt"), key=get_id)
+        for chapter in chapter_list:
             title = chapter.read_text(encoding="utf-8").splitlines()[0]
             title = html.escape(title)
             name = chapter.with_suffix(".xhtml").name
@@ -195,3 +196,8 @@ class EpubMaker:
                 f_zip.write(path, path.relative_to(self.epub))
             copy(TEMPLATE / "mimetype", self.epub)
         _logger.info("Done making epub. View result at: %s", self.epub_file)
+
+
+def get_id(path: Path) -> int:
+    """Get chapter id."""
+    return int(path.stem)
