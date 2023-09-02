@@ -86,10 +86,7 @@ class NovelCrawler:
         if result is None:
             result = Path.cwd()
             splitted_url = self.url.split("/")
-            if hasattr(self.spider, "title_pos"):
-                result = result / splitted_url[self.spider.title_pos]
-            else:
-                result = result / f"{self.spider.name}-{splitted_url[-1]}"
+            result = result / splitted_url[self.spider.title_pos]
         self.result = (Path(result) / "raw").resolve()
         self.settings["RESULT"] = str(self.result)
         self.settings["IMAGES_STORE"] = str(self.result)
