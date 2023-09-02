@@ -10,7 +10,7 @@
   <text>{novel_title}</text>
 </docTitle>
 <navMap>
-  <navPoint id="navPoint1">
+  <navPoint id="navPoint0">
     <navLabel>
       <text>{foreword_title}</text>
     </navLabel>

@@ -3,7 +3,6 @@ import html
 import logging
 from importlib.resources import files
 from pathlib import Path
-from shutil import rmtree
 
 from getnovel.data.template.OEBPS import Text
 
@@ -49,16 +48,11 @@ class FileHandler:
         options:
             result : Path | str | None
                 Path of result directory.
-            rm : bool
-                If specified, remove all old files in result directory.
         """
         result = options.get("result")
         if not result:
             result = self.raw.parent / action
         self.result = Path(result).resolve()
-        if options.get("rm"):
-            rmtree(self.result)
-            _logger.info("Removed existing files in: %s", self.result)
         self.result.mkdir(parents=True, exist_ok=True)
         if self.raw_cover.exists():
             dest_cover = self.result / self.raw_cover.name
@@ -76,8 +70,6 @@ class FileCleaner(FileHandler):
         options:
             result : Path | str | None
                 Path of result directory.
-            rm : bool
-                If specified, remove all old files in result directory.
             dedup : bool
                 If specified, deduplicate chapter title.
         """
@@ -126,8 +118,6 @@ class XhtmlFileConverter(FileHandler):
                 Path of result directory.
             dedup : bool
                 If specified, deduplicate chapter title.
-            rm : bool
-                If specified, remove all old files in result directory.
             lang_code : str
                 Language code of the novel.
         """

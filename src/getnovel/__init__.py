@@ -7,7 +7,6 @@ and convert all chapters to XHTML, TXT, or to make EPUB.
 import argparse
 import sys
 import traceback
-from pathlib import Path
 
 from getnovel.utils import arguments
 
@@ -51,9 +50,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     Usage
     -----
-        getnovel crawl [-h] [--start] [--stop] [--rm] [--result] [--clean] url
+        getnovel crawl [-h] [--start] [--stop] [--result] [--clean] url
 
-        getnovel convert [-h] [--lang] [--dedup] [--rm] [--result] raw
+        getnovel convert [-h] [--lang] [--dedup] [--result] raw
 
         getnovel dedup [-h] [--result] raw
 
@@ -91,12 +90,6 @@ def _build_parser() -> argparse.ArgumentParser:
         " input -1 to get all chapters (default:  %(default)s)",
     )
     crawl.add_argument(
-        "--rm",
-        action="store_true",
-        help="if specified, remove old files"
-        "in the result directory (default:  %(default)s)",
-    )
-    crawl.add_argument(
         "--result",
         type=str,
         help="path of the result directory (default: auto generated)",
@@ -123,12 +116,6 @@ def _build_parser() -> argparse.ArgumentParser:
         "--dedup",
         action="store_true",
         help="if specified, deduplicate chapter title (default:  %(default)s)",
-    )
-    convert.add_argument(
-        "--rm",
-        action="store_true",
-        help="if specified, remove old files in "
-        "result directory (default:  %(default)s)",
     )
     convert.add_argument(
         "--result",
@@ -183,19 +170,12 @@ def _build_parser() -> argparse.ArgumentParser:
         help="path of raw directory",
     )
     from_raw.set_defaults(func=arguments.epub_from_raw_func)
-    return parser
     # epub from_url parser
-    from_url = subparsers_epub.add_parser("from_url", help="make epub from web site")
+    from_url = subparsers_epub.add_parser("from_url", help="make epub from website")
     from_url.add_argument(
         "--result",
         type=str,
-        default=str(Path.cwd().resolve()),
         help="path of result directory (default: current working directory)",
-    )
-    from_url.add_argument(
-        "url",
-        type=str,
-        help="url of the novel information page",
     )
     from_url.add_argument(
         "--dedup",
@@ -216,6 +196,12 @@ def _build_parser() -> argparse.ArgumentParser:
         " input -1 to get all chapters (default:  %(default)s)",
     )
     from_url.set_defaults(func=arguments.epub_from_url_func)
+    from_url.add_argument(
+        "url",
+        type=str,
+        help="url of the novel information page",
+    )
+    return parser
 
 
 class GetnovelException(BaseException):

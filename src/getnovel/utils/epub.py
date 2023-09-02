@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from importlib.resources import files
 from pathlib import Path
-from shutil import copytree, move, rmtree
+from shutil import copytree, move
 from uuid import uuid1
 from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
@@ -61,12 +61,10 @@ class EpubMaker:
         """
         self.epub_file = self.raw.parent
         if options.get("result"):
-            self.epub = Path(options.get("result")).resolve()
+            self.epub_file = Path(options.get("result")).resolve()
         cvt = XhtmlFileConverter(raw=self.raw)
-        cvt.process(dedup=options.get("dedup"), rm=True, lang_code=self.lang_code)
-        if self.epub.exists():
-            rmtree(self.epub)
-        self.epub.mkdir(parents=True)
+        cvt.process(dedup=options.get("dedup"), lang_code=self.lang_code)
+        self.epub.mkdir(parents=True, exist_ok=True)
         self.__copy_to_epub(cvt.result)
         self.__make_epub()
 

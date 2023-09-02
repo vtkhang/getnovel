@@ -3,7 +3,6 @@
 import logging
 import sys
 from pathlib import Path
-from shutil import rmtree
 
 import tldextract
 from scrapy import Spider
@@ -49,8 +48,6 @@ class NovelCrawler:
         options: dict
             result: Path | None
                 Path of result directory.
-            rm: bool
-                If specified, remove all existing files in result directory.
 
         Raises
         ------
@@ -68,10 +65,6 @@ class NovelCrawler:
             raise CrawlNovelError(msg)
         # resolve result directory
         self.__resolve_result(options.get("result"))
-        # remove existing files
-        if options.get("rm") and self.result.exists():
-            rmtree(self.result)
-        self.result.mkdir(parents=True, exist_ok=True)
         # start crawling
         process = CrawlerProcess(self.settings)
         t: logging.StreamHandler = logging.root.handlers[0]

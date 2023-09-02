@@ -7,14 +7,13 @@ from getnovel.utils.epub import EpubMaker
 from getnovel.utils.file import FileCleaner, XhtmlFileConverter
 
 
-def crawl_func(args: any) -> None:
+def crawl_func(args: dict) -> None:
     """Run crawling process."""
     p = NovelCrawler(url=args.url)
     p.crawl(
         start=int(args.start),
         stop=int(args.stop),
         result=args.result,
-        rm=args.rm,
     )
     if args.clean:
         cvt = FileCleaner(raw=p.result)
@@ -24,7 +23,7 @@ def crawl_func(args: any) -> None:
 def convert_func(args: dict) -> None:
     """Convert process."""
     cvt = XhtmlFileConverter(raw=Path(args.raw))
-    cvt.process(result=args.result, lang_code=args.lang, rm=args.rm)
+    cvt.process(result=args.result, lang_code=args.lang)
 
 
 def dedup_func(args: dict) -> None:
@@ -34,7 +33,7 @@ def dedup_func(args: dict) -> None:
     if args.result:
         result = Path(args.result)
     cvt = FileCleaner(raw=raw)
-    cvt.process(result=result, rm=False, dedup=True)
+    cvt.process(result=result, dedup=True)
 
 
 def epub_from_raw_func(args: dict) -> None:
@@ -45,10 +44,12 @@ def epub_from_raw_func(args: dict) -> None:
 
 def epub_from_url_func(args: dict) -> None:
     """Make epub from url process."""
-    # e = EpubMaker(result=Path(args.result))
-    # e.from_url(
-    #     url=args.url,
-    #     dedup=args.dedup,
-    #     start=int(args.start),
-    #     stop=int(args.stop),
-    # )
+    p = NovelCrawler(url=args.url)
+    p.crawl(
+        start=int(args.start),
+        stop=int(args.stop),
+        result=args.result,
+    )
+    result = Path(args.result) if args.result else Path.cwd()
+    maker = EpubMaker(raw=p.result, lang_code=p.spider.lang_code)
+    maker.process(result=result, dedup=args.dedup)

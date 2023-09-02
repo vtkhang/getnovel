@@ -91,7 +91,7 @@ Command line mode
 
       from getnovel.utils.crawler import NovelCrawler
       p = NovelCrawler(url="https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa")
-      p.crawl(rm=True, start=3, stop=8)
+      p.crawl(start=3, stop=8)
 
   - Convert txt to xhtml by FileConverter:
 
@@ -99,7 +99,7 @@ Command line mode
 
       from getnovel.utils.file import FileConverter
       c = FileConverter(raw="/path/to/raw/dir")
-      c.convert_to_xhtml(dedup=False, rm_result=True, lang_code="vi")
+      c.convert_to_xhtml(dedup=False, lang_code="vi")
 
   - Create epub from the input link:
 
