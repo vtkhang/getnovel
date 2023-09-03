@@ -30,17 +30,17 @@ Installation
 Supported websites
 ==================
 
-1. `https://bachngocsach.com/reader/ <https://bachngocsach.com/reader>`_
+1. `https://bachngocsach.com.vn/reader <https://bachngocsach.com.vn/reader>`_
 2. `https://dtruyen.com/ <https://dtruyen.com/>`_
-3. `https://metruyencv.com/ <https://metruyencv.com>`_
-4. `https://www.ptwxz.com/ <https://www.ptwxz.com>`_
-5. `https://www.69shu.com/ <https://www.69shu.com>`_
-6. `https://sstruyen.com/ <https://sstruyen.com>`_
-7. `https://truyen.tangthuvien.vn/ <https://truyen.tangthuvien.vn/>`_
+3. `https://metruyencv.com/ <https://metruyencv.com/>`_
+4. `https://www.piaotian.com <https://www.piaotian.com>`_
+5. `https://www.69shuba.com <https://www.69shuba.com>`_
+6. `https://sstruyen.vn/ <https://sstruyen.vn/>`_
+7. `https://truyen.tangthuvien.vn <https://truyen.tangthuvien.vn>`_
 8. `https://truyenchu.vn/ <https://truyenchu.vn/>`_
-9.  `https://truyenfull.vn/ <https://truyenfull.vn>`_
+9.  `https://truyenfull.vn <https://truyenfull.vn>`_
 10. `https://truyenyy.vip/ <https://truyenyy.vip/>`_
-11. `https://www.uukanshu.com/ <https://www.uukanshu.com>`_
+11. `https://www.uukanshu.com <https://www.uukanshu.com>`_
 
 Command line mode
 =================
@@ -83,60 +83,21 @@ Command line mode
 
       getnovel --start 10 https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa
 
-- Use getnovel package as script
-
-  - Download novel via NovelCrawler
-
-    ::
-
-      from getnovel.utils.crawler import NovelCrawler
-      p = NovelCrawler(url="https://truyen.tangthuvien.vn/doc-truyen/truong-da-du-hoa")
-      p.crawl(start=3, stop=8)
-
-  - Convert txt to xhtml by FileConverter:
-
-    ::
-
-      from getnovel.utils.file import FileConverter
-      c = FileConverter(raw="/path/to/raw/dir")
-      c.convert_to_xhtml(dedup=False, lang_code="vi")
-
-  - Create epub from the input link:
-
-    ::
-
-      from getnovel.utils.epub import EpubMaker
-      e = EpubMaker()
-      e.from_url("https://truyen.tangthuvien.vn/doc-truyen/thai-at", dedup=False, start=1, stop=-1)
-
-Custom settings file
-====================
-
-- Getnovel can be configured by a json file
-- Example
-
-    .. code-block:: json
-
-        {
-            "LOG_FILE": null,
-            "LOG_LEVEL": "INFO",
-        }
-
-- More setting options can be found at: `Scrapy Settings <https://docs.scrapy.org/en/latest/topics/settings.html#built-in-settings-reference>`_
-
 Frameworks, packages and IDEs
 =============================
 
 - `Scrapy <https://scrapy.org>`_
 - `Pillow <https://python-pillow.org/>`_
-- `tldextract <https://github.com/john-kurkowski/tldextract>`
+- `tldextract <https://github.com/john-kurkowski/tldextract>`_
+- `pytz <https://pypi.org/project/pytz/>`_
 - `ipython <https://ipython.org/>`_
 - `black <https://github.com/psf/black>`_
 - `ruff <https://github.com/astral-sh/ruff>`_
+- `prospector <https://prospector.landscape.io/en/master/>`_
 - `sphinx <https://www.sphinx-doc.org/en/master/>`_
 - `sphinx_rtd_theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`_
 - `numpydoc <https://numpydoc.readthedocs.io/en/latest/install.html>`_
-- `prospector <https://prospector.landscape.io/en/master/>`_
+- `build <https://pypi.org/project/build/>`_
 
 Development
 ===========
