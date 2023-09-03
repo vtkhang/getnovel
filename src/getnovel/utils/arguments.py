@@ -20,12 +20,6 @@ def crawl_func(args: dict) -> None:
         cvt.process(result=p.result.parent / "cleaned")
 
 
-def convert_func(args: dict) -> None:
-    """Convert process."""
-    cvt = XhtmlFileConverter(raw=Path(args.raw))
-    cvt.process(result=args.result, lang_code=args.lang)
-
-
 def dedup_func(args: dict) -> None:
     """Deduplicate chapter title."""
     raw = Path(args.raw)
@@ -34,6 +28,12 @@ def dedup_func(args: dict) -> None:
         result = Path(args.result)
     cvt = FileCleaner(raw=raw)
     cvt.process(result=result, dedup=True)
+
+
+def convert_func(args: dict) -> None:
+    """Convert process."""
+    cvt = XhtmlFileConverter(raw=Path(args.raw))
+    cvt.process(result=args.result, lang_code=args.lang, dedup=args.dedup)
 
 
 def epub_from_raw_func(args: dict) -> None:
