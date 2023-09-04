@@ -98,6 +98,7 @@ Frameworks, packages and IDEs
 - `sphinx_rtd_theme <https://sphinx-rtd-theme.readthedocs.io/en/stable/>`_
 - `numpydoc <https://numpydoc.readthedocs.io/en/latest/install.html>`_
 - `build <https://pypi.org/project/build/>`_
+- `python-slugify <https://pypi.org/project/python-slugify/>`_
 
 Development
 ===========

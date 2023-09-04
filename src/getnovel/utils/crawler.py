@@ -9,6 +9,7 @@ from scrapy import Spider
 from scrapy.crawler import CrawlerProcess
 from scrapy.settings import Settings
 from scrapy.spiderloader import SpiderLoader
+from slugify import slugify
 
 from getnovel.data import scrapy_settings
 
@@ -85,9 +86,11 @@ class NovelCrawler:
         """
         if result is None:
             result = Path.cwd()
-            splitted_url = self.url.split("/")
-            result = result / splitted_url[self.spider.title_pos]
+            name = self.url.split("/")[self.spider.title_pos]
+            s_name = slugify(name, max_length=32, word_boundary=True, save_order=True)
+            result /= s_name
         self.result = (Path(result) / "raw").resolve()
+        self.result.mkdir(parents=True, exist_ok=True)
         self.settings["RESULT"] = str(self.result)
 
 
