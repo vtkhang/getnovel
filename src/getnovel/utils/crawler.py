@@ -89,7 +89,6 @@ class NovelCrawler:
             result = result / splitted_url[self.spider.title_pos]
         self.result = (Path(result) / "raw").resolve()
         self.settings["RESULT"] = str(self.result)
-        self.settings["IMAGES_STORE"] = str(self.result)
 
 
 def get_spider(url: str) -> type[Spider]:
