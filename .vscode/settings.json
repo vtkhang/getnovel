@@ -12,5 +12,9 @@
     ".mypy_cache": true,
     ".ruff_cache": true
   },
-  "autoDocstring.docstringFormat": "numpy"
+  "autoDocstring.docstringFormat": "numpy",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.formatOnSaveMode": "file",
 }
