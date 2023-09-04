@@ -66,7 +66,7 @@ class MeTruyenCVSpider(Spider):
         self.total = int(res.xpath('//a[@id="nav-tab-chap"]/span[2]/text()').get())
         yield Request(
             url=f"{res.url}/chuong-{self.start}/",
-            meta={"id": self.start},
+            meta={"index": self.start},
             callback=self.parse_content,
         )
 
@@ -87,12 +87,12 @@ class MeTruyenCVSpider(Spider):
             Request to the next chapter.
         """
         yield get_content(res)
-        if (res.meta["id"] >= self.total) or (res.meta["id"] == self.stop):
+        if (res.meta["index"] >= self.total) or (res.meta["index"] == self.stop):
             raise CloseSpider(reason="done")
-        neu = f'{res.url.rsplit("/", 2)[0]}/chuong-{res.meta["id"] + 1!s}/'
+        neu = f'{res.url.rsplit("/", 2)[0]}/chuong-{res.meta["index"] + 1!s}/'
         yield Request(
             url=neu,
-            meta={"id": res.meta["id"] + 1},
+            meta={"index": res.meta["index"] + 1},
             callback=self.parse_content,
         )
 
@@ -134,7 +134,7 @@ def get_content(res: Response) -> Chapter:
         Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=res)
-    r.add_value("id", str(res.meta["id"]))
+    r.add_value("index", str(res.meta["index"]))
     r.add_value("url", res.url)
     r.add_xpath("title", '//div[contains(@class,"nh-read__title")]/text()')
     r.add_xpath("content", '//div[@id="article"]/text()')

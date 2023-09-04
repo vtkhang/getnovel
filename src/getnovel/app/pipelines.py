@@ -8,10 +8,10 @@ useful for handling different item types with a single interface
 
 import logging
 from pathlib import Path
+from shutil import copy
 
 from scrapy import Item, Spider
 from scrapy.exceptions import DropItem
-from scrapy.http import Request, Response
 from scrapy.pipelines.images import ImagesPipeline
 
 from getnovel.app.items import Chapter, Info
@@ -63,7 +63,7 @@ class AppPipeline:
             elif isinstance(item, Chapter):
                 r.append(item["title"])
                 r.append(item["content"])
-                (sp / f"{item['id']}.txt").write_text(
+                (sp / f"{item['index']}.txt").write_text(
                     data="\n".join(r),
                     encoding="utf-8",
                 )
@@ -80,14 +80,7 @@ class AppPipeline:
 class CoverImagesPipeline(ImagesPipeline):
     """Define Image Pipeline."""
 
-    def file_path(
-        self: "CoverImagesPipeline",
-        request: Request,
-        response: Response = None,
-        info: ImagesPipeline.SpiderInfo = None,
-        *,
-        item: Item = None,
-    ) -> str:
-        """Customize file name."""
-        super().file_path(request, response, info, item=item)
-        return "cover.jpg"
+    def item_completed(self: "CoverImagesPipeline", results, item, info):
+            print(type(item))
+            return super().item_completed(results, item, info)
+

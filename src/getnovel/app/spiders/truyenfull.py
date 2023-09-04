@@ -64,7 +64,7 @@ class TruyenFullSpider(Spider):
         yield get_info(res)
         yield res.follow(
             url=f"chuong-{self.sa}/",
-            meta={"id": self.sa},
+            meta={"index": self.sa},
             callback=self.parse_content,
         )
 
@@ -86,11 +86,11 @@ class TruyenFullSpider(Spider):
         """
         yield get_content(res)
         neu = res.xpath('//a[@id="next_chap"]/@href').get()
-        if ("h" not in neu) or (res.meta["id"] == self.so):
+        if ("h" not in neu) or (res.meta["index"] == self.so):
             raise CloseSpider(reason="done")
         yield res.follow(
             url=neu,
-            meta={"id": res.meta["id"] + 1},
+            meta={"index": res.meta["index"] + 1},
             callback=self.parse_content,
         )
 
@@ -132,7 +132,7 @@ def get_content(res: Response) -> Chapter:
         Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=res)
-    r.add_value("id", str(res.meta["id"]))
+    r.add_value("index", str(res.meta["index"]))
     r.add_value("url", res.url)
     r.add_xpath("title", '//a[@class="chapter-title"]//text()')
     r.add_xpath(

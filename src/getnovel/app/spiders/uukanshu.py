@@ -69,7 +69,7 @@ class UukanshuSpider(Spider):
         self.n = len(self.t)
         yield res.follow(
             url=self.t[self.sa - 1],
-            meta={"id": self.sa},
+            meta={"index": self.sa},
             callback=self.parse_content,
         )
 
@@ -90,11 +90,11 @@ class UukanshuSpider(Spider):
             Request to the next chapter.
         """
         yield get_content(res)
-        if (res.meta["id"] >= self.n) or (res.meta["id"] == self.so):
+        if (res.meta["index"] >= self.n) or (res.meta["index"] == self.so):
             raise CloseSpider(reason="done")
         yield res.follow(
-            url=self.t[res.meta["id"]],
-            meta={"id": res.meta["id"] + 1},
+            url=self.t[res.meta["index"]],
+            meta={"index": res.meta["index"] + 1},
             callback=self.parse_content,
         )
 
@@ -139,7 +139,7 @@ def get_content(res: Response) -> Chapter:
         Populated Chapter item.
     """
     r = ChapterLoader(item=Chapter(), response=res)
-    r.add_value("id", str(res.meta["id"]))
+    r.add_value("index", str(res.meta["index"]))
     r.add_value("url", res.url)
     r.add_xpath("title", '//*[@id="timu"]/text()')
     r.add_xpath("content", '//*[@id="contentbox"]//text()[not(parent::script)]')
