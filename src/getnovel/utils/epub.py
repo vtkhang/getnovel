@@ -10,6 +10,7 @@ from zipfile import ZIP_DEFLATED, ZIP_STORED, ZipFile
 
 import pytz
 from PIL import Image
+from slugify import slugify
 
 from getnovel import data
 from getnovel.utils.file import XhtmlFileConverter
@@ -91,8 +92,9 @@ class EpubMaker:
         image = Image.open(self.cover)
         ext = image.format.lower()
         width, height = image.size
+        image.save(self.cover, ext)
         image.close()
-        self.cover.rename(self.cover.with_suffix(f".{ext}"))
+        self.cover.unlink()
         self.xhtml_cover.write_text(
             self.xhtml_cover.read_text(encoding="utf-8").format(
                 cover_title=cover_title,
@@ -179,8 +181,14 @@ class EpubMaker:
             encoding="utf-8",
         )
         # zip files to epub
+        epub_title = slugify(
+            novel_title,
+            max_length=32,
+            word_boundary=True,
+            save_order=True,
+        )
         with ZipFile(
-            self.epub_file / f"{novel_title}.epub",
+            self.epub_file / f"{epub_title}.epub",
             "w",
             compression=ZIP_DEFLATED,
             compresslevel=9,
