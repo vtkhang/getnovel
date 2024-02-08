@@ -1,4 +1,5 @@
 """Make EPUB module."""
+
 import html
 import logging
 from datetime import datetime
@@ -15,7 +16,7 @@ from slugify import slugify
 from getnovel import data
 from getnovel.utils.file import XhtmlFileConverter
 
-TEMPLATE = Path(files(data).joinpath("template"))
+TEMPLATE = Path(str(files(data).joinpath("template")))
 
 logging.basicConfig(
     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
@@ -30,7 +31,7 @@ class EpubMaker:
     def __init__(self: "EpubMaker", raw: Path, lang_code: str) -> None:
         """Assign raw directory.
 
-        Parameters
+        Parameters  `
         ----------
         raw : Path
             Raw directory.
@@ -38,7 +39,7 @@ class EpubMaker:
         self.raw = raw.resolve()
         self.raw_foreword = self.raw / "foreword.txt"
         self.epub = self.raw.parent / "epub"  # Epub directory
-        self.epub_file: Path = None  # Epub file
+        self.epub_file: Path = Path()  # Epub file
         self.oebps = self.epub / "OEBPS"  # OEBPS directory
         self.text = self.oebps / "Text"  # Text directory
         self.images = self.oebps / "Images"  # Images directory
@@ -94,7 +95,7 @@ class EpubMaker:
         width, height = image.size
         image.save(self.cover, ext)
         image.close()
-        self.cover.unlink()
+        self.cover.rename(self.cover.with_suffix("." + ext))
         self.xhtml_cover.write_text(
             self.xhtml_cover.read_text(encoding="utf-8").format(
                 cover_title=cover_title,

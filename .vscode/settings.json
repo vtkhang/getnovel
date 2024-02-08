@@ -17,4 +17,5 @@
   "editor.formatOnSave": true,
   "editor.formatOnType": true,
   "editor.formatOnSaveMode": "file",
+  "python.analysis.typeCheckingMode": "basic",
 }
